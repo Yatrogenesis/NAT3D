@@ -31,44 +31,5 @@ jobs:
           custom-pr-sign-comment: 'I have read the CLA Document and I hereby sign the CLA'
           allowlist: 'dependabot[bot],github-actions[bot],Yatrogenesis'
           custom-notsigned-prcomment: 'Please sign our CLA (see CLA.md) by commenting the exact phrase below.'
-          custom-allsigned-prcomment: 'All Contributors have signed the CLA. ✅'
-          lock-pullrequest-aftermerge: false
-
-Los otros dos (ci.yml, release.yml) los tienes intactos en el scratchpad: ...\scratchpad\nat3d_workflows\. Si quieres, te los pego aquí también — dime.
-
-▎ Alternativa más limpia si prefieres no copiar-pegar: vuelve a intentar ! gh auth refresh -h github.com -s workflow (verifiqué que no se aplicó las 2 veces — el scope sigue sin aparecer). Si logras que pegue, yo pusheo los 3 workflows de un jalón y te ahorras el paso 1. Tú decides.
-
----
-🔑 PASO 2 — Secret PERSONAL_ACCESS_TOKEN
-
-Como acordamos, este lo generas y subes tú:
-
-1. github.com/settings/tokens → Generate new token (classic) → scope repo (marca la casilla completa). Sin expiración o la que quieras.
-2. Copia el token.
-3. En el repo: Settings → Secrets and variables → Actions → New repository secret → Name: PERSONAL_ACCESS_TOKEN → Value: el token → Add secret.
-
-▎ Este PAT es el que la Action usa para escribir las firmas en la rama cla-signatures. El 
-  statuses: write
-
-jobs:
-  CLAAssistant:
-    runs-on: ubuntu-latest
-    steps:
-      - name: CLA Assistant
-        if: >-
-          (github.event.comment.body == 'recheck' ||
-           github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') ||
-          github.event_name == 'pull_request_target'
-        uses: contributor-assistant/github-action@v2.6.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-        with:
-          path-to-signatures: 'signatures/version1/cla.json'
-          branch: 'cla-signatures'
-          path-to-document: 'https://github.com/Yatrogenesis/NAT3D/blob/main/CLA.md'
-          custom-pr-sign-comment: 'I have read the CLA Document and I hereby sign the CLA'
-          allowlist: 'dependabot[bot],github-actions[bot],Yatrogenesis'
-          custom-notsigned-prcomment: 'Please sign our CLA (see CLA.md) by commenting the exact phrase below.'
-          custom-allsigned-prcomment: 'All Contributors have signed the CLA. ✅'
+          custom-allsigned-prcomment: 'All Contributors have signed the CLA.'
           lock-pullrequest-aftermerge: false
