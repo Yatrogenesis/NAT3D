@@ -193,9 +193,7 @@ impl EditMesh {
 
     /// Check if edge is boundary.
     pub fn is_boundary_edge(&self, edge_idx: usize) -> bool {
-        self.edge_faces
-            .get(&edge_idx)
-            .map_or(true, |f| f.len() == 1)
+        self.edge_faces.get(&edge_idx).is_none_or(|f| f.len() == 1)
     }
 
     /// Get boundary vertices.

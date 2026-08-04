@@ -142,14 +142,14 @@ impl NurbsSurface {
         let mut knots = Vec::with_capacity(n_knots);
 
         // Clamped knot vector
-        knots.extend(std::iter::repeat(0.0_f64).take(degree + 1));
+        knots.extend(std::iter::repeat_n(0.0_f64, degree + 1));
 
         let internal_knots = n_points - degree;
         for i in 1..internal_knots {
             knots.push(i as f64 / internal_knots as f64);
         }
 
-        knots.extend(std::iter::repeat(1.0_f64).take(degree + 1));
+        knots.extend(std::iter::repeat_n(1.0_f64, degree + 1));
 
         knots
     }

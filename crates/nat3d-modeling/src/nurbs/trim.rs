@@ -101,12 +101,12 @@ impl TrimCurve {
         let mut knots = Vec::with_capacity(n + degree + 1);
 
         // Clamped uniform knot vector
-        knots.extend(std::iter::repeat(0.0_f64).take(degree + 1));
+        knots.extend(std::iter::repeat_n(0.0_f64, degree + 1));
         let internal = n - degree;
         for i in 1..internal {
             knots.push(i as f64 / internal as f64);
         }
-        knots.extend(std::iter::repeat(1.0_f64).take(degree + 1));
+        knots.extend(std::iter::repeat_n(1.0_f64, degree + 1));
 
         Some(Self {
             control_points,
@@ -168,7 +168,7 @@ impl TrimCurve {
             knots.push(t);
             knots.push(t);
         }
-        knots.extend(std::iter::repeat(1.0_f64).take(degree + 1));
+        knots.extend(std::iter::repeat_n(1.0_f64, degree + 1));
 
         // Adjust knot vector size
         while knots.len() < n + degree + 1 {
