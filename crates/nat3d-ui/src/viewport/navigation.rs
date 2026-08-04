@@ -1,16 +1,16 @@
 /*
  * NAT3D - Next-generation Advanced Technology for 3D
  * Professional 3D Modeling, CAD, Physics Simulation and Rendering Suite
- * 
+ *
  * Copyright (C) 2023-2026 Francisco Molina <pako.molina@gmail.com>
- * 
+ *
  * This software is dual-licensed:
  * 1. Open Source: GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)
  * 2. Commercial: For commercial use, please contact <fmolina@avermex.com>
- * 
+ *
  * For research information, visit: https://research.avermex.com
  * For collaborations, contact: <pako.molina@gmail.com>
- * 
+ *
  * DOI: [PENDING]
  */
 
@@ -373,10 +373,19 @@ mod tests {
 
         // Both camera and target shift by the same offset → relative geometry preserved.
         let rel1 = nav.target - nav.camera_position;
-        assert!((rel0 - rel1).norm() < 1e-9, "fly must preserve camera→target vector");
-        assert!((fwd0 - nav.forward()).norm() < 1e-9, "fly must preserve look direction");
+        assert!(
+            (rel0 - rel1).norm() < 1e-9,
+            "fly must preserve camera→target vector"
+        );
+        assert!(
+            (fwd0 - nav.forward()).norm() < 1e-9,
+            "fly must preserve look direction"
+        );
         // The camera actually moved.
-        assert!((nav.camera_position - cam0).norm() > 1e-6, "fly must move the camera");
+        assert!(
+            (nav.camera_position - cam0).norm() > 1e-6,
+            "fly must move the camera"
+        );
     }
 
     #[test]
@@ -388,7 +397,10 @@ mod tests {
         nav.fly_look(50.0, -20.0);
 
         // Camera is the anchor in Fly look — it must not move.
-        assert!((nav.camera_position - cam0).norm() < 1e-9, "fly_look must keep camera fixed");
+        assert!(
+            (nav.camera_position - cam0).norm() < 1e-9,
+            "fly_look must keep camera fixed"
+        );
         // Target is re-anchored at `distance` along the new view direction.
         assert!(((nav.camera_position - nav.target).norm() - dist).abs() < 1e-9);
         // Elevation stays inside the gimbal-lock clamp.

@@ -1,16 +1,16 @@
 /*
  * NAT3D - Next-generation Advanced Technology for 3D
  * Professional 3D Modeling, CAD, Physics Simulation and Rendering Suite
- * 
+ *
  * Copyright (C) 2023-2026 Francisco Molina <pako.molina@gmail.com>
- * 
+ *
  * This software is dual-licensed:
  * 1. Open Source: GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)
  * 2. Commercial: For commercial use, please contact <fmolina@avermex.com>
- * 
+ *
  * For research information, visit: https://research.avermex.com
  * For collaborations, contact: <pako.molina@gmail.com>
- * 
+ *
  * DOI: [PENDING]
  */
 
@@ -166,7 +166,7 @@ impl TimelinePanel {
             };
             painter.line_segment(
                 [egui::pos2(x, y_top), egui::pos2(x, y_top + tick_height)],
-                egui::Stroke::new(1.0, egui::Color32::from_gray(100)),
+                egui::Stroke::new(1.0_f32, egui::Color32::from_gray(100)),
             );
 
             // Draw frame number every 10 frames
@@ -189,7 +189,7 @@ impl TimelinePanel {
                 egui::pos2(current_x, response.rect.top()),
                 egui::pos2(current_x, response.rect.bottom()),
             ],
-            egui::Stroke::new(2.0, egui::Color32::from_rgb(255, 200, 0)),
+            egui::Stroke::new(2.0_f32, egui::Color32::from_rgb(255, 200, 0)),
         );
 
         // Handle click to jump to frame

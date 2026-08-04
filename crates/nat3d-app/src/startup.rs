@@ -1,16 +1,16 @@
 /*
  * NAT3D - Next-generation Advanced Technology for 3D
  * Professional 3D Modeling, CAD, Physics Simulation and Rendering Suite
- * 
+ *
  * Copyright (C) 2023-2026 Francisco Molina <pako.molina@gmail.com>
- * 
+ *
  * This software is dual-licensed:
  * 1. Open Source: GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)
  * 2. Commercial: For commercial use, please contact <fmolina@avermex.com>
- * 
+ *
  * For research information, visit: https://research.avermex.com
  * For collaborations, contact: <pako.molina@gmail.com>
- * 
+ *
  * DOI: [PENDING]
  */
 
@@ -232,7 +232,8 @@ impl StartupManager {
         self.phase = StartupPhase::DetectingSystem;
         let caps = SystemCapabilities::detect();
         if !caps.meets_minimum_requirements() {
-            self.warnings.push("System may not meet minimum requirements".to_string());
+            self.warnings
+                .push("System may not meet minimum requirements".to_string());
         }
         self.capabilities = Some(caps);
 
@@ -293,7 +294,8 @@ impl StartupManager {
     fn load_config(&mut self) {
         let config_path = Self::config_path();
         if !config_path.exists() {
-            self.warnings.push("No configuration file found, using defaults".to_string());
+            self.warnings
+                .push("No configuration file found, using defaults".to_string());
         }
     }
 
@@ -314,7 +316,8 @@ impl StartupManager {
     fn open_startup_file(&mut self) {
         if let Some(ref path) = self.config.open_file {
             if !path.exists() {
-                self.errors.push(format!("File not found: {}", path.display()));
+                self.errors
+                    .push(format!("File not found: {}", path.display()));
             }
         }
     }
@@ -390,14 +393,17 @@ impl RecentFiles {
     /// Add a file to recent list.
     pub fn add(&mut self, path: PathBuf) {
         self.files.retain(|f| f.path != path);
-        self.files.insert(0, RecentFile {
-            path,
-            last_opened: std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap_or_default()
-                .as_secs(),
-            thumbnail: None,
-        });
+        self.files.insert(
+            0,
+            RecentFile {
+                path,
+                last_opened: std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap_or_default()
+                    .as_secs(),
+                thumbnail: None,
+            },
+        );
         self.files.truncate(self.max_entries);
     }
 
@@ -503,11 +509,11 @@ pub fn setup_crash_reporter() {
              \n\
              If this error persists, share this file with support:\n\
              pako.molina@gmail.com | github.com/Yatrogenesis/NAT3D\n",
-            ver    = env!("CARGO_PKG_VERSION"),
-            ts     = now,
+            ver = env!("CARGO_PKG_VERSION"),
+            ts = now,
             thread = thread_name,
-            loc    = location,
-            msg    = msg,
+            loc = location,
+            msg = msg,
         );
 
         let log_dir = std::env::var("APPDATA")

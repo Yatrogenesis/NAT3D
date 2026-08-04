@@ -1,16 +1,16 @@
 /*
  * NAT3D - Next-generation Advanced Technology for 3D
  * Professional 3D Modeling, CAD, Physics Simulation and Rendering Suite
- * 
+ *
  * Copyright (C) 2023-2026 Francisco Molina <pako.molina@gmail.com>
- * 
+ *
  * This software is dual-licensed:
  * 1. Open Source: GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)
  * 2. Commercial: For commercial use, please contact <fmolina@avermex.com>
- * 
+ *
  * For research information, visit: https://research.avermex.com
  * For collaborations, contact: <pako.molina@gmail.com>
- * 
+ *
  * DOI: [PENDING]
  */
 
@@ -182,16 +182,17 @@ impl ScriptCommand for TranslateMeshCommand {
             .downcast_ref::<Mesh>()
             .ok_or_else(|| ScriptError::InvalidArguments("First arg must be Mesh".to_string()))?;
 
-        let offset = args[1]
-            .downcast_ref::<[f64; 3]>()
-            .ok_or_else(|| ScriptError::InvalidArguments("Second arg must be [f64; 3]".to_string()))?;
+        let offset = args[1].downcast_ref::<[f64; 3]>().ok_or_else(|| {
+            ScriptError::InvalidArguments("Second arg must be [f64; 3]".to_string())
+        })?;
 
         let mut translated = mesh.clone();
         let vertex_count = translated.vertex_count();
         for i in 0..vertex_count {
             if let Ok(v) = translated.vertex(i) {
                 let pos = v.position();
-                let new_pos = Position::new(pos.x + offset[0], pos.y + offset[1], pos.z + offset[2]);
+                let new_pos =
+                    Position::new(pos.x + offset[0], pos.y + offset[1], pos.z + offset[2]);
                 let _ = translated.set_vertex_position(i, new_pos);
             }
         }

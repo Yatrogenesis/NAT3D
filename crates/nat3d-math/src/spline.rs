@@ -1,16 +1,16 @@
 /*
  * NAT3D - Next-generation Advanced Technology for 3D
  * Professional 3D Modeling, CAD, Physics Simulation and Rendering Suite
- * 
+ *
  * Copyright (C) 2023-2026 Francisco Molina <pako.molina@gmail.com>
- * 
+ *
  * This software is dual-licensed:
  * 1. Open Source: GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)
  * 2. Commercial: For commercial use, please contact <fmolina@avermex.com>
- * 
+ *
  * For research information, visit: https://research.avermex.com
  * For collaborations, contact: <pako.molina@gmail.com>
- * 
+ *
  * DOI: [PENDING]
  */
 
@@ -93,14 +93,14 @@ pub fn clamped_knots(n: usize, degree: usize) -> Vec<f64> {
     let knot_count = n + degree + 1;
     let mut knots = Vec::with_capacity(knot_count);
 
-    knots.extend(std::iter::repeat(0.0).take(degree + 1));
+    knots.extend(std::iter::repeat_n(0.0, degree + 1));
 
     let internal = n - degree;
     for i in 1..internal {
         knots.push(i as f64 / internal as f64);
     }
 
-    knots.extend(std::iter::repeat(1.0).take(degree + 1));
+    knots.extend(std::iter::repeat_n(1.0, degree + 1));
 
     knots
 }

@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "NAT3D"
+abstract: >-
+  NAT3D is a professional 3D modeling, CAD, physics simulation, and rendering
+  suite written in Rust, with a multi-crate workspace covering geometry, GPU
+  rendering (wgpu), physics, animation, and scripting.
+type: software
+authors:
+  - family-names: "Molina-Burgos"
+    given-names: "Francisco"
+    affiliation: "Avermex Research Division"
+    orcid: "https://orcid.org/0009-0008-6093-8267"
+version: "0.1.0"
+date-released: "2026-08-04"
+license: "AGPL-3.0-or-later"
+repository-code: "https://github.com/Yatrogenesis/NAT3D"
+url: "https://github.com/Yatrogenesis/NAT3D"
+keywords:
+  - "3d"
+  - "modeling"
+  - "cad"
+  - "rendering"
+  - "physics-simulation"
+  - "rust"
+  - "wgpu"

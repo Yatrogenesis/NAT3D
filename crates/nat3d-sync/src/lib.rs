@@ -1,4 +1,11 @@
-#![allow(clippy::all, clippy::pedantic, clippy::nursery, missing_docs, unused_imports, dead_code)]
+#![allow(
+    clippy::all,
+    clippy::pedantic,
+    clippy::nursery,
+    missing_docs,
+    unused_imports,
+    dead_code
+)]
 //! # NAT3D Sync
 //!
 //! Device synchronization and distributed rendering.

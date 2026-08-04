@@ -16,11 +16,10 @@ use android_activity::AndroidApp;
 #[no_mangle]
 fn android_main(app: AndroidApp) {
     use nat3d_app::Nat3DApp;
-    
+
     // Set up options
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
-            .with_title("NAT3D Mobile"),
+        viewport: egui::ViewportBuilder::default().with_title("NAT3D Mobile"),
         ..Default::default()
     };
 
@@ -28,5 +27,6 @@ fn android_main(app: AndroidApp) {
         "nat3d_mobile",
         options,
         Box::new(|cc| Ok(Box::new(Nat3DApp::new(cc)))),
-    ).unwrap();
+    )
+    .unwrap();
 }

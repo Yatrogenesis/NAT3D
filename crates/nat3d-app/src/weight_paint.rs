@@ -487,7 +487,7 @@ pub fn show_weight_paint_panel(
                 egui::pos2(x, ramp_rect.min.y),
                 egui::pos2(x, ramp_rect.max.y),
             ],
-            egui::Stroke::new(1.0, color),
+            egui::Stroke::new(1.0_f32, color),
         );
     }
     ui.horizontal(|ui| {

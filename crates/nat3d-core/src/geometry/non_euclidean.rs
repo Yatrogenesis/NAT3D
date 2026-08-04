@@ -7,10 +7,10 @@ pub fn mobius_add(u: Vector3<f64>, v: Vector3<f64>, c: f64) -> Vector3<f64> {
     let u2 = u.norm_squared();
     let v2 = v.norm_squared();
     let uv = u.dot(&v);
-    
+
     let num = (1.0 + 2.0 * c * uv + c * v2) * u + (1.0 - c * u2) * v;
     let den = 1.0 + 2.0 * c * uv + c * c * u2 * v2;
-    
+
     num / den
 }
 

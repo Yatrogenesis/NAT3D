@@ -3,6 +3,6 @@
 
 //! Rendering pipelines.
 
-pub mod forward;
 /// Differentiable rendering pipeline for AI-based optimization.
 pub mod differentiable;
+pub mod forward;

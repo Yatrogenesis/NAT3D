@@ -1,4 +1,12 @@
-#![allow(clippy::all, clippy::pedantic, clippy::nursery, missing_docs, unused_imports, dead_code, clippy::duplicated_attributes)]
+#![allow(
+    clippy::all,
+    clippy::pedantic,
+    clippy::nursery,
+    missing_docs,
+    unused_imports,
+    dead_code,
+    clippy::duplicated_attributes
+)]
 //! # NAT3D Scripting
 //! Python bindings and Rust API.
 
@@ -6,10 +14,10 @@ use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use std::sync::Arc;
 
+pub mod ai;
+pub mod macros;
 pub mod python;
 pub mod rust_api;
-pub mod macros;
-pub mod ai;
 
 /// Interface for the host application to handle scripting requests.
 pub trait ScriptingHost: Send + Sync {

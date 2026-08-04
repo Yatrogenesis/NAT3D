@@ -45,7 +45,13 @@ impl CpuFramebuffer {
     }
 
     /// Draws a triangle in screen space (simplified rasterizer).
-    pub fn draw_triangle_screen(&mut self, p0: Point3<f32>, p1: Point3<f32>, p2: Point3<f32>, color: [u8; 3]) {
+    pub fn draw_triangle_screen(
+        &mut self,
+        p0: Point3<f32>,
+        p1: Point3<f32>,
+        p2: Point3<f32>,
+        color: [u8; 3],
+    ) {
         let min_x = p0.x.min(p1.x).min(p2.x).max(0.0) as usize;
         let max_x = p0.x.max(p1.x).max(p2.x).min((self.width - 1) as f32) as usize;
         let min_y = p0.y.min(p1.y).min(p2.y).max(0.0) as usize;
@@ -55,11 +61,11 @@ impl CpuFramebuffer {
             for x in min_x..=max_x {
                 let px = x as f32 + 0.5;
                 let py = y as f32 + 0.5;
-                
+
                 let w0 = edge_function(p1.x, p1.y, p2.x, p2.y, px, py);
                 let w1 = edge_function(p2.x, p2.y, p0.x, p0.y, px, py);
                 let w2 = edge_function(p0.x, p0.y, p1.x, p1.y, px, py);
-                
+
                 if (w0 >= 0.0 && w1 >= 0.0 && w2 >= 0.0) || (w0 <= 0.0 && w1 <= 0.0 && w2 <= 0.0) {
                     let idx = (y * self.width + x) * 4;
                     self.color[idx] = color[0];
