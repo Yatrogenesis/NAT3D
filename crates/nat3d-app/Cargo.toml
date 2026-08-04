@@ -1,0 +1,80 @@
+[package]
+name = "nat3d-app"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Main application for NAT3D - desktop GUI application"
+keywords = ["application", "3d", "modeling", "cad"]
+categories = ["graphics", "gui"]
+
+[dependencies]
+# Internal crates
+nat3d-core = { workspace = true }
+nat3d-math = { workspace = true }
+nat3d-physics = { workspace = true }
+nat3d-render = { workspace = true }
+nat3d-ui = { workspace = true }
+nat3d-modeling = { workspace = true }
+nat3d-animation = { workspace = true }
+nat3d-io = { workspace = true }
+nat3d-scripting = { workspace = true }
+nat3d-cloud = { workspace = true }
+nat3d-sync = { workspace = true }
+
+# GUI
+eframe = { workspace = true }
+wgpu = { workspace = true }
+bytemuck = { workspace = true }
+
+# Mathematics
+nalgebra = { workspace = true }
+uuid = { workspace = true }
+
+# Async
+tokio = { workspace = true }
+pollster = { workspace = true }
+parking_lot = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# File dialogs
+rfd = { workspace = true, optional = true }
+open = { workspace = true, optional = true }
+
+# Image output
+image = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+bincode = { workspace = true }
+
+# Licensing (Ed25519 asymmetric verification)
+sha2 = { workspace = true }
+base32 = { workspace = true }
+ed25519-dalek = { workspace = true }
+reqwest = { workspace = true }
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "nat3d-app"
+path = "src/main.rs"
+
+[package.metadata.wix]
+eula = false
+
+[features]
+default = ["python", "file-dialog", "ipad"]
+python = ["nat3d-scripting/python"]
+ipad = ["nat3d-sync/ipad"]
+file-dialog = ["dep:rfd", "dep:open"]

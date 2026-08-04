@@ -1,0 +1,36 @@
+[package]
+name = "nat3d-tui"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+# TUI framework
+ratatui = "0.28"
+crossterm = "0.28"
+
+# NAT3D core dependencies
+nat3d-core = { path = "../nat3d-core" }
+nat3d-io = { path = "../nat3d-io" }
+nat3d-modeling = { path = "../nat3d-modeling" }
+nat3d-render = { path = "../nat3d-render" }
+
+# CLI parsing
+clap = { version = "4.5", features = ["derive"] }
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# File system
+walkdir = "2.5"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = "0.3"

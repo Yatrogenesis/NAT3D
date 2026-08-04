@@ -1,0 +1,25 @@
+# NAT3D Cargo configuration for Android cross-compilation
+# Copy to config.toml and update paths for your system.
+#
+# Prerequisites:
+# - Android NDK installed (via Android Studio or standalone)
+# - Set ANDROID_NDK_HOME environment variable
+#
+# Example (Windows):
+#   set ANDROID_NDK_HOME=C:\Users\YourName\AppData\Local\Android\Sdk\ndk\27.0.12077973
+#
+# Example (macOS/Linux):
+#   export ANDROID_NDK_HOME=$HOME/Android/Sdk/ndk/27.0.12077973
+
+# Uncomment and configure for Android builds:
+# [target.aarch64-linux-android]
+# linker = "path/to/ndk/toolchains/llvm/prebuilt/HOST_TAG/bin/aarch64-linux-android21-clang"
+#
+# [target.armv7-linux-androideabi]
+# linker = "path/to/ndk/toolchains/llvm/prebuilt/HOST_TAG/bin/armv7-linux-androideabi21-clang"
+#
+# HOST_TAG values:
+# - Windows: windows-x86_64
+# - macOS Intel: darwin-x86_64
+# - macOS ARM: darwin-aarch64
+# - Linux: linux-x86_64

@@ -1,0 +1,39 @@
+[package]
+name = "nat3d-io"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Import/Export for NAT3D - native format, OBJ, glTF, FBX, STEP, STL, images"
+keywords = ["import", "export", "gltf", "obj", "cad"]
+categories = ["parser-implementations", "encoding"]
+
+[dependencies]
+# Internal
+nat3d-core = { workspace = true }
+nat3d-math = { workspace = true }
+
+# Formats
+gltf = { workspace = true }
+fbxcel-dom = "0.0.10"
+anyhow = { workspace = true }
+nalgebra = { workspace = true }
+image = { workspace = true }
+exr = { workspace = true }
+byteorder = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+bincode = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }

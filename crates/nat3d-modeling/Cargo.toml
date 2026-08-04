@@ -1,0 +1,43 @@
+[package]
+name = "nat3d-modeling"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Modeling tools for NAT3D - polygon modeling, NURBS, sculpting, CAD, modifiers"
+keywords = ["modeling", "mesh", "nurbs", "cad", "sculpting"]
+categories = ["graphics", "game-development"]
+
+[dependencies]
+# Internal
+nat3d-core = { workspace = true }
+nat3d-math = { workspace = true }
+
+# Mathematics
+nalgebra = { workspace = true }
+glam = { workspace = true }
+
+# Parallelism
+rayon = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+proptest = { workspace = true }
+
+[[bench]]
+name = "modeling_bench"
+harness = false
+
+[lints]
+workspace = true

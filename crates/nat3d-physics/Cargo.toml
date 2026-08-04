@@ -1,0 +1,58 @@
+[package]
+name = "nat3d-physics"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Physics simulation for NAT3D - rigid bodies, soft bodies, cloth, fluids (Navier-Stokes), particles"
+keywords = ["physics", "simulation", "navier-stokes", "fluids", "particles"]
+categories = ["simulation", "science", "game-development"]
+
+[dependencies]
+# Internal
+nat3d-core = { workspace = true }
+nat3d-math = { workspace = true }
+
+# yatrosci
+yatrosci-core   = { workspace = true }
+yatrosci-linalg = { workspace = true }
+
+# Mathematics
+nalgebra = { workspace = true }
+glam = { workspace = true }
+ndarray = { workspace = true }
+num-traits = { workspace = true }
+
+# Parallelism
+rayon = { workspace = true }
+crossbeam = { workspace = true }
+parking_lot = { workspace = true }
+
+# Random number generation
+rand = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+proptest = { workspace = true }
+
+[[bench]]
+name = "physics_bench"
+harness = false
+
+[[bench]]
+name = "navier_stokes_bench"
+harness = false
+
+[lints]
+workspace = true

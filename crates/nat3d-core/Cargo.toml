@@ -1,0 +1,47 @@
+[package]
+name = "nat3d-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Core data structures and types for NAT3D - documents, geometry, transforms, scene graph"
+keywords = ["3d", "geometry", "scene-graph", "mesh"]
+categories = ["graphics", "data-structures"]
+
+[dependencies]
+# Mathematics
+nalgebra = { workspace = true }
+glam = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+bincode = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Utilities
+uuid = { workspace = true }
+chrono = { workspace = true }
+smallvec = { workspace = true }
+bitflags = { workspace = true }
+bytemuck = { workspace = true }
+parking_lot = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+proptest = { workspace = true }
+
+[[bench]]
+name = "geometry_bench"
+harness = false
+
+[lints]
+workspace = true

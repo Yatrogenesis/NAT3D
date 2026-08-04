@@ -1,0 +1,40 @@
+[package]
+name = "nat3d-cloud"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Cloud rendering integration for NAT3D - AWS, GCP, Azure, custom servers"
+keywords = ["cloud", "rendering", "distributed", "aws", "gcp"]
+categories = ["network-programming"]
+
+[dependencies]
+# Internal
+nat3d-core = { workspace = true }
+nat3d-render = { workspace = true }
+
+# Networking
+reqwest = { workspace = true }
+tokio = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# IDs
+uuid = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }
+
+[lints]
+workspace = true

@@ -1,0 +1,52 @@
+[package]
+name = "nat3d-render"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Rendering engine for NAT3D - wgpu backend, PBR, raytracing, post-processing"
+keywords = ["rendering", "wgpu", "graphics", "pbr", "raytracing"]
+categories = ["rendering", "graphics"]
+
+[dependencies]
+# Internal
+nat3d-core = { workspace = true }
+nat3d-math = { workspace = true }
+
+# Graphics
+wgpu = { workspace = true }
+bytemuck = { workspace = true }
+image = { workspace = true }
+
+# Mathematics
+nalgebra = { workspace = true }
+glam = { workspace = true }
+
+# Parallelism
+rayon = { workspace = true }
+parking_lot = { workspace = true }
+
+# Random number generation
+rand = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+
+[[bench]]
+name = "render_bench"
+harness = false
+
+[lints]
+workspace = true

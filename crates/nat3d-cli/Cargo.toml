@@ -1,0 +1,53 @@
+[package]
+name = "nat3d-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Command-line interface for NAT3D - batch rendering, format conversion, benchmarks"
+keywords = ["cli", "batch", "render", "convert"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+# Internal
+nat3d-core = { workspace = true }
+nat3d-render = { workspace = true }
+nat3d-io = { workspace = true }
+nat3d-scripting = { workspace = true }
+
+# CLI
+clap = { workspace = true }
+
+# Async
+tokio = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# Math
+nalgebra = { workspace = true }
+
+# Image processing
+image = { workspace = true }
+
+# Parallelism
+rayon = { workspace = true }
+rand = { workspace = true }
+
+[[bin]]
+name = "nat3d"
+path = "src/main.rs"
+
+[lints]
+workspace = true

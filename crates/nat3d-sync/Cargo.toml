@@ -1,0 +1,53 @@
+[package]
+name = "nat3d-sync"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Device synchronization for NAT3D - iPad input, Apple Pencil, Bonjour discovery"
+keywords = ["sync", "ipad", "apple-pencil", "bonjour", "input"]
+categories = ["network-programming"]
+
+[dependencies]
+# Internal
+nat3d-core = { workspace = true }
+nalgebra = { workspace = true }
+nat3d-render = { workspace = true }
+
+# Networking
+mdns-sd = { workspace = true, optional = true }
+tokio = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+automerge = "0.6"
+
+serde_json = { workspace = true }
+bincode = { workspace = true }
+uuid = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# System
+num_cpus = { workspace = true }
+
+# GPU detection
+wgpu = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }
+
+
+[features]
+default = ["render-farm"]
+discovery = ["dep:mdns-sd"]
+render-farm = ["discovery"]
+ipad = ["discovery"]
+

@@ -1,0 +1,258 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/nat3d-core",
+    "crates/nat3d-math",
+    "crates/nat3d-physics",
+    "crates/nat3d-render",
+    "crates/nat3d-ui",
+    "crates/nat3d-modeling",
+    "crates/nat3d-animation",
+    "crates/nat3d-io",
+    "crates/nat3d-scripting",
+    "crates/nat3d-cloud",
+    "crates/nat3d-sync",
+    "crates/nat3d-cli",
+    "crates/nat3d-app",
+    "crates/nat3d-keygen",
+    "crates/nat3d-mobile",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+authors = ["Francisco Molina <pako.molina@gmail.com>"]
+license = "AGPL-3.0-or-later"
+repository = "https://github.com/Yatrogenesis/NAT3D"
+homepage = "https://github.com/Yatrogenesis/NAT3D"
+keywords = ["3d", "modeling", "cad", "simulation", "rendering"]
+categories = ["graphics", "rendering", "simulation", "game-development"]
+
+[workspace.dependencies]
+# ══════════════════════════════════════════════════════════════════════════════
+# INTERNAL CRATES
+# ══════════════════════════════════════════════════════════════════════════════
+nat3d-core = { path = "crates/nat3d-core" }
+nat3d-math = { path = "crates/nat3d-math" }
+nat3d-physics = { path = "crates/nat3d-physics" }
+nat3d-render = { path = "crates/nat3d-render" }
+nat3d-ui = { path = "crates/nat3d-ui" }
+nat3d-modeling = { path = "crates/nat3d-modeling" }
+nat3d-animation = { path = "crates/nat3d-animation" }
+nat3d-io = { path = "crates/nat3d-io" }
+nat3d-scripting = { path = "crates/nat3d-scripting" }
+nat3d-cloud = { path = "crates/nat3d-cloud" }
+nat3d-sync = { path = "crates/nat3d-sync" }
+nat3d-cli = { path = "crates/nat3d-cli" }
+
+# ══════════════════════════════════════════════════════════════════════════════
+# YATROSCI - Scientific Rust Stack (from crates.io: yatrosci-*)
+# ══════════════════════════════════════════════════════════════════════════════
+yatrosci-core        = "0.1.0"
+yatrosci-linalg      = "0.1.0"
+yatrosci-fft         = "0.1.0"
+yatrosci-stats       = "0.1.0"
+yatrosci-optimize    = "0.1.0"
+yatrosci-interpolate = "0.1.0"
+yatrosci-geometry    = "0.1.0"
+yatrosci-integrate   = "0.1.0"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# GRAPHICS AND GPU
+# ══════════════════════════════════════════════════════════════════════════════
+wgpu = "23.0"
+egui = "0.30"
+eframe = { version = "0.30", default-features = false, features = ["default_fonts", "wgpu", "wayland", "x11"] }
+lyon = "1.0"
+kurbo = "0.11"
+winit = "0.30"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# MATHEMATICS
+# ══════════════════════════════════════════════════════════════════════════════
+nalgebra = { version = "0.33", features = ["serde-serialize"] }
+glam = "0.29"
+ndarray = "0.16"
+num-traits = "0.2"
+num-complex = "0.4"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PARALLELISM AND ASYNC
+# ══════════════════════════════════════════════════════════════════════════════
+rayon = "1.10"
+tokio = { version = "1.43", features = ["full"] }
+crossbeam = "0.8"
+parking_lot = "0.12"
+num_cpus = "1.16"
+pollster = "0.3"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# RANDOM NUMBER GENERATION
+# ══════════════════════════════════════════════════════════════════════════════
+rand       = "0.9"
+rand_distr = "0.4"
+rand_pcg   = "0.3"
+realfft    = "3.3"
+rustfft    = "6.2"
+faer       = "0.19"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SERIALIZATION
+# ══════════════════════════════════════════════════════════════════════════════
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bincode = "1.3"
+rmp-serde = "1.3"
+sha2 = "0.10"
+hmac = "0.12"
+base32 = "0.5"
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+rand_core = { version = "0.6", features = ["getrandom"] }
+
+# ══════════════════════════════════════════════════════════════════════════════
+# IMAGE PROCESSING
+# ══════════════════════════════════════════════════════════════════════════════
+image = "0.25"
+exr = "1.7"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 3D FORMATS
+# ══════════════════════════════════════════════════════════════════════════════
+gltf = "1.4"
+byteorder = "1.5"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# FILE DIALOGS
+# ══════════════════════════════════════════════════════════════════════════════
+rfd = "0.15"
+open = "5.3"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SCRIPTING
+# ══════════════════════════════════════════════════════════════════════════════
+pyo3 = { version = "0.23", features = ["auto-initialize", "abi3-py39"] }
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CLI
+# ══════════════════════════════════════════════════════════════════════════════
+clap = { version = "4.5", features = ["derive"] }
+
+# ══════════════════════════════════════════════════════════════════════════════
+# NETWORKING
+# ══════════════════════════════════════════════════════════════════════════════
+reqwest = { version = "0.12", features = ["json", "blocking"] }
+mdns-sd = "0.11"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# LOGGING AND DIAGNOSTICS
+# ══════════════════════════════════════════════════════════════════════════════
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TESTING AND BENCHMARKING
+# ══════════════════════════════════════════════════════════════════════════════
+criterion = "0.5"
+proptest  = "1.4"
+approx    = "0.5"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ERROR HANDLING
+# ══════════════════════════════════════════════════════════════════════════════
+thiserror = "2.0"
+anyhow = "1.0"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# UTILITIES
+# ══════════════════════════════════════════════════════════════════════════════
+uuid = { version = "1.11", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+bytemuck = { version = "1.19", features = ["derive"] }
+smallvec = { version = "1.13", features = ["serde"] }
+bitflags = "2.6"
+ordered-float = "4.5"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+opt-level = 3
+
+[profile.dev]
+opt-level = 1
+
+[profile.bench]
+inherits = "release"
+debug = true
+
+# Workspace-wide lint configuration for 3D graphics context
+# These are justified allows - not silencing real issues
+[workspace.lints.clippy]
+# Standard in 3D math: x, y, z, u, v, t, n, w, i, j, k
+many_single_char_names = "allow"
+# usize→f64/f32 is safe for mesh indices (< 2^52 vertices)
+cast_precision_loss = "allow"
+# Controlled truncation in rendering pipelines (f64→f32, etc.)
+cast_possible_truncation = "allow"
+# UI state and viewport settings legitimately need multiple toggles
+struct_excessive_bools = "allow"
+# Complex geometric/physics algorithms require longer functions
+too_many_lines = "allow"
+# Error types are self-documenting via thiserror #[error(...)]
+missing_errors_doc = "allow"
+# Complex modeling operations need many parameters by definition
+too_many_arguments = "allow"
+# Knot vectors require pushing same value for clamped ends
+same_item_push = "allow"
+# Pass-by-value for Copy types is intentional for API clarity
+needless_pass_by_value = "allow"
+# Complex state types are necessary for 3D application
+type_complexity = "allow"
+# Performance-critical paths use explicit min/max
+manual_clamp = "allow"
+# Underscore-prefixed bindings used in closures for clarity
+used_underscore_binding = "allow"
+# Loop variables that could be replaced with iterators are clearer as-is
+explicit_iter_loop = "allow"
+# Similar names like v0/v1 are intentional for vertex indices
+similar_names = "allow"
+# Loop range indexing is often clearer than enumerate() for geometry
+needless_range_loop = "allow"
+# Branches may be identical for now during development
+if_same_then_else = "allow"
+# &PathBuf vs &Path is acceptable in internal APIs
+ptr_arg = "allow"
+# Sign loss is controlled in rendering color conversions
+cast_sign_loss = "allow"
+# Wrap is controlled in index calculations
+cast_possible_wrap = "allow"
+# Collapsible matches are sometimes clearer expanded
+collapsible_match = "allow"
+# PI approximations are intentional for performance
+approx_constant = "allow"
+# from() vs new() naming is acceptable
+should_implement_trait = "allow"
+# Match arms may be same during development
+match_same_arms = "allow"
+# matches! macro is less readable for complex patterns
+match_like_matches_macro = "allow"
+# while let vs loop { if let } - both are valid
+while_let_loop = "allow"
+# Field reassignment with default is clearer for partial init
+field_reassign_with_default = "allow"
+# Empty lines after docs are intentional formatting
+empty_line_after_doc_comments = "allow"
+# Unwrap after is_some check is often clearer than match
+unnecessary_unwrap = "allow"
+# Consecutive if statements on same line are intentional
+possible_missing_else = "allow"
+
+[workspace.lints.rust]
+# Dead code allowed during development
+dead_code = "allow"
+# Conditional compilation may leave imports unused
+unused_imports = "allow"
+# Features for future use (python, ipad, scirs)
+unexpected_cfgs = { level = "allow", check-cfg = ["cfg(feature, values(\"python\", \"ipad\", \"yatrosci\", \"file-dialog\"))"] }

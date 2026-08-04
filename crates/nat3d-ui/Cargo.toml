@@ -1,0 +1,49 @@
+[package]
+name = "nat3d-ui"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "User interface for NAT3D - egui-based panels, tools, viewport, input handling"
+keywords = ["ui", "gui", "egui", "viewport", "editor"]
+categories = ["gui", "graphics"]
+
+[dependencies]
+# Internal
+nat3d-core = { workspace = true }
+nat3d-math = { workspace = true }
+nat3d-render = { workspace = true }
+
+# GUI
+egui = { workspace = true }
+eframe = { workspace = true }
+winit = { workspace = true }
+
+# Graphics
+wgpu = { workspace = true }
+
+# Mathematics
+nalgebra = { workspace = true }
+glam = { workspace = true }
+
+# Utilities
+parking_lot = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+
+[lints]
+workspace = true

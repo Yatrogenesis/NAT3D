@@ -1,0 +1,37 @@
+[package]
+name = "nat3d-scripting"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Scripting interface for NAT3D - Python bindings via PyO3, Rust API"
+keywords = ["scripting", "python", "api", "automation"]
+categories = ["api-bindings"]
+
+[dependencies]
+lazy_static = "1.4"
+parking_lot = "0.12"
+# Internal
+nat3d-core = { workspace = true }
+nat3d-math = { workspace = true }
+nat3d-modeling = { workspace = true }
+nat3d-render = { workspace = true }
+
+# Python
+pyo3 = { workspace = true, optional = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["python"]
+python = ["dep:pyo3"]

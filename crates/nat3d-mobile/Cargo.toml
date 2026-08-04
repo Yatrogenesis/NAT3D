@@ -1,0 +1,32 @@
+[package]
+name = "nat3d-mobile"
+version = "0.1.0"
+edition = "2021"
+authors = ["Francisco Molina-Burgos"]
+license = "AGPL-3.0-or-later"
+description = "Android/iOS native wrapper for NAT3D - Pure and Secure Version"
+
+[dependencies]
+# Core types (StylusProvider trait, etc.)
+nat3d-core = { path = "../nat3d-core" }
+
+# App core WITHOUT Python, WITHOUT iPad, WITHOUT File Dialogs
+nat3d-app = { path = "../nat3d-app", default-features = false }
+
+# GUI
+eframe = { workspace = true }
+egui = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+[target.'cfg(target_os = "android")'.dependencies]
+android-activity = { version = "0.6", features = ["native-activity"] }
+winit = { version = "0.30", features = ["android-native-activity"] }
+
+[lints]
+workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "nat3d_mobile"

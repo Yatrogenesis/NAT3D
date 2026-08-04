@@ -1,0 +1,53 @@
+[package]
+name = "nat3d-math"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Mathematical utilities for NAT3D - linear algebra, FFT, optimization, interpolation, noise"
+keywords = ["mathematics", "linear-algebra", "fft", "interpolation", "noise"]
+categories = ["mathematics", "science"]
+
+[features]
+default = ["yatrosci"]
+yatrosci = ["dep:yatrosci-core", "dep:yatrosci-linalg", "dep:yatrosci-fft", "dep:yatrosci-stats", "dep:yatrosci-optimize", "dep:yatrosci-interpolate", "dep:yatrosci-geometry", "dep:yatrosci-integrate"]
+
+[dependencies]
+# yatrosci (deterministic scientific stack) — crates.io: yatrosci-*
+yatrosci-core        = { workspace = true, optional = true }
+yatrosci-linalg      = { workspace = true, optional = true }
+yatrosci-fft         = { workspace = true, optional = true }
+yatrosci-stats       = { workspace = true, optional = true }
+yatrosci-optimize    = { workspace = true, optional = true }
+yatrosci-interpolate = { workspace = true, optional = true }
+yatrosci-geometry    = { workspace = true, optional = true }
+yatrosci-integrate   = { workspace = true, optional = true }
+
+# Mathematics
+nalgebra = { workspace = true }
+glam = { workspace = true }
+ndarray = { workspace = true }
+num-traits = { workspace = true }
+num-complex = { workspace = true }
+
+# Parallelism
+rayon = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+proptest = { workspace = true }
+
+[[bench]]
+name = "math_bench"
+harness = false
+
+[lints]
+workspace = true
