@@ -75,9 +75,16 @@ Windows installer scripts are provided in `installer/windows/`. See `installer/R
 
 ## License
 
-AGPL-3.0-or-later. Commercial licenses available.
+NAT3D is **dual-licensed** — choose one:
 
-Contact: fmolina@avermex.com
+- **AGPL-3.0-or-later** (`LICENSE-AGPL`) — open-source, academic, and non-commercial
+  use. Network use requires disclosing your source under the same license.
+- **Commercial** (`LICENSE-COMMERCIAL`) — proprietary/closed-source deployment
+  without AGPL source-disclosure obligations, under a signed agreement.
+
+SPDX: `AGPL-3.0-or-later OR LicenseRef-Commercial`
+
+Commercial licensing contact: fmolina@avermex.com
 
 ## Author
 

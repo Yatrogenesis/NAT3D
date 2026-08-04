@@ -1,0 +1,64 @@
+NAT3D — Commercial License
+Copyright (C) 2026 Francisco Molina-Burgos
+
+SPDX-License-Identifier: LicenseRef-Commercial
+
+This software is dual-licensed:
+
+  1. GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)
+     See LICENSE-AGPL for the full text.
+     Applies to open-source use, academic research, and non-commercial deployment.
+
+  2. Commercial License (this file — LicenseRef-Commercial)
+     Applies to proprietary, closed-source, or classified deployments including
+     but not limited to: commercial products embedding NAT3D, financial or
+     industrial simulation platforms, aeronautical/defense systems, and federal
+     or agency use.
+
+──────────────────────────────────────────────────────────────────────────────
+COMMERCIAL LICENSE TERMS (SUMMARY — full contract issued separately)
+──────────────────────────────────────────────────────────────────────────────
+
+1. GRANT
+   Subject to the terms of a signed Commercial License Agreement (CLA) with
+   Francisco Molina-Burgos ("Licensor"), Licensee is granted a non-exclusive,
+   non-transferable right to use, integrate, and deploy this software in
+   proprietary products or closed-source environments, without the source-
+   disclosure obligations of the AGPL.
+
+2. RESTRICTIONS
+   - Licensee may not sublicense, resell, or redistribute this software as a
+     standalone product without a separate Distribution Addendum.
+   - Licensee may not remove or alter copyright notices, SPDX identifiers, or
+     this license file.
+   - Reverse engineering for competitive intelligence is prohibited.
+
+3. EXPORT / CRYPTOGRAPHIC NOTICE
+   Should any build of this software incorporate cryptographic components
+   (e.g. for license-key verification or network transport), export of
+   cryptographic software may be subject to U.S. EAR (15 CFR Part 740) and
+   equivalent regulations. Licensee is solely responsible for compliance with
+   applicable export-control laws in its jurisdiction.
+
+4. WARRANTY DISCLAIMER
+   THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED. LICENSOR SHALL NOT BE LIABLE FOR ANY DAMAGES ARISING FROM USE OF
+   THIS SOFTWARE, INCLUDING BUT NOT LIMITED TO LOSS OF DATA, SYSTEM FAILURE,
+   OR REGULATORY NON-COMPLIANCE.
+
+5. GOVERNING LAW
+   This license is governed by the laws of Spain (EU jurisdiction). Disputes
+   shall be resolved in the courts of [City, Spain], unless the CLA specifies
+   an alternate jurisdiction.
+
+──────────────────────────────────────────────────────────────────────────────
+TO OBTAIN A COMMERCIAL LICENSE
+──────────────────────────────────────────────────────────────────────────────
+
+Contact: fmolina@avermex.com
+Subject: [NAT3D Commercial License Request]
+
+Include: intended use, deployment environment, expected scale (seats /
+render nodes), and whether classified/federal use applies.
+
+──────────────────────────────────────────────────────────────────────────────
