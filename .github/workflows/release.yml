@@ -1,0 +1,217 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'   # triggers on v0.1.0, v1.0.0, etc.
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # ── Windows: binary + MSI installer ────────────────────────────────────────
+  build-windows:
+    name: Build Windows MSI
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build release binary
+        run: cargo build --release -p nat3d-app
+        env:
+          CARGO_TARGET_DIR: target
+
+      - name: Install WiX + cargo-wix, build MSI
+        shell: pwsh
+        run: |
+          choco install wixtoolset -y
+          $wixBin = Get-ChildItem "C:\Program Files (x86)\WiX Toolset*\bin" |
+                    Select-Object -First 1 -ExpandProperty FullName
+          $env:PATH = "$wixBin;$env:PATH"
+          cargo install cargo-wix
+          cargo wix --package nat3d-app --no-build --nocapture
+        env:
+          CARGO_TARGET_DIR: target
+
+      - name: Rename artifacts
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $msi = Get-ChildItem "target\wix\*.msi" | Select-Object -First 1
+          Copy-Item $msi.FullName "NAT3D-$tag-x86_64-windows.msi"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-msi
+          path: NAT3D-*.msi
+
+  # ── macOS: binary + DMG ─────────────────────────────────────────────────────
+  build-macos:
+    name: Build macOS DMG
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build Apple Silicon binary
+        run: cargo build --release --target aarch64-apple-darwin -p nat3d-app
+
+      - name: Build Intel binary
+        run: cargo build --release --target x86_64-apple-darwin -p nat3d-app
+
+      - name: Create universal binary (lipo)
+        run: |
+          mkdir -p universal
+          lipo -create \
+            target/aarch64-apple-darwin/release/nat3d-app \
+            target/x86_64-apple-darwin/release/nat3d-app \
+            -output universal/nat3d-app
+
+      - name: Build .app bundle
+        run: |
+          TAG="${{ github.ref_name }}"
+          APP="NAT3D.app"
+          mkdir -p "$APP/Contents/MacOS"
+          mkdir -p "$APP/Contents/Resources"
+
+          cp universal/nat3d-app "$APP/Contents/MacOS/nat3d"
+          chmod +x "$APP/Contents/MacOS/nat3d"
+
+          cat > "$APP/Contents/Info.plist" << 'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+            "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>CFBundleName</key><string>NAT3D</string>
+            <key>CFBundleDisplayName</key><string>NAT3D</string>
+            <key>CFBundleIdentifier</key><string>com.avermex.nat3d</string>
+            <key>CFBundleVersion</key><string>${{ github.ref_name }}</string>
+            <key>CFBundleShortVersionString</key><string>${{ github.ref_name }}</string>
+            <key>CFBundleExecutable</key><string>nat3d</string>
+            <key>CFBundlePackageType</key><string>APPL</string>
+            <key>CFBundleSupportedPlatforms</key>
+            <array><string>MacOSX</string></array>
+            <key>LSMinimumSystemVersion</key><string>13.0</string>
+            <key>NSHighResolutionCapable</key><true/>
+          </dict></plist>
+          PLIST
+
+      - name: Create DMG
+        run: |
+          TAG="${{ github.ref_name }}"
+          brew install create-dmg
+          create-dmg \
+            --volname "NAT3D $TAG" \
+            --volicon "NAT3D.app/Contents/Resources/nat3d.icns" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 128 \
+            --icon "NAT3D.app" 175 190 \
+            --hide-extension "NAT3D.app" \
+            --app-drop-link 425 190 \
+            "NAT3D-$TAG-universal-macos.dmg" \
+            "NAT3D.app" \
+            || \
+          hdiutil create \
+            -volname "NAT3D" \
+            -srcfolder "NAT3D.app" \
+            -ov -format UDZO \
+            "NAT3D-$TAG-universal-macos.dmg"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: NAT3D-*-universal-macos.dmg
+
+  # ── Linux: tar.gz ───────────────────────────────────────────────────────────
+  build-linux:
+    name: Build Linux binary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwayland-dev libx11-dev libxkbcommon-dev \
+            libegl1-mesa-dev libasound2-dev pkg-config
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build
+        run: cargo build --release -p nat3d-app
+
+      - name: Package
+        run: |
+          TAG="${{ github.ref_name }}"
+          cp target/release/nat3d-app nat3d
+          tar czf "NAT3D-$TAG-x86_64-linux.tar.gz" nat3d
+          rm nat3d
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-tarball
+          path: NAT3D-*-x86_64-linux.tar.gz
+
+  # ── GitHub Release (waits for all builds) ──────────────────────────────────
+  create-release:
+    name: Publish GitHub Release
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect release assets
+        run: |
+          mkdir release_assets
+          find artifacts -type f \( -name "*.msi" -o -name "*.dmg" -o -name "*.tar.gz" \) \
+            -exec cp {} release_assets/ \;
+          echo "=== Release assets ==="
+          ls -lh release_assets/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release_assets/*
+          # draft=true until you manually publish — lets you add Zenodo DOI to notes
+          draft: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          body: |
+            ## NAT3D ${{ github.ref_name }}
+
+            ### Downloads
+            | Platform | File |
+            |----------|------|
+            | Windows 10/11 (x64) | `NAT3D-${{ github.ref_name }}-x86_64-windows.msi` |
+            | macOS 13+ (Universal) | `NAT3D-${{ github.ref_name }}-universal-macos.dmg` |
+            | Linux (x86_64) | `NAT3D-${{ github.ref_name }}-x86_64-linux.tar.gz` |
+
+            ### Zenodo
+            > DOI: *(add after Zenodo upload)*
+
+            ### License
+            AGPL-3.0-or-later — free for academic and research use.
+            Commercial licenses available at https://nat3d.lemonsqueezy.com
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
