@@ -56,12 +56,22 @@ impl PhysicsEngine {
 
     pub fn step(&mut self) {
         let dt = self.dt;
-        
+
         for body in &mut self.rigid_bodies {
-            if body.properties.is_static { continue; }
+            if body.properties.is_static {
+                continue;
+            }
 
             // RK4 Integration (P2.1)
-            let a = Self::evaluate(&self.gravity, body, 0.0, &Derivative { dx: Vector3::zeros(), dv: Vector3::zeros() });
+            let a = Self::evaluate(
+                &self.gravity,
+                body,
+                0.0,
+                &Derivative {
+                    dx: Vector3::zeros(),
+                    dv: Vector3::zeros(),
+                },
+            );
             let b = Self::evaluate(&self.gravity, body, dt * 0.5, &a);
             let c = Self::evaluate(&self.gravity, body, dt * 0.5, &b);
             let d = Self::evaluate(&self.gravity, body, dt, &c);
@@ -71,9 +81,9 @@ impl PhysicsEngine {
 
             body.state.position += dxdt * dt;
             body.state.linear_velocity += dvdt * dt;
-            
+
             // Simplified angular update (RK4 for rotation requires full torque/inertia tensor mapping)
-            // For now, we ensure linear motion is RK4 
+            // For now, we ensure linear motion is RK4
         }
     }
 }
@@ -86,14 +96,19 @@ mod tests {
     #[test]
     fn test_rk4_precision() {
         let mut engine = PhysicsEngine::new();
-        let mut body = RigidBody::new(1, RigidBodyProperties::dynamic(1.0, nalgebra::Matrix3::identity()));
+        let mut body = RigidBody::new(
+            1,
+            RigidBodyProperties::dynamic(1.0, nalgebra::Matrix3::identity()),
+        );
         body.state.position = Vector3::new(0.0, 10.0, 0.0);
         body.properties.linear_damping = 0.0;
         engine.rigid_bodies.push(body);
-        
+
         // 1 second of free fall
-        for _ in 0..60 { engine.step(); }
-        
+        for _ in 0..60 {
+            engine.step();
+        }
+
         let final_y = engine.rigid_bodies[0].state.position.y;
         // Analytic y = y0 + v0t + 0.5at^2 = 10 + 0 - 4.905 = 5.095
         println!("RK4 Final Y: {}", final_y);

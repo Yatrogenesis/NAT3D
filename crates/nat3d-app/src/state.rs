@@ -4775,8 +4775,14 @@ mod camera_tests {
         cam.fly(3.0, 2.0, 1.0);
 
         // Orbit orientation and distance are untouched (fly is a pure translation).
-        assert_eq!(cam.orbit_angles, angles0, "fly must not change orbit angles");
-        assert!((cam.distance - dist0).abs() < 1e-6, "fly must not change distance");
+        assert_eq!(
+            cam.orbit_angles, angles0,
+            "fly must not change orbit angles"
+        );
+        assert!(
+            (cam.distance - dist0).abs() < 1e-6,
+            "fly must not change distance"
+        );
 
         // Camera and target shift together → position-target vector is preserved.
         let rel1 = [
@@ -4785,7 +4791,10 @@ mod camera_tests {
             cam.position[2] - cam.target[2],
         ];
         for i in 0..3 {
-            assert!((rel0[i] - rel1[i]).abs() < 1e-4, "fly must preserve camera->target vector");
+            assert!(
+                (rel0[i] - rel1[i]).abs() < 1e-4,
+                "fly must preserve camera->target vector"
+            );
         }
         // The rig actually moved.
         let moved: f32 = (0..3).map(|i| (cam.target[i] - tgt0[i]).powi(2)).sum();
@@ -4812,6 +4821,9 @@ mod camera_tests {
             cam.target[2] - tgt0[2],
         ];
         let dot = look0[0] * disp[0] + look0[1] * disp[1] + look0[2] * disp[2];
-        assert!(dot > 0.0, "flying forward must advance along the look direction");
+        assert!(
+            dot > 0.0,
+            "flying forward must advance along the look direction"
+        );
     }
 }

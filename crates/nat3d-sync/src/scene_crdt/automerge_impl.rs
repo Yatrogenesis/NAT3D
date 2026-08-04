@@ -1,5 +1,5 @@
 // SOTA 10: Multi-User CRDT Synchronization using Automerge
-use automerge::{AutoCommit, transaction::Transactable, ObjType, ReadDoc, ROOT};
+use automerge::{transaction::Transactable, AutoCommit, ObjType, ReadDoc, ROOT};
 
 /// Manages a distributed CRDT scene graph
 pub struct SceneCrdt {

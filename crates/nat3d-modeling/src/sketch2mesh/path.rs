@@ -1,16 +1,16 @@
 /*
  * NAT3D - Next-generation Advanced Technology for 3D
  * Professional 3D Modeling, CAD, Physics Simulation and Rendering Suite
- * 
+ *
  * Copyright (C) 2023-2026 Francisco Molina <pako.molina@gmail.com>
- * 
+ *
  * This software is dual-licensed:
  * 1. Open Source: GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)
  * 2. Commercial: For commercial use, please contact <fmolina@avermex.com>
- * 
+ *
  * For research information, visit: https://research.avermex.com
  * For collaborations, contact: <pako.molina@gmail.com>
- * 
+ *
  * DOI: [PENDING]
  */
 
@@ -187,7 +187,16 @@ impl Path2D {
 
     /// Arc to position.
     #[allow(clippy::too_many_arguments)]
-    pub fn arc_to(&mut self, rx: f32, ry: f32, x_rot: f32, large_arc: bool, sweep: bool, x: f32, y: f32) -> &mut Self {
+    pub fn arc_to(
+        &mut self,
+        rx: f32,
+        ry: f32,
+        x_rot: f32,
+        large_arc: bool,
+        sweep: bool,
+        x: f32,
+        y: f32,
+    ) -> &mut Self {
         let end = Point2D::new(x, y);
         self.commands.push(PathCommand::ArcTo {
             radius: Point2D::new(rx, ry),

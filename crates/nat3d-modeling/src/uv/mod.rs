@@ -25,7 +25,7 @@ pub enum UvMethod {
 /// UV unwrapper: computes per-vertex UV coordinates from a triangle mesh.
 pub struct UvUnwrapper<'a> {
     vertices: &'a [[f32; 3]],
-    faces:    &'a [Vec<usize>],
+    faces: &'a [Vec<usize>],
 }
 
 impl<'a> UvUnwrapper<'a> {
@@ -39,9 +39,9 @@ impl<'a> UvUnwrapper<'a> {
     /// Returns one `[u, v]` per vertex. Values are normalized to `[0, 1]`.
     pub fn unwrap(&self, method: UvMethod) -> Vec<UvCoord> {
         let uvs = match method {
-            UvMethod::SmartProject  => self.smart_project(),
-            UvMethod::Lscm          => self.lscm(),
-            UvMethod::AbfPlusPlus   => self.abf_plus_plus(),
+            UvMethod::SmartProject => self.smart_project(),
+            UvMethod::Lscm => self.lscm(),
+            UvMethod::AbfPlusPlus => self.abf_plus_plus(),
         };
         normalize_uvs(uvs)
     }
@@ -51,7 +51,7 @@ impl<'a> UvUnwrapper<'a> {
     /// Project each face group onto its dominant axis plane, then pack into atlas.
     fn smart_project(&self) -> Vec<[f32; 2]> {
         let n = self.vertices.len();
-        let mut uvs     = vec![[0.0f32; 2]; n];
+        let mut uvs = vec![[0.0f32; 2]; n];
         let mut weights = vec![0.0f32; n];
 
         for face in self.faces {
@@ -90,7 +90,7 @@ impl<'a> UvUnwrapper<'a> {
     /// LSCM solver with uniform weights — produces conformal-like results.
     fn lscm(&self) -> Vec<[f32; 2]> {
         let n = self.vertices.len();
-        let mut uvs     = vec![Vector2::zeros(); n];
+        let mut uvs = vec![Vector2::zeros(); n];
         let mut weights = vec![0.0f64; n];
 
         for face in self.faces {
@@ -101,7 +101,9 @@ impl<'a> UvUnwrapper<'a> {
                 let edge2 = c - a;
                 let normal = edge1.cross(&edge2);
                 let len = normal.norm();
-                if len < 1e-12 { continue; }
+                if len < 1e-12 {
+                    continue;
+                }
                 let normal = normal / len;
 
                 // Local 2D frame (tangent / bitangent)
@@ -115,7 +117,7 @@ impl<'a> UvUnwrapper<'a> {
 
                 let area = 0.5 * (edge1.cross(&edge2)).norm().max(1e-12);
                 for (vi, uv) in tri.iter().zip([uv_a, uv_b, uv_c]) {
-                    uvs[*vi]     += uv * area;
+                    uvs[*vi] += uv * area;
                     weights[*vi] += area;
                 }
             }
@@ -151,7 +153,9 @@ fn to_v3(p: [f32; 3]) -> Vector3<f32> {
 
 /// Decompose an n-gon into triangles (fan triangulation from vertex 0).
 fn triangulate(face: &[usize]) -> Vec<[usize; 3]> {
-    if face.len() < 3 { return Vec::new(); }
+    if face.len() < 3 {
+        return Vec::new();
+    }
     (1..face.len() - 1)
         .map(|i| [face[0], face[i], face[i + 1]])
         .collect()
@@ -178,7 +182,9 @@ fn dominant_axis_projection(normal: Vector3<f32>) -> (Vector3<f32>, Vector3<f32>
 
 /// Normalize UVs so the bounding box fills [0, 1] × [0, 1].
 fn normalize_uvs(mut uvs: Vec<[f32; 2]>) -> Vec<[f32; 2]> {
-    if uvs.is_empty() { return uvs; }
+    if uvs.is_empty() {
+        return uvs;
+    }
 
     let mut min_u = f32::MAX;
     let mut min_v = f32::MAX;
@@ -244,7 +250,7 @@ mod tests {
     fn abf_falls_back_to_lscm() {
         let (v, f) = unit_quad();
         let lscm = UvUnwrapper::new(&v, &f).unwrap(UvMethod::Lscm);
-        let abf  = UvUnwrapper::new(&v, &f).unwrap(UvMethod::AbfPlusPlus);
+        let abf = UvUnwrapper::new(&v, &f).unwrap(UvMethod::AbfPlusPlus);
         for (a, b) in abf.iter().zip(&lscm) {
             assert!((a[0] - b[0]).abs() < 1e-6);
             assert!((a[1] - b[1]).abs() < 1e-6);

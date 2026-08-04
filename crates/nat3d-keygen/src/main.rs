@@ -26,7 +26,10 @@ use ed25519_dalek::{Signer, SigningKey, Verifier};
 use sha2::{Digest, Sha256};
 
 #[derive(Parser)]
-#[command(name = "nat3d-keygen", about = "NAT3D license key generator (INTERNAL)")]
+#[command(
+    name = "nat3d-keygen",
+    about = "NAT3D license key generator (INTERNAL)"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -113,20 +116,24 @@ fn main() {
 
             let signing_key = get_signing_key();
             let public_key = signing_key.verifying_key();
-            println!("\nPublic key (embed in app): {}", hex::encode(public_key.as_bytes()));
+            println!(
+                "\nPublic key (embed in app): {}",
+                hex::encode(public_key.as_bytes())
+            );
         }
         Command::Verify { machine_id, serial } => {
             let serial_clean = serial.trim().to_uppercase().replace('-', "");
             let signing_key = get_signing_key();
             let verifying_key = signing_key.verifying_key();
 
-            let sig_bytes = match base32::decode(Alphabet::Rfc4648 { padding: false }, &serial_clean) {
-                Some(bytes) if bytes.len() == 64 => bytes,
-                _ => {
-                    println!("❌ INVALID — serial is not a well-formed 64-byte signature");
-                    std::process::exit(1);
-                }
-            };
+            let sig_bytes =
+                match base32::decode(Alphabet::Rfc4648 { padding: false }, &serial_clean) {
+                    Some(bytes) if bytes.len() == 64 => bytes,
+                    _ => {
+                        println!("❌ INVALID — serial is not a well-formed 64-byte signature");
+                        std::process::exit(1);
+                    }
+                };
             let mut sig_array = [0u8; 64];
             sig_array.copy_from_slice(&sig_bytes);
             let signature = ed25519_dalek::Signature::from_bytes(&sig_array);

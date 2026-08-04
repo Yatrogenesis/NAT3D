@@ -167,7 +167,10 @@ impl StylusEvent {
     /// Get the input data if this event contains one.
     pub fn input(&self) -> Option<&StylusInput> {
         match self {
-            StylusEvent::Down(i) | StylusEvent::Move(i) | StylusEvent::Up(i) | StylusEvent::Hover(i) => Some(i),
+            StylusEvent::Down(i)
+            | StylusEvent::Move(i)
+            | StylusEvent::Up(i)
+            | StylusEvent::Hover(i) => Some(i),
             StylusEvent::ProximityOut => None,
         }
     }
@@ -377,7 +380,11 @@ fn rdp_simplify(points: &[StylusInput], epsilon: f32) -> Vec<StylusInput> {
     }
 }
 
-fn perpendicular_distance(p: &StylusInput, line_start: &StylusInput, line_end: &StylusInput) -> f32 {
+fn perpendicular_distance(
+    p: &StylusInput,
+    line_start: &StylusInput,
+    line_end: &StylusInput,
+) -> f32 {
     let dx = line_end.x - line_start.x;
     let dy = line_end.y - line_start.y;
     let len_sq = dx * dx + dy * dy;
@@ -413,8 +420,7 @@ mod tests {
 
     #[test]
     fn stylus_input_with_tilt() {
-        let input = StylusInput::new(0.5, 0.5, 1.0)
-            .with_tilt(0.7, 1.5);
+        let input = StylusInput::new(0.5, 0.5, 1.0).with_tilt(0.7, 1.5);
         assert_eq!(input.tilt_altitude, 0.7);
         assert_eq!(input.tilt_azimuth, 1.5);
     }

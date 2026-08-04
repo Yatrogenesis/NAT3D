@@ -3,7 +3,7 @@
 
 //! High-precision Rigid Body Dynamics using Runge-Kutta 4th Order (RK4).
 
-use nalgebra::{Matrix3, UnitQuaternion, Vector3, Quaternion};
+use nalgebra::{Matrix3, Quaternion, UnitQuaternion, Vector3};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -143,7 +143,7 @@ impl RigidBody {
         let inv_mass = self.properties.inv_mass;
 
         // --- LINEAR RK4 ---
-        let lin_derivatives = |vel: Vector3<f64>| -> (Vector3<f64>, Vector3<f64>) {       
+        let lin_derivatives = |vel: Vector3<f64>| -> (Vector3<f64>, Vector3<f64>) {
             (vel, (self.state.force + (gravity * mass)) * inv_mass)
         };
 
@@ -159,29 +159,30 @@ impl RigidBody {
         self.state.linear_velocity *= (1.0 - self.properties.linear_damping).powf(dt);
 
         // --- ANGULAR RK4 ---
-        let ang_deriv = |q: UnitQuaternion<f64>, w: Vector3<f64>| -> (Quaternion<f64>, Vector3<f64>) {       
-            // Recalculate world inverse inertia for this orientation
-            let r = q.to_rotation_matrix();
-            let r_mat = r.matrix();
-            let world_inv_inertia = r_mat * self.properties.inv_inertia * r_mat.transpose();
+        let ang_deriv =
+            |q: UnitQuaternion<f64>, w: Vector3<f64>| -> (Quaternion<f64>, Vector3<f64>) {
+                // Recalculate world inverse inertia for this orientation
+                let r = q.to_rotation_matrix();
+                let r_mat = r.matrix();
+                let world_inv_inertia = r_mat * self.properties.inv_inertia * r_mat.transpose();
 
-            // dq/dt = 0.5 * q * (0, w)
-            let w_quat = Quaternion::new(0.0, w.x, w.y, w.z);
-            let q_raw = q.quaternion();
-            let dq = Quaternion::new(
-                -0.5 * (w_quat.i * q_raw.i + w_quat.j * q_raw.j + w_quat.k * q_raw.k),
-                0.5 * (w_quat.i * q_raw.w + w_quat.k * q_raw.j - w_quat.j * q_raw.k),
-                0.5 * (w_quat.j * q_raw.w + w_quat.i * q_raw.k - w_quat.k * q_raw.i),
-                0.5 * (w_quat.k * q_raw.w + w_quat.j * q_raw.i - w_quat.i * q_raw.j),
-            );
+                // dq/dt = 0.5 * q * (0, w)
+                let w_quat = Quaternion::new(0.0, w.x, w.y, w.z);
+                let q_raw = q.quaternion();
+                let dq = Quaternion::new(
+                    -0.5 * (w_quat.i * q_raw.i + w_quat.j * q_raw.j + w_quat.k * q_raw.k),
+                    0.5 * (w_quat.i * q_raw.w + w_quat.k * q_raw.j - w_quat.j * q_raw.k),
+                    0.5 * (w_quat.j * q_raw.w + w_quat.i * q_raw.k - w_quat.k * q_raw.i),
+                    0.5 * (w_quat.k * q_raw.w + w_quat.j * q_raw.i - w_quat.i * q_raw.j),
+                );
 
-            // dw/dt = I^-1 * (torque - w x (I * w))
-            let world_inertia = r_mat * self.properties.inertia * r_mat.transpose();
-            let i_w = world_inertia * w;
-            let dw = world_inv_inertia * (self.state.torque - w.cross(&i_w));
+                // dw/dt = I^-1 * (torque - w x (I * w))
+                let world_inertia = r_mat * self.properties.inertia * r_mat.transpose();
+                let i_w = world_inertia * w;
+                let dw = world_inv_inertia * (self.state.torque - w.cross(&i_w));
 
-            (dq, dw)
-        };
+                (dq, dw)
+            };
 
         let q = self.state.orientation;
         let w = self.state.angular_velocity;

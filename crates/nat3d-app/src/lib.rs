@@ -1,4 +1,19 @@
-#![allow(clippy::all, clippy::pedantic, clippy::nursery, missing_docs, unused_imports, dead_code, clippy::field_reassign_with_default, clippy::unnecessary_unwrap, clippy::unwrap_or_default, clippy::ptr_arg, clippy::type_complexity, clippy::manual_clamp, clippy::collapsible_if, clippy::needless_range_loop)]
+#![allow(
+    clippy::all,
+    clippy::pedantic,
+    clippy::nursery,
+    missing_docs,
+    unused_imports,
+    dead_code,
+    clippy::field_reassign_with_default,
+    clippy::unnecessary_unwrap,
+    clippy::unwrap_or_default,
+    clippy::ptr_arg,
+    clippy::type_complexity,
+    clippy::manual_clamp,
+    clippy::collapsible_if,
+    clippy::needless_range_loop
+)]
 //! NAT3D main application.
 //!
 //! A professional 3D modeling, CAD, simulation, and rendering suite.
@@ -13,8 +28,8 @@ pub mod license;
 pub mod startup;
 pub mod viewport;
 use tokio::io::AsyncReadExt;
-pub mod console;
 pub mod compositor;
+pub mod console;
 pub mod nodes;
 pub mod panels;
 pub mod state;
@@ -32,10 +47,11 @@ pub struct AppMaterialUniforms {
     pub _padding: [f32; 3],
 }
 
-
 // GPU rendering imports from nat3d-render
-use nat3d_render::backend::wgpu_backend::{Vertex, CameraUniforms, ModelUniforms, MaterialUniforms};
 use eframe::egui_wgpu;
+use nat3d_render::backend::wgpu_backend::{
+    CameraUniforms, MaterialUniforms, ModelUniforms, Vertex,
+};
 use parking_lot::RwLock;
 #[allow(unused_imports)]
 use state::{
@@ -141,7 +157,10 @@ impl egui_wgpu::CallbackTrait for ViewportCallback {
             }
             if let Some(entry) = renderer.mesh_cache.get(&i) {
                 let model_matrix = GpuRendererState::build_model_matrix(obj);
-                let model_uniforms = ModelUniforms { model: model_matrix, normal: model_matrix };
+                let model_uniforms = ModelUniforms {
+                    model: model_matrix,
+                    normal: model_matrix,
+                };
                 let material_uniforms = AppMaterialUniforms {
                     base_color: obj.material.base_color,
                     metallic: obj.material.metallic,
@@ -151,9 +170,21 @@ impl egui_wgpu::CallbackTrait for ViewportCallback {
                     simulation_mode: self.simulation_mode as u32,
                     _padding: [0.0; 3],
                 };
-                queue.write_buffer(&entry.model_buffer, 0, bytemuck::cast_slice(&[model_uniforms]));
-                queue.write_buffer(&entry.material_buffer, 0, bytemuck::cast_slice(&[material_uniforms]));
-                queue.write_buffer(&entry.signal_buffer, 0, bytemuck::cast_slice(&[obj.physiological_signal]));
+                queue.write_buffer(
+                    &entry.model_buffer,
+                    0,
+                    bytemuck::cast_slice(&[model_uniforms]),
+                );
+                queue.write_buffer(
+                    &entry.material_buffer,
+                    0,
+                    bytemuck::cast_slice(&[material_uniforms]),
+                );
+                queue.write_buffer(
+                    &entry.signal_buffer,
+                    0,
+                    bytemuck::cast_slice(&[obj.physiological_signal]),
+                );
             }
         }
 
@@ -228,11 +259,17 @@ enum EduOAuthStep {
     #[default]
     Idle,
     /// Waiting for the user to enter the code on github.com/login/device.
-    AwaitingUser { user_code: String, verification_uri: String },
+    AwaitingUser {
+        user_code: String,
+        verification_uri: String,
+    },
     /// Polling GitHub — token not yet received.
     Polling,
     /// Flow completed successfully — show the serial.
-    Confirmed { serial: String, github_handle: String },
+    Confirmed {
+        serial: String,
+        github_handle: String,
+    },
     /// Account has no Education benefit.
     NotEdu { github_handle: String },
     /// Something went wrong.
@@ -456,13 +493,11 @@ impl GpuRendererState {
                     wgpu::VertexBufferLayout {
                         array_stride: 4,
                         step_mode: wgpu::VertexStepMode::Instance,
-                        attributes: &[
-                            wgpu::VertexAttribute {
-                                offset: 0,
-                                shader_location: 4,
-                                format: wgpu::VertexFormat::Float32,
-                            },
-                        ],
+                        attributes: &[wgpu::VertexAttribute {
+                            offset: 0,
+                            shader_location: 4,
+                            format: wgpu::VertexFormat::Float32,
+                        }],
                     },
                 ],
                 compilation_options: Default::default(),
@@ -696,18 +731,20 @@ impl GpuRendererState {
             }],
         });
 
-        self.mesh_cache.insert(id, MeshEntry {
-            vertex_buffer,
-            index_buffer,
-            index_count: indices.len() as u32,
-            model_buffer,
-            model_bind_group,
-            material_buffer,
-            material_bind_group,
-            signal_buffer,
-        });
+        self.mesh_cache.insert(
+            id,
+            MeshEntry {
+                vertex_buffer,
+                index_buffer,
+                index_count: indices.len() as u32,
+                model_buffer,
+                model_bind_group,
+                material_buffer,
+                material_bind_group,
+                signal_buffer,
+            },
+        );
     }
-
 
     /// Build model matrix from object transform (column-major TRS, matches CPU XYZ Euler renderer).
     fn build_model_matrix(obj: &SceneObject) -> [[f32; 4]; 4] {
@@ -721,9 +758,19 @@ impl GpuRendererState {
 
         // Each [f32;4] is a column. Rotation order: Rx then Ry then Rz (= Rz*Ry*Rx on column vec).
         [
-            [cos_y * cos_z * sx,                                  cos_y * sin_z * sx,                                  -sin_y * sx,       0.0],
-            [(sin_x * sin_y * cos_z - cos_x * sin_z) * sy,        (sin_x * sin_y * sin_z + cos_x * cos_z) * sy,        sin_x * cos_y * sy, 0.0],
-            [(cos_x * sin_y * cos_z + sin_x * sin_z) * sz,        (cos_x * sin_y * sin_z - sin_x * cos_z) * sz,        cos_x * cos_y * sz, 0.0],
+            [cos_y * cos_z * sx, cos_y * sin_z * sx, -sin_y * sx, 0.0],
+            [
+                (sin_x * sin_y * cos_z - cos_x * sin_z) * sy,
+                (sin_x * sin_y * sin_z + cos_x * cos_z) * sy,
+                sin_x * cos_y * sy,
+                0.0,
+            ],
+            [
+                (cos_x * sin_y * cos_z + sin_x * sin_z) * sz,
+                (cos_x * sin_y * sin_z - sin_x * cos_z) * sz,
+                cos_x * cos_y * sz,
+                0.0,
+            ],
             [tx, ty, tz, 1.0],
         ]
     }
@@ -1236,8 +1283,9 @@ impl Nat3DApp {
                     while let Ok((mut socket, _)) = listener.accept().await {
                         let mut buf = vec![0u8; 4096];
                         if let Ok(n) = socket.read(&mut buf).await {
-                            if let Ok(_msg) = nat3d_sync::protocol::SyncProtocol::decode(&buf[..n]) {
-                                 ctx_clone.request_repaint();
+                            if let Ok(_msg) = nat3d_sync::protocol::SyncProtocol::decode(&buf[..n])
+                            {
+                                ctx_clone.request_repaint();
                             }
                         }
                     }
@@ -1368,7 +1416,9 @@ impl Nat3DApp {
 
     fn welcome_sentinel_path() -> Option<std::path::PathBuf> {
         std::env::var("APPDATA").ok().map(|appdata| {
-            std::path::PathBuf::from(appdata).join("NAT3D").join(".launched")
+            std::path::PathBuf::from(appdata)
+                .join("NAT3D")
+                .join(".launched")
         })
     }
 
@@ -1855,12 +1905,14 @@ impl Nat3DApp {
                     }
                     if ui.button("Spectral Smooth (Sorkine 2006)").clicked() {
                         self.state.add_modifier("Spectral Smooth");
-                        self.status_message = "Added Spectral Smooth (Laplacian) Modifier".to_string();
+                        self.status_message =
+                            "Added Spectral Smooth (Laplacian) Modifier".to_string();
                         ui.close_menu();
                     }
                     if ui.button("Hyperbolic Warp (Ungar 2001)").clicked() {
                         self.state.add_modifier("Hyperbolic Warp");
-                        self.status_message = "Added Hyperbolic Warp (Poincaré Ball) Modifier".to_string();
+                        self.status_message =
+                            "Added Hyperbolic Warp (Poincaré Ball) Modifier".to_string();
                         ui.close_menu();
                     }
                 });
@@ -2527,11 +2579,10 @@ impl Nat3DApp {
                         ui.disable();
                     }
                     if multi {
-                        let target = *self
-                            .state
-                            .all_selected()
-                            .last()
-                            .expect("invariant: `multi` (len >= 2) implies non-empty selection");
+                        let target =
+                            *self.state.all_selected().last().expect(
+                                "invariant: `multi` (len >= 2) implies non-empty selection",
+                            );
                         if ui.button("Track To (last selected)").clicked() {
                             self.state
                                 .add_constraint(ObjectConstraint::TrackTo { target_idx: target });
@@ -4359,11 +4410,21 @@ impl Nat3DApp {
                 // License badge
                 let (lic_color, lic_text) = match &self.license_status {
                     license::LicenseStatus::Trial => (egui::Color32::YELLOW, "TRIAL"),
-                    license::LicenseStatus::Licensed { tier: license::Tier::Pro } => (egui::Color32::GREEN, "PRO"),
-                    license::LicenseStatus::Licensed { tier: license::Tier::Edu } => (egui::Color32::LIGHT_BLUE, "EDU"),
+                    license::LicenseStatus::Licensed {
+                        tier: license::Tier::Pro,
+                    } => (egui::Color32::GREEN, "PRO"),
+                    license::LicenseStatus::Licensed {
+                        tier: license::Tier::Edu,
+                    } => (egui::Color32::LIGHT_BLUE, "EDU"),
                     license::LicenseStatus::Invalid => (egui::Color32::RED, "UNLICENSED"),
                 };
-                if ui.add(egui::Label::new(egui::RichText::new(lic_text).color(lic_color).small()).sense(egui::Sense::click())).clicked() {
+                if ui
+                    .add(
+                        egui::Label::new(egui::RichText::new(lic_text).color(lic_color).small())
+                            .sense(egui::Sense::click()),
+                    )
+                    .clicked()
+                {
                     self.show_license_dialog = true;
                 }
                 ui.separator();
@@ -7351,21 +7412,24 @@ impl Nat3DApp {
             // does not (they can straddle the clip plane).
             if let Some(p_start) = self.project_point(pos, rect) {
                 // Check X axis
-                if let Some(p_end) = self.project_point([pos[0] + gizmo_size, pos[1], pos[2]], rect) {
+                if let Some(p_end) = self.project_point([pos[0] + gizmo_size, pos[1], pos[2]], rect)
+                {
                     if self.dist_to_line(click_pos, p_start, p_end) < 10.0 {
                         self.state.axis_constraint = AxisConstraint::X;
                         return;
                     }
                 }
                 // Check Y axis
-                if let Some(p_end) = self.project_point([pos[0], pos[1] + gizmo_size, pos[2]], rect) {
+                if let Some(p_end) = self.project_point([pos[0], pos[1] + gizmo_size, pos[2]], rect)
+                {
                     if self.dist_to_line(click_pos, p_start, p_end) < 10.0 {
                         self.state.axis_constraint = AxisConstraint::Y;
                         return;
                     }
                 }
                 // Check Z axis
-                if let Some(p_end) = self.project_point([pos[0], pos[1], pos[2] + gizmo_size], rect) {
+                if let Some(p_end) = self.project_point([pos[0], pos[1], pos[2] + gizmo_size], rect)
+                {
                     if self.dist_to_line(click_pos, p_start, p_end) < 10.0 {
                         self.state.axis_constraint = AxisConstraint::Z;
                         return;
@@ -7738,13 +7802,13 @@ impl Nat3DApp {
         let vdx = cam_target[0] - cam_pos[0];
         let vdy = cam_target[1] - cam_pos[1];
         let vdz = cam_target[2] - cam_pos[2];
-        let vd_len = (vdx*vdx + vdy*vdy + vdz*vdz).sqrt().max(1e-6);
-        let view_dir = [vdx/vd_len, vdy/vd_len, vdz/vd_len];
+        let vd_len = (vdx * vdx + vdy * vdy + vdz * vdz).sqrt().max(1e-6);
+        let view_dir = [vdx / vd_len, vdy / vd_len, vdz / vd_len];
         // scr_up = view_dir × right (screen-space up in world coords)
         let scr_up = [
-            view_dir[1]*right[2] - view_dir[2]*right[1],
-            view_dir[2]*right[0] - view_dir[0]*right[2],
-            view_dir[0]*right[1] - view_dir[1]*right[0],
+            view_dir[1] * right[2] - view_dir[2] * right[1],
+            view_dir[2] * right[0] - view_dir[0] * right[2],
+            view_dir[0] * right[1] - view_dir[1] * right[0],
         ];
 
         let vp_w = viewport.width();
@@ -7760,11 +7824,19 @@ impl Nat3DApp {
                 .custom_vertices
                 .as_ref()
                 .expect("custom_vertices materialized to Some above");
-            if vr.is_empty() { return; }
+            if vr.is_empty() {
+                return;
+            }
             let n = vr.len() as f32;
             let mut c = [0.0f32; 3];
-            for v in vr.iter() { c[0] += v[0]; c[1] += v[1]; c[2] += v[2]; }
-            c[0] /= n; c[1] /= n; c[2] /= n;
+            for v in vr.iter() {
+                c[0] += v[0];
+                c[1] += v[1];
+                c[2] += v[2];
+            }
+            c[0] /= n;
+            c[1] /= n;
+            c[2] /= n;
             (c, vr.clone())
         };
 
@@ -7775,20 +7847,29 @@ impl Nat3DApp {
             .expect("custom_vertices materialized to Some above");
         for (i, vert) in verts.iter_mut().enumerate() {
             // Perspective project vertex to screen coordinates
-            let dv = [vert[0]-cam_pos[0], vert[1]-cam_pos[1], vert[2]-cam_pos[2]];
-            let depth = dv[0]*view_dir[0] + dv[1]*view_dir[1] + dv[2]*view_dir[2];
-            if depth <= 0.01 { continue; }
-            let dot_r = dv[0]*right[0] + dv[1]*right[1] + dv[2]*right[2];
-            let dot_u = dv[0]*scr_up[0] + dv[1]*scr_up[1] + dv[2]*scr_up[2];
+            let dv = [
+                vert[0] - cam_pos[0],
+                vert[1] - cam_pos[1],
+                vert[2] - cam_pos[2],
+            ];
+            let depth = dv[0] * view_dir[0] + dv[1] * view_dir[1] + dv[2] * view_dir[2];
+            if depth <= 0.01 {
+                continue;
+            }
+            let dot_r = dv[0] * right[0] + dv[1] * right[1] + dv[2] * right[2];
+            let dot_u = dv[0] * scr_up[0] + dv[1] * scr_up[1] + dv[2] * scr_up[2];
             let sx = vp_cx + dot_r / (depth * fov_scale) * vp_w * 0.5;
             let sy = vp_cy - dot_u / (depth * fov_scale) * vp_h * 0.5;
 
-            let screen_dist = ((sx - brush_screen.x).powi(2) + (sy - brush_screen.y).powi(2)).sqrt();
-            if screen_dist >= radius { continue; }
+            let screen_dist =
+                ((sx - brush_screen.x).powi(2) + (sy - brush_screen.y).powi(2)).sqrt();
+            if screen_dist >= radius {
+                continue;
+            }
 
             // Cubic smooth falloff: (1-t²)²
             let t = screen_dist / radius;
-            let falloff = (1.0 - t*t) * (1.0 - t*t);
+            let falloff = (1.0 - t * t) * (1.0 - t * t);
             let factor = strength * falloff;
 
             match brush {
@@ -7797,56 +7878,86 @@ impl Nat3DApp {
                     let nx = vert[0] - centroid[0];
                     let ny = vert[1] - centroid[1];
                     let nz = vert[2] - centroid[2];
-                    let nl = (nx*nx + ny*ny + nz*nz).sqrt().max(1e-6);
-                    vert[0] += nx/nl * factor * 0.1;
-                    vert[1] += ny/nl * factor * 0.1;
-                    vert[2] += nz/nl * factor * 0.1;
+                    let nl = (nx * nx + ny * ny + nz * nz).sqrt().max(1e-6);
+                    vert[0] += nx / nl * factor * 0.1;
+                    vert[1] += ny / nl * factor * 0.1;
+                    vert[2] += nz / nl * factor * 0.1;
                 }
                 SculptBrush::Smooth => {
                     // Average position of neighboring vertices within world-space radius
-                    let mut ax = 0.0f32; let mut ay = 0.0f32; let mut az = 0.0f32; let mut w = 0.0f32;
+                    let mut ax = 0.0f32;
+                    let mut ay = 0.0f32;
+                    let mut az = 0.0f32;
+                    let mut w = 0.0f32;
                     let search_r = world_per_px * radius * 0.5;
                     for (j, v2) in verts_snap.iter().enumerate() {
-                        if j == i { continue; }
-                        let d = ((v2[0]-verts_snap[i][0]).powi(2) + (v2[1]-verts_snap[i][1]).powi(2) + (v2[2]-verts_snap[i][2]).powi(2)).sqrt();
-                        if d < search_r { ax += v2[0]; ay += v2[1]; az += v2[2]; w += 1.0; }
+                        if j == i {
+                            continue;
+                        }
+                        let d = ((v2[0] - verts_snap[i][0]).powi(2)
+                            + (v2[1] - verts_snap[i][1]).powi(2)
+                            + (v2[2] - verts_snap[i][2]).powi(2))
+                        .sqrt();
+                        if d < search_r {
+                            ax += v2[0];
+                            ay += v2[1];
+                            az += v2[2];
+                            w += 1.0;
+                        }
                     }
                     if w > 0.0 {
-                        vert[0] += (ax/w - vert[0]) * factor * 0.5;
-                        vert[1] += (ay/w - vert[1]) * factor * 0.5;
-                        vert[2] += (az/w - vert[2]) * factor * 0.5;
+                        vert[0] += (ax / w - vert[0]) * factor * 0.5;
+                        vert[1] += (ay / w - vert[1]) * factor * 0.5;
+                        vert[2] += (az / w - vert[2]) * factor * 0.5;
                     }
                 }
                 SculptBrush::Flatten => {
                     // Flatten Y toward the average height of all in-brush verts
-                    let mut avg_y = 0.0f32; let mut cnt = 0.0f32;
+                    let mut avg_y = 0.0f32;
+                    let mut cnt = 0.0f32;
                     for v2 in verts_snap.iter() {
-                        let dv2 = [v2[0]-cam_pos[0], v2[1]-cam_pos[1], v2[2]-cam_pos[2]];
-                        let dep2 = (dv2[0]*view_dir[0]+dv2[1]*view_dir[1]+dv2[2]*view_dir[2]).max(0.01);
-                        let sx2 = vp_cx + (dv2[0]*right[0]+dv2[1]*right[1]+dv2[2]*right[2])/(dep2*fov_scale)*vp_w*0.5;
-                        let sy2 = vp_cy - (dv2[0]*scr_up[0]+dv2[1]*scr_up[1]+dv2[2]*scr_up[2])/(dep2*fov_scale)*vp_h*0.5;
-                        if ((sx2-brush_screen.x).powi(2)+(sy2-brush_screen.y).powi(2)).sqrt() < radius {
-                            avg_y += v2[1]; cnt += 1.0;
+                        let dv2 = [v2[0] - cam_pos[0], v2[1] - cam_pos[1], v2[2] - cam_pos[2]];
+                        let dep2 =
+                            (dv2[0] * view_dir[0] + dv2[1] * view_dir[1] + dv2[2] * view_dir[2])
+                                .max(0.01);
+                        let sx2 = vp_cx
+                            + (dv2[0] * right[0] + dv2[1] * right[1] + dv2[2] * right[2])
+                                / (dep2 * fov_scale)
+                                * vp_w
+                                * 0.5;
+                        let sy2 = vp_cy
+                            - (dv2[0] * scr_up[0] + dv2[1] * scr_up[1] + dv2[2] * scr_up[2])
+                                / (dep2 * fov_scale)
+                                * vp_h
+                                * 0.5;
+                        if ((sx2 - brush_screen.x).powi(2) + (sy2 - brush_screen.y).powi(2)).sqrt()
+                            < radius
+                        {
+                            avg_y += v2[1];
+                            cnt += 1.0;
                         }
                     }
                     if cnt > 0.0 {
-                        vert[1] += (avg_y/cnt - vert[1]) * factor * 0.5;
+                        vert[1] += (avg_y / cnt - vert[1]) * factor * 0.5;
                     }
                 }
                 SculptBrush::Pinch => {
                     // Pull vertex toward 3D position under brush cursor
                     let pull_x = (brush_screen.x - sx) * world_per_px * depth / cam_dist.max(0.01);
                     let pull_y = (brush_screen.y - sy) * world_per_px * depth / cam_dist.max(0.01);
-                    vert[0] += (right[0]*pull_x - scr_up[0]*pull_y) * factor;
-                    vert[1] += (right[1]*pull_x - scr_up[1]*pull_y) * factor;
-                    vert[2] += (right[2]*pull_x - scr_up[2]*pull_y) * factor;
+                    vert[0] += (right[0] * pull_x - scr_up[0] * pull_y) * factor;
+                    vert[1] += (right[1] * pull_x - scr_up[1] * pull_y) * factor;
+                    vert[2] += (right[2] * pull_x - scr_up[2] * pull_y) * factor;
                 }
                 SculptBrush::Grab => {
                     // Drag vertex along camera right/up axes proportional to mouse delta
                     let wp = world_per_px * depth / cam_dist.max(0.01);
-                    vert[0] += (right[0]*drag_delta.x - scr_up[0]*drag_delta.y) * wp * factor * 0.3;
-                    vert[1] += (right[1]*drag_delta.x - scr_up[1]*drag_delta.y) * wp * factor * 0.3;
-                    vert[2] += (right[2]*drag_delta.x - scr_up[2]*drag_delta.y) * wp * factor * 0.3;
+                    vert[0] +=
+                        (right[0] * drag_delta.x - scr_up[0] * drag_delta.y) * wp * factor * 0.3;
+                    vert[1] +=
+                        (right[1] * drag_delta.x - scr_up[1] * drag_delta.y) * wp * factor * 0.3;
+                    vert[2] +=
+                        (right[2] * drag_delta.x - scr_up[2] * drag_delta.y) * wp * factor * 0.3;
                 }
             }
         }
@@ -7973,7 +8084,8 @@ impl Nat3DApp {
                     .unwrap_or(true);
 
                 self.state.objects.push(SceneObject {
-            physiological_signal: 0.0,name,
+                    physiological_signal: 0.0,
+                    name,
                     object_type,
                     position,
                     rotation,
@@ -7985,31 +8097,31 @@ impl Nat3DApp {
                     locked: false,
                     parent: None,
                     keyframes: Vec::new(),
-            shape_keys: Vec::new(),
-            constraints: Vec::new(),
-            vertex_colors: Vec::new(),
-            vertex_weights: Vec::new(),
-            vertex_groups: Vec::new(),
-            particle_systems: Vec::new(),
-            bones: Vec::new(),
-            drivers: Vec::new(),
-            force_field: None,
-            cloth: None,
-            soft_body: None,
-            nla_tracks: Vec::new(),
-            gp_strokes: Vec::new(),
-            texture_slots: Vec::new(),
-            custom_properties: Vec::new(),
-            motion_path: None,
-            pass_index: 0,
-            hair_settings: None,
-            fluid: None,
-            linked_data: None,
-            edit_mesh: None,
-            edit_selection: EditModeSelection::default(),
-            custom_vertices: None,
-            custom_faces: None,
-            uv_coords: None,
+                    shape_keys: Vec::new(),
+                    constraints: Vec::new(),
+                    vertex_colors: Vec::new(),
+                    vertex_weights: Vec::new(),
+                    vertex_groups: Vec::new(),
+                    particle_systems: Vec::new(),
+                    bones: Vec::new(),
+                    drivers: Vec::new(),
+                    force_field: None,
+                    cloth: None,
+                    soft_body: None,
+                    nla_tracks: Vec::new(),
+                    gp_strokes: Vec::new(),
+                    texture_slots: Vec::new(),
+                    custom_properties: Vec::new(),
+                    motion_path: None,
+                    pass_index: 0,
+                    hair_settings: None,
+                    fluid: None,
+                    linked_data: None,
+                    edit_mesh: None,
+                    edit_selection: EditModeSelection::default(),
+                    custom_vertices: None,
+                    custom_faces: None,
+                    uv_coords: None,
                 });
             }
         }
@@ -8345,7 +8457,12 @@ impl Nat3DApp {
                         };
 
                         let scene_obj = SceneObject {
-            physiological_signal: 0.0,name: if name.is_empty() { format!("Mesh.{:03}", count + 1) } else { name },
+                            physiological_signal: 0.0,
+                            name: if name.is_empty() {
+                                format!("Mesh.{:03}", count + 1)
+                            } else {
+                                name
+                            },
                             object_type: ObjectType::Mesh,
                             position: [0.0, 0.0, 0.0],
                             rotation: [0.0, 0.0, 0.0],
@@ -8381,7 +8498,7 @@ impl Nat3DApp {
                             edit_selection: EditModeSelection::default(),
                             custom_vertices: None,
                             custom_faces: None,
-            uv_coords: None,
+                            uv_coords: None,
                         };
                         self.state.objects.push(scene_obj);
                         count += 1;
@@ -8405,7 +8522,8 @@ impl Nat3DApp {
                     .unwrap_or_else(|| "STL".to_string());
 
                 let scene_obj = SceneObject {
-            physiological_signal: 0.0,name,
+                    physiological_signal: 0.0,
+                    name,
                     object_type: ObjectType::Mesh,
                     position: [0.0, 0.0, 0.0],
                     rotation: [0.0, 0.0, 0.0],
@@ -8441,7 +8559,7 @@ impl Nat3DApp {
                     edit_selection: EditModeSelection::default(),
                     custom_vertices: None,
                     custom_faces: None,
-            uv_coords: None,
+                    uv_coords: None,
                 };
                 self.state.objects.push(scene_obj);
                 self.state.selected_object = Some(self.state.objects.len() - 1);
@@ -8457,7 +8575,8 @@ impl Nat3DApp {
                 let mut count = 0;
                 for mesh in &gltf_scene.meshes {
                     let scene_obj = SceneObject {
-            physiological_signal: 0.0,name: mesh.name.clone(),
+                        physiological_signal: 0.0,
+                        name: mesh.name.clone(),
                         object_type: ObjectType::Mesh,
                         position: [0.0, 0.0, 0.0],
                         rotation: [0.0, 0.0, 0.0],
@@ -8493,7 +8612,7 @@ impl Nat3DApp {
                         edit_selection: EditModeSelection::default(),
                         custom_vertices: None,
                         custom_faces: None,
-            uv_coords: None,
+                        uv_coords: None,
                     };
                     self.state.objects.push(scene_obj);
                     count += 1;
@@ -8514,7 +8633,8 @@ impl Nat3DApp {
             .unwrap_or_else(|| format!("{}_import", format));
 
         let scene_obj = SceneObject {
-            physiological_signal: 0.0,name,
+            physiological_signal: 0.0,
+            name,
             object_type: ObjectType::Mesh,
             position: [0.0, 0.0, 0.0],
             rotation: [0.0, 0.0, 0.0],
@@ -8821,7 +8941,10 @@ impl Nat3DApp {
 
     fn render_image(&mut self) {
         // Neural engine branch: NeRF / NRC render without file dialog (outputs to status + image editor)
-        if matches!(self.state.render_engine, RenderEngine::NeRF | RenderEngine::NeuralCache) {
+        if matches!(
+            self.state.render_engine,
+            RenderEngine::NeRF | RenderEngine::NeuralCache
+        ) {
             self.render_image_neural();
             return;
         }
@@ -9285,9 +9408,9 @@ impl Nat3DApp {
     /// Neural render pass: NeRF volumetric ray marching or NRC MLP prediction.
     /// Produces a low-resolution preview (64×64) and logs to console.
     fn render_image_neural(&mut self) {
+        use nalgebra::DVector;
         use nat3d_render::raytracing::nerf::{accumulate_radiance, VolumeSample};
         use nat3d_render::raytracing::nrc::RadianceMLP;
-        use nalgebra::DVector;
 
         let preview_w = 64_usize;
         let preview_h = 64_usize;
@@ -9303,7 +9426,11 @@ impl Nat3DApp {
             -yaw.cos() * pitch.cos(),
         ];
         let right = [yaw.cos(), 0.0, -yaw.sin()];
-        let up_vec = [yaw.sin() * pitch.sin(), pitch.cos(), yaw.cos() * pitch.sin()];
+        let up_vec = [
+            yaw.sin() * pitch.sin(),
+            pitch.cos(),
+            yaw.cos() * pitch.sin(),
+        ];
         let fov_half_tan = (cam.fov.to_radians() * 0.5).tan();
         let aspect = preview_w as f32 / preview_h as f32;
 
@@ -9326,42 +9453,58 @@ impl Nat3DApp {
                     forward[1] + right[1] * ndc_x + up_vec[1] * ndc_y,
                     forward[2] + right[2] * ndc_x + up_vec[2] * ndc_y,
                 ];
-                let rd_len = (rd[0]*rd[0] + rd[1]*rd[1] + rd[2]*rd[2]).sqrt().max(1e-8);
-                let rd_n = [rd[0]/rd_len, rd[1]/rd_len, rd[2]/rd_len];
+                let rd_len = (rd[0] * rd[0] + rd[1] * rd[1] + rd[2] * rd[2])
+                    .sqrt()
+                    .max(1e-8);
+                let rd_n = [rd[0] / rd_len, rd[1] / rd_len, rd[2] / rd_len];
 
                 if is_nerf {
                     // NeRF: march 16 samples along ray, density from scene bounding volume
                     let step_size = 0.25_f64;
-                    let samples: Vec<VolumeSample> = (0..16).map(|s| {
-                        let t = s as f64 * step_size;
-                        let px3 = cam_pos[0] as f64 + rd_n[0] as f64 * t;
-                        let py3 = cam_pos[1] as f64 + rd_n[1] as f64 * t;
-                        let pz3 = cam_pos[2] as f64 + rd_n[2] as f64 * t;
-                        // Density peaks near origin (scene center proxy)
-                        let dist2 = px3*px3 + py3*py3 + pz3*pz3;
-                        VolumeSample {
-                            color: nalgebra::Vector3::new(0.6, 0.7, 0.9),
-                            density: (-(dist2 * 0.1)).exp() * 0.5,
-                        }
-                    }).collect();
+                    let samples: Vec<VolumeSample> = (0..16)
+                        .map(|s| {
+                            let t = s as f64 * step_size;
+                            let px3 = cam_pos[0] as f64 + rd_n[0] as f64 * t;
+                            let py3 = cam_pos[1] as f64 + rd_n[1] as f64 * t;
+                            let pz3 = cam_pos[2] as f64 + rd_n[2] as f64 * t;
+                            // Density peaks near origin (scene center proxy)
+                            let dist2 = px3 * px3 + py3 * py3 + pz3 * pz3;
+                            VolumeSample {
+                                color: nalgebra::Vector3::new(0.6, 0.7, 0.9),
+                                density: (-(dist2 * 0.1)).exp() * 0.5,
+                            }
+                        })
+                        .collect();
                     let rgb = accumulate_radiance(&samples, step_size);
                     total_luminance += 0.2126 * rgb.x + 0.7152 * rgb.y + 0.0722 * rgb.z;
-                    if rgb.x + rgb.y + rgb.z > 0.01 { hit_pixels += 1; }
+                    if rgb.x + rgb.y + rgb.z > 0.01 {
+                        hit_pixels += 1;
+                    }
                 } else if let Some(ref m) = mlp {
                     // NRC: predict radiance from 5D input (pos 3D + dir 2D)
                     let theta = (rd_n[1] as f64).acos();
                     let phi = (rd_n[2] as f64).atan2(rd_n[0] as f64);
                     let input = DVector::from_vec(vec![
-                        cam_pos[0] as f64, cam_pos[1] as f64, cam_pos[2] as f64, theta, phi,
+                        cam_pos[0] as f64,
+                        cam_pos[1] as f64,
+                        cam_pos[2] as f64,
+                        theta,
+                        phi,
                     ]);
                     let rgb = m.predict(input);
                     total_luminance += 0.2126 * rgb.x + 0.7152 * rgb.y + 0.0722 * rgb.z;
-                    if rgb.x + rgb.y + rgb.z > 0.01 { hit_pixels += 1; }
+                    if rgb.x + rgb.y + rgb.z > 0.01 {
+                        hit_pixels += 1;
+                    }
                 }
             }
         }
 
-        let engine_name = if is_nerf { "NeRF" } else { "Neural Cache (NRC)" };
+        let engine_name = if is_nerf {
+            "NeRF"
+        } else {
+            "Neural Cache (NRC)"
+        };
         let avg_lum = total_luminance / (preview_w * preview_h) as f64;
         self.status_message = format!(
             "{} preview {}×{} complete — avg luminance: {:.4}, hit pixels: {}",
@@ -9369,7 +9512,10 @@ impl Nat3DApp {
         );
         self.log_console(
             console::LogLevel::Info,
-            &format!("{} render pass: {}×{} @ λ̄={:.4}", engine_name, preview_w, preview_h, avg_lum),
+            &format!(
+                "{} render pass: {}×{} @ λ̄={:.4}",
+                engine_name, preview_w, preview_h, avg_lum
+            ),
             "Neural Render",
         );
     }
@@ -9397,12 +9543,16 @@ impl Nat3DApp {
                 // ── Header ──────────────────────────────────────────────
                 ui.vertical_centered(|ui| {
                     ui.add_space(6.0);
-                    ui.heading(egui::RichText::new("NAT3D")
-                        .size(32.0)
-                        .color(egui::Color32::from_rgb(100, 180, 255)));
-                    ui.label(egui::RichText::new("Professional 3D — Open Source · AGPL-3.0")
-                        .size(12.0)
-                        .color(egui::Color32::GRAY));
+                    ui.heading(
+                        egui::RichText::new("NAT3D")
+                            .size(32.0)
+                            .color(egui::Color32::from_rgb(100, 180, 255)),
+                    );
+                    ui.label(
+                        egui::RichText::new("Professional 3D — Open Source · AGPL-3.0")
+                            .size(12.0)
+                            .color(egui::Color32::GRAY),
+                    );
                     ui.add_space(4.0);
                 });
 
@@ -9413,7 +9563,10 @@ impl Nat3DApp {
                     cols[0].heading("Quick Start");
                     cols[0].add_space(6.0);
 
-                    if cols[0].button(egui::RichText::new("  New Empty Scene").size(14.0)).clicked() {
+                    if cols[0]
+                        .button(egui::RichText::new("  New Empty Scene").size(14.0))
+                        .clicked()
+                    {
                         self.state.new_scene();
                         self.project_path = None;
                         self.status_message = "New scene created".to_string();
@@ -9422,16 +9575,23 @@ impl Nat3DApp {
                     }
 
                     cols[0].add_space(4.0);
-                    if cols[0].button(egui::RichText::new("  Load Example Scene").size(14.0)).clicked() {
+                    if cols[0]
+                        .button(egui::RichText::new("  Load Example Scene").size(14.0))
+                        .clicked()
+                    {
                         self.create_example_scene();
-                        self.status_message = "Example scene loaded — explore the scene objects!".to_string();
+                        self.status_message =
+                            "Example scene loaded — explore the scene objects!".to_string();
                         self.show_welcome = false;
                         Self::write_welcome_sentinel();
                     }
 
                     cols[0].add_space(4.0);
                     #[cfg(feature = "file-dialog")]
-                    if cols[0].button(egui::RichText::new("  Open File…").size(14.0)).clicked() {
+                    if cols[0]
+                        .button(egui::RichText::new("  Open File…").size(14.0))
+                        .clicked()
+                    {
                         self.show_welcome = false;
                         Self::write_welcome_sentinel();
                         self.open_project_dialog();
@@ -9442,16 +9602,18 @@ impl Nat3DApp {
                     cols[0].add_space(4.0);
                     for (key, desc) in &[
                         ("G / R / S", "Grab / Rotate / Scale"),
-                        ("Tab",       "Toggle Edit Mode"),
-                        ("Shift+D",   "Duplicate"),
-                        ("Del",       "Delete selected"),
-                        ("Z",         "Toggle shading"),
-                        ("F",         "Focus on selected"),
+                        ("Tab", "Toggle Edit Mode"),
+                        ("Shift+D", "Duplicate"),
+                        ("Del", "Delete selected"),
+                        ("Z", "Toggle shading"),
+                        ("F", "Focus on selected"),
                         ("Numpad 1/3/7", "Front / Right / Top"),
                     ] {
                         cols[0].horizontal(|ui| {
-                            ui.monospace(egui::RichText::new(*key)
-                                .color(egui::Color32::from_rgb(180, 210, 255)));
+                            ui.monospace(
+                                egui::RichText::new(*key)
+                                    .color(egui::Color32::from_rgb(180, 210, 255)),
+                            );
                             ui.label(*desc);
                         });
                     }
@@ -9460,22 +9622,47 @@ impl Nat3DApp {
                     cols[1].heading("SOTA Research Features");
                     cols[1].add_space(6.0);
                     for (label, detail) in &[
-                        ("★ Spectral Smooth",     "Laplacian mesh processing\n  (Sorkine 2006)"),
-                        ("★ Hyperbolic Warp",     "Poincaré ball geometry\n  (Ungar 2001)"),
-                        ("★ NeRF Render Engine",  "Volumetric neural radiance\n  (Mildenhall et al. 2020)"),
-                        ("★ Neural Cache (NRC)",  "Real-time GI via MLP\n  (Müller et al. 2021)"),
-                        ("★ Non-Euclidean Core",  "Möbius/hyperbolic math\n  in nat3d-core"),
-                        ("★ Differentiable Render","Adjoint gradient pipeline\n  in nat3d-render"),
+                        (
+                            "★ Spectral Smooth",
+                            "Laplacian mesh processing\n  (Sorkine 2006)",
+                        ),
+                        (
+                            "★ Hyperbolic Warp",
+                            "Poincaré ball geometry\n  (Ungar 2001)",
+                        ),
+                        (
+                            "★ NeRF Render Engine",
+                            "Volumetric neural radiance\n  (Mildenhall et al. 2020)",
+                        ),
+                        (
+                            "★ Neural Cache (NRC)",
+                            "Real-time GI via MLP\n  (Müller et al. 2021)",
+                        ),
+                        (
+                            "★ Non-Euclidean Core",
+                            "Möbius/hyperbolic math\n  in nat3d-core",
+                        ),
+                        (
+                            "★ Differentiable Render",
+                            "Adjoint gradient pipeline\n  in nat3d-render",
+                        ),
                     ] {
                         cols[1].colored_label(egui::Color32::from_rgb(100, 200, 255), *label);
-                        cols[1].label(egui::RichText::new(*detail).size(10.5).color(egui::Color32::GRAY));
+                        cols[1].label(
+                            egui::RichText::new(*detail)
+                                .size(10.5)
+                                .color(egui::Color32::GRAY),
+                        );
                         cols[1].add_space(2.0);
                     }
                 });
 
                 ui.separator();
                 ui.horizontal(|ui| {
-                    ui.checkbox(&mut self.preferences.dont_show_welcome, "Don't show on startup");
+                    ui.checkbox(
+                        &mut self.preferences.dont_show_welcome,
+                        "Don't show on startup",
+                    );
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui.button("  Close  ").clicked() {
                             self.show_welcome = false;
@@ -9505,17 +9692,43 @@ impl Nat3DApp {
             position: [0.0, -1.0, 0.0],
             rotation: [0.0, 0.0, 0.0],
             scale: [5.0, 1.0, 5.0],
-            material: MaterialState { base_color: [0.35, 0.32, 0.30, 1.0], metallic: 0.0, roughness: 0.9, emissive: 0.0 },
+            material: MaterialState {
+                base_color: [0.35, 0.32, 0.30, 1.0],
+                metallic: 0.0,
+                roughness: 0.9,
+                emissive: 0.0,
+            },
             modifiers: vec![],
             visible: true,
             smooth_shading: false,
-            locked: false, parent: None, keyframes: vec![], shape_keys: vec![], constraints: vec![],
-            vertex_colors: vec![], vertex_weights: vec![], vertex_groups: vec![], particle_systems: vec![],
-            bones: vec![], drivers: vec![], force_field: None, cloth: None, soft_body: None,
-            nla_tracks: vec![], gp_strokes: vec![], texture_slots: vec![], custom_properties: vec![],
-            motion_path: None, pass_index: 0, hair_settings: None, fluid: None, linked_data: None,
-            edit_mesh: None, edit_selection: EditModeSelection::default(), custom_vertices: None,
-            custom_faces: None, uv_coords: None,
+            locked: false,
+            parent: None,
+            keyframes: vec![],
+            shape_keys: vec![],
+            constraints: vec![],
+            vertex_colors: vec![],
+            vertex_weights: vec![],
+            vertex_groups: vec![],
+            particle_systems: vec![],
+            bones: vec![],
+            drivers: vec![],
+            force_field: None,
+            cloth: None,
+            soft_body: None,
+            nla_tracks: vec![],
+            gp_strokes: vec![],
+            texture_slots: vec![],
+            custom_properties: vec![],
+            motion_path: None,
+            pass_index: 0,
+            hair_settings: None,
+            fluid: None,
+            linked_data: None,
+            edit_mesh: None,
+            edit_selection: EditModeSelection::default(),
+            custom_vertices: None,
+            custom_faces: None,
+            uv_coords: None,
         });
 
         // Metallic sphere — center stage
@@ -9526,17 +9739,43 @@ impl Nat3DApp {
             position: [0.0, 0.0, 0.0],
             rotation: [0.0, 0.0, 0.0],
             scale: [1.0, 1.0, 1.0],
-            material: MaterialState { base_color: [0.9, 0.85, 0.7, 1.0], metallic: 0.95, roughness: 0.15, emissive: 0.0 },
+            material: MaterialState {
+                base_color: [0.9, 0.85, 0.7, 1.0],
+                metallic: 0.95,
+                roughness: 0.15,
+                emissive: 0.0,
+            },
             modifiers: vec!["Spectral Smooth".to_string()],
             visible: true,
             smooth_shading: true,
-            locked: false, parent: None, keyframes: vec![], shape_keys: vec![], constraints: vec![],
-            vertex_colors: vec![], vertex_weights: vec![], vertex_groups: vec![], particle_systems: vec![],
-            bones: vec![], drivers: vec![], force_field: None, cloth: None, soft_body: None,
-            nla_tracks: vec![], gp_strokes: vec![], texture_slots: vec![], custom_properties: vec![],
-            motion_path: None, pass_index: 0, hair_settings: None, fluid: None, linked_data: None,
-            edit_mesh: None, edit_selection: EditModeSelection::default(), custom_vertices: None,
-            custom_faces: None, uv_coords: None,
+            locked: false,
+            parent: None,
+            keyframes: vec![],
+            shape_keys: vec![],
+            constraints: vec![],
+            vertex_colors: vec![],
+            vertex_weights: vec![],
+            vertex_groups: vec![],
+            particle_systems: vec![],
+            bones: vec![],
+            drivers: vec![],
+            force_field: None,
+            cloth: None,
+            soft_body: None,
+            nla_tracks: vec![],
+            gp_strokes: vec![],
+            texture_slots: vec![],
+            custom_properties: vec![],
+            motion_path: None,
+            pass_index: 0,
+            hair_settings: None,
+            fluid: None,
+            linked_data: None,
+            edit_mesh: None,
+            edit_selection: EditModeSelection::default(),
+            custom_vertices: None,
+            custom_faces: None,
+            uv_coords: None,
         });
 
         // Rough dielectric cube — left
@@ -9547,17 +9786,43 @@ impl Nat3DApp {
             position: [-2.2, 0.0, 0.0],
             rotation: [0.0, 30.0, 0.0],
             scale: [0.9, 0.9, 0.9],
-            material: MaterialState { base_color: [0.18, 0.35, 0.72, 1.0], metallic: 0.0, roughness: 0.7, emissive: 0.0 },
+            material: MaterialState {
+                base_color: [0.18, 0.35, 0.72, 1.0],
+                metallic: 0.0,
+                roughness: 0.7,
+                emissive: 0.0,
+            },
             modifiers: vec![],
             visible: true,
             smooth_shading: false,
-            locked: false, parent: None, keyframes: vec![], shape_keys: vec![], constraints: vec![],
-            vertex_colors: vec![], vertex_weights: vec![], vertex_groups: vec![], particle_systems: vec![],
-            bones: vec![], drivers: vec![], force_field: None, cloth: None, soft_body: None,
-            nla_tracks: vec![], gp_strokes: vec![], texture_slots: vec![], custom_properties: vec![],
-            motion_path: None, pass_index: 0, hair_settings: None, fluid: None, linked_data: None,
-            edit_mesh: None, edit_selection: EditModeSelection::default(), custom_vertices: None,
-            custom_faces: None, uv_coords: None,
+            locked: false,
+            parent: None,
+            keyframes: vec![],
+            shape_keys: vec![],
+            constraints: vec![],
+            vertex_colors: vec![],
+            vertex_weights: vec![],
+            vertex_groups: vec![],
+            particle_systems: vec![],
+            bones: vec![],
+            drivers: vec![],
+            force_field: None,
+            cloth: None,
+            soft_body: None,
+            nla_tracks: vec![],
+            gp_strokes: vec![],
+            texture_slots: vec![],
+            custom_properties: vec![],
+            motion_path: None,
+            pass_index: 0,
+            hair_settings: None,
+            fluid: None,
+            linked_data: None,
+            edit_mesh: None,
+            edit_selection: EditModeSelection::default(),
+            custom_vertices: None,
+            custom_faces: None,
+            uv_coords: None,
         });
 
         // Emissive torus — right
@@ -9568,17 +9833,43 @@ impl Nat3DApp {
             position: [2.2, 0.0, 0.0],
             rotation: [90.0, 0.0, 0.0],
             scale: [0.8, 0.8, 0.8],
-            material: MaterialState { base_color: [1.0, 0.45, 0.05, 1.0], metallic: 0.0, roughness: 0.3, emissive: 2.5 },
+            material: MaterialState {
+                base_color: [1.0, 0.45, 0.05, 1.0],
+                metallic: 0.0,
+                roughness: 0.3,
+                emissive: 2.5,
+            },
             modifiers: vec![],
             visible: true,
             smooth_shading: true,
-            locked: false, parent: None, keyframes: vec![], shape_keys: vec![], constraints: vec![],
-            vertex_colors: vec![], vertex_weights: vec![], vertex_groups: vec![], particle_systems: vec![],
-            bones: vec![], drivers: vec![], force_field: None, cloth: None, soft_body: None,
-            nla_tracks: vec![], gp_strokes: vec![], texture_slots: vec![], custom_properties: vec![],
-            motion_path: None, pass_index: 0, hair_settings: None, fluid: None, linked_data: None,
-            edit_mesh: None, edit_selection: EditModeSelection::default(), custom_vertices: None,
-            custom_faces: None, uv_coords: None,
+            locked: false,
+            parent: None,
+            keyframes: vec![],
+            shape_keys: vec![],
+            constraints: vec![],
+            vertex_colors: vec![],
+            vertex_weights: vec![],
+            vertex_groups: vec![],
+            particle_systems: vec![],
+            bones: vec![],
+            drivers: vec![],
+            force_field: None,
+            cloth: None,
+            soft_body: None,
+            nla_tracks: vec![],
+            gp_strokes: vec![],
+            texture_slots: vec![],
+            custom_properties: vec![],
+            motion_path: None,
+            pass_index: 0,
+            hair_settings: None,
+            fluid: None,
+            linked_data: None,
+            edit_mesh: None,
+            edit_selection: EditModeSelection::default(),
+            custom_vertices: None,
+            custom_faces: None,
+            uv_coords: None,
         });
 
         // Key light
@@ -9589,17 +9880,43 @@ impl Nat3DApp {
             position: [4.0, 6.0, 3.0],
             rotation: [0.0, 0.0, 0.0],
             scale: [1.0, 1.0, 1.0],
-            material: MaterialState { base_color: [1.0, 0.98, 0.92, 1.0], metallic: 0.0, roughness: 0.5, emissive: 3.0 },
+            material: MaterialState {
+                base_color: [1.0, 0.98, 0.92, 1.0],
+                metallic: 0.0,
+                roughness: 0.5,
+                emissive: 3.0,
+            },
             modifiers: vec![],
             visible: true,
             smooth_shading: false,
-            locked: false, parent: None, keyframes: vec![], shape_keys: vec![], constraints: vec![],
-            vertex_colors: vec![], vertex_weights: vec![], vertex_groups: vec![], particle_systems: vec![],
-            bones: vec![], drivers: vec![], force_field: None, cloth: None, soft_body: None,
-            nla_tracks: vec![], gp_strokes: vec![], texture_slots: vec![], custom_properties: vec![],
-            motion_path: None, pass_index: 0, hair_settings: None, fluid: None, linked_data: None,
-            edit_mesh: None, edit_selection: EditModeSelection::default(), custom_vertices: None,
-            custom_faces: None, uv_coords: None,
+            locked: false,
+            parent: None,
+            keyframes: vec![],
+            shape_keys: vec![],
+            constraints: vec![],
+            vertex_colors: vec![],
+            vertex_weights: vec![],
+            vertex_groups: vec![],
+            particle_systems: vec![],
+            bones: vec![],
+            drivers: vec![],
+            force_field: None,
+            cloth: None,
+            soft_body: None,
+            nla_tracks: vec![],
+            gp_strokes: vec![],
+            texture_slots: vec![],
+            custom_properties: vec![],
+            motion_path: None,
+            pass_index: 0,
+            hair_settings: None,
+            fluid: None,
+            linked_data: None,
+            edit_mesh: None,
+            edit_selection: EditModeSelection::default(),
+            custom_vertices: None,
+            custom_faces: None,
+            uv_coords: None,
         });
 
         // Camera
@@ -10064,20 +10381,36 @@ impl Nat3DApp {
         }
 
         // Poll the GitHub Education background thread (extract event before modifying self)
-        let edu_event = self.edu_oauth_rx.as_ref().and_then(|rx| rx.lock().try_recv().ok());
+        let edu_event = self
+            .edu_oauth_rx
+            .as_ref()
+            .and_then(|rx| rx.lock().try_recv().ok());
         let still_polling = self.edu_oauth_rx.is_some() && edu_event.is_none();
 
         if let Some(event) = edu_event {
             let mid = license::get_machine_id();
             self.edu_oauth_step = match event {
-                license::EduFlowEvent::DeviceCodeReady { user_code, verification_uri, .. } => {
+                license::EduFlowEvent::DeviceCodeReady {
+                    user_code,
+                    verification_uri,
+                    ..
+                } => {
                     #[cfg(feature = "file-dialog")]
                     let _ = open::that(&verification_uri);
-                    EduOAuthStep::AwaitingUser { user_code, verification_uri }
+                    EduOAuthStep::AwaitingUser {
+                        user_code,
+                        verification_uri,
+                    }
                 }
-                license::EduFlowEvent::EduConfirmed { serial, github_handle } => {
+                license::EduFlowEvent::EduConfirmed {
+                    serial,
+                    github_handle,
+                } => {
                     self.license_status = license::validate_license(&serial.replace('-', ""), &mid);
-                    EduOAuthStep::Confirmed { serial, github_handle }
+                    EduOAuthStep::Confirmed {
+                        serial,
+                        github_handle,
+                    }
                 }
                 license::EduFlowEvent::NotEduAccount { github_handle } => {
                     self.edu_oauth_rx = None;
@@ -10613,7 +10946,13 @@ impl Nat3DApp {
                     ui.separator();
                     ui.menu_button("Add Node", |ui| {
                         ui.menu_button("Input", |ui| {
-                            for (name, _) in &[("Value", ()), ("Vector", ()), ("Color", ()), ("UV Map", ()), ("Object Info", ())] {
+                            for (name, _) in &[
+                                ("Value", ()),
+                                ("Vector", ()),
+                                ("Color", ()),
+                                ("UV Map", ()),
+                                ("Object Info", ()),
+                            ] {
                                 if ui.button(*name).clicked() {
                                     add_node_request = Some((name, nodes::NodeCategory::Input));
                                     ui.close_menu();
@@ -10621,7 +10960,13 @@ impl Nat3DApp {
                             }
                         });
                         ui.menu_button("Shader", |ui| {
-                            for (name, _) in &[("Principled BSDF", ()), ("Diffuse BSDF", ()), ("Glossy BSDF", ()), ("Emission", ()), ("Mix Shader", ())] {
+                            for (name, _) in &[
+                                ("Principled BSDF", ()),
+                                ("Diffuse BSDF", ()),
+                                ("Glossy BSDF", ()),
+                                ("Emission", ()),
+                                ("Mix Shader", ()),
+                            ] {
                                 if ui.button(*name).clicked() {
                                     add_node_request = Some((name, nodes::NodeCategory::Shader));
                                     ui.close_menu();
@@ -10629,7 +10974,13 @@ impl Nat3DApp {
                             }
                         });
                         ui.menu_button("Texture", |ui| {
-                            for (name, _) in &[("Image Texture", ()), ("Noise", ()), ("Voronoi", ()), ("Checker", ()), ("Wave", ())] {
+                            for (name, _) in &[
+                                ("Image Texture", ()),
+                                ("Noise", ()),
+                                ("Voronoi", ()),
+                                ("Checker", ()),
+                                ("Wave", ()),
+                            ] {
                                 if ui.button(*name).clicked() {
                                     add_node_request = Some((name, nodes::NodeCategory::Texture));
                                     ui.close_menu();
@@ -10637,7 +10988,12 @@ impl Nat3DApp {
                             }
                         });
                         ui.menu_button("Color", |ui| {
-                            for (name, _) in &[("Mix", ()), ("Brightness/Contrast", ()), ("Hue/Saturation", ()), ("Invert", ())] {
+                            for (name, _) in &[
+                                ("Mix", ()),
+                                ("Brightness/Contrast", ()),
+                                ("Hue/Saturation", ()),
+                                ("Invert", ()),
+                            ] {
                                 if ui.button(*name).clicked() {
                                     add_node_request = Some((name, nodes::NodeCategory::Color));
                                     ui.close_menu();
@@ -10645,7 +11001,13 @@ impl Nat3DApp {
                             }
                         });
                         ui.menu_button("Converter", |ui| {
-                            for (name, _) in &[("Math", ()), ("Map Range", ()), ("Color Ramp", ()), ("Separate XYZ", ()), ("Combine XYZ", ())] {
+                            for (name, _) in &[
+                                ("Math", ()),
+                                ("Map Range", ()),
+                                ("Color Ramp", ()),
+                                ("Separate XYZ", ()),
+                                ("Combine XYZ", ()),
+                            ] {
                                 if ui.button(*name).clicked() {
                                     add_node_request = Some((name, nodes::NodeCategory::Converter));
                                     ui.close_menu();
@@ -10664,31 +11026,40 @@ impl Nat3DApp {
                     if ui.button("Compile Material").clicked() {
                         let n = self.node_graph.nodes().count();
                         let c = self.node_graph.connections().len();
-                        self.status_message = format!("Material compiled ({n} nodes, {c} connections)");
+                        self.status_message =
+                            format!("Material compiled ({n} nodes, {c} connections)");
                     }
                     if ui.button("Clear Connections").clicked() {
                         self.pending_connection = None;
                         self.node_graph.clear_selection();
-                        self.status_message = "Connections cleared — use Compile to re-link".to_string();
+                        self.status_message =
+                            "Connections cleared — use Compile to re-link".to_string();
                     }
                 });
                 ui.separator();
 
                 // ── Canvas ───────────────────────────────────────────────────
                 let canvas_size = ui.available_size();
-                let (resp, painter) = ui.allocate_painter(canvas_size, egui::Sense::click_and_drag());
+                let (resp, painter) =
+                    ui.allocate_painter(canvas_size, egui::Sense::click_and_drag());
                 let crect = resp.rect;
 
                 // Background grid
                 let grid_color = egui::Color32::from_rgba_unmultiplied(50, 50, 55, 100);
                 let mut x = crect.left();
                 while x < crect.right() {
-                    painter.line_segment([egui::pos2(x, crect.top()), egui::pos2(x, crect.bottom())], egui::Stroke::new(0.5, grid_color));
+                    painter.line_segment(
+                        [egui::pos2(x, crect.top()), egui::pos2(x, crect.bottom())],
+                        egui::Stroke::new(0.5, grid_color),
+                    );
                     x += 20.0;
                 }
                 let mut y = crect.top();
                 while y < crect.bottom() {
-                    painter.line_segment([egui::pos2(crect.left(), y), egui::pos2(crect.right(), y)], egui::Stroke::new(0.5, grid_color));
+                    painter.line_segment(
+                        [egui::pos2(crect.left(), y), egui::pos2(crect.right(), y)],
+                        egui::Stroke::new(0.5, grid_color),
+                    );
                     y += 20.0;
                 }
 
@@ -10703,27 +11074,51 @@ impl Nat3DApp {
                     let nx = crect.left() + node.position[0];
                     let ny = crect.top() + node.position[1];
                     let y = ny + HDR_H + ROW_H * (idx as f32 + 0.5);
-                    if is_input { egui::pos2(nx, y) } else { egui::pos2(nx + node.size[0], y) }
+                    if is_input {
+                        egui::pos2(nx, y)
+                    } else {
+                        egui::pos2(nx + node.size[0], y)
+                    }
                 };
 
                 // Phase 1 — collect socket screen positions for interaction (borrow drops at end of block)
                 let socket_hits: Vec<(nodes::NodeId, nodes::SocketId, bool, egui::Pos2)> = {
-                    self.node_graph.nodes().flat_map(|n| {
-                        let ins = n.inputs.iter().enumerate().map(|(i, s)| (n.id, s.id, true, sock_pos(n, true, i)));
-                        let outs = n.outputs.iter().enumerate().map(|(i, s)| (n.id, s.id, false, sock_pos(n, false, i)));
-                        ins.chain(outs)
-                    }).collect()
+                    self.node_graph
+                        .nodes()
+                        .flat_map(|n| {
+                            let ins = n
+                                .inputs
+                                .iter()
+                                .enumerate()
+                                .map(|(i, s)| (n.id, s.id, true, sock_pos(n, true, i)));
+                            let outs = n
+                                .outputs
+                                .iter()
+                                .enumerate()
+                                .map(|(i, s)| (n.id, s.id, false, sock_pos(n, false, i)));
+                            ins.chain(outs)
+                        })
+                        .collect()
                 };
 
                 // Also collect node header rects for drag detection
                 let node_headers: Vec<(nodes::NodeId, egui::Rect)> = {
-                    self.node_graph.nodes().map(|n| {
-                        let nx = crect.left() + n.position[0];
-                        let ny = crect.top() + n.position[1];
-                        let rows = n.inputs.len().max(n.outputs.len()).max(1);
-                        let h = HDR_H + ROW_H * rows as f32 + 4.0;
-                        (n.id, egui::Rect::from_min_size(egui::pos2(nx, ny), egui::vec2(n.size[0], h)))
-                    }).collect()
+                    self.node_graph
+                        .nodes()
+                        .map(|n| {
+                            let nx = crect.left() + n.position[0];
+                            let ny = crect.top() + n.position[1];
+                            let rows = n.inputs.len().max(n.outputs.len()).max(1);
+                            let h = HDR_H + ROW_H * rows as f32 + 4.0;
+                            (
+                                n.id,
+                                egui::Rect::from_min_size(
+                                    egui::pos2(nx, ny),
+                                    egui::vec2(n.size[0], h),
+                                ),
+                            )
+                        })
+                        .collect()
                 };
 
                 // Phase 2 — handle interactions
@@ -10743,7 +11138,10 @@ impl Nat3DApp {
                         for (nid, header) in &node_headers {
                             if header.contains(pos) {
                                 // Make sure it's the header strip only
-                                let header_strip = egui::Rect::from_min_size(header.min, egui::vec2(header.width(), HDR_H));
+                                let header_strip = egui::Rect::from_min_size(
+                                    header.min,
+                                    egui::vec2(header.width(), HDR_H),
+                                );
                                 if header_strip.contains(pos) {
                                     self.node_drag = Some((*nid, pos - header.min));
                                     break;
@@ -10777,7 +11175,8 @@ impl Nat3DApp {
                                     if self.node_graph.connect(from_n, from_s, nid, sid) {
                                         self.status_message = "Nodes connected".to_string();
                                     } else {
-                                        self.status_message = "Incompatible socket types".to_string();
+                                        self.status_message =
+                                            "Incompatible socket types".to_string();
                                     }
                                 }
                             }
@@ -10790,28 +11189,47 @@ impl Nat3DApp {
                 }
 
                 // Phase 3 — draw connections
-                let draw_bezier = |p: &egui::Painter, a: egui::Pos2, b: egui::Pos2, color: egui::Color32| {
-                    let dx = (b.x - a.x).abs().max(80.0) * 0.5;
-                    let cp1 = egui::pos2(a.x + dx, a.y);
-                    let cp2 = egui::pos2(b.x - dx, b.y);
-                    let pts: Vec<egui::Pos2> = (0..=24).map(|i| {
-                        let t = i as f32 / 24.0;
-                        let mt = 1.0 - t;
-                        egui::pos2(
-                            mt*mt*mt*a.x + 3.0*mt*mt*t*cp1.x + 3.0*mt*t*t*cp2.x + t*t*t*b.x,
-                            mt*mt*mt*a.y + 3.0*mt*mt*t*cp1.y + 3.0*mt*t*t*cp2.y + t*t*t*b.y,
-                        )
-                    }).collect();
-                    for w in pts.windows(2) {
-                        p.line_segment([w[0], w[1]], egui::Stroke::new(2.0, color));
-                    }
-                };
+                let draw_bezier =
+                    |p: &egui::Painter, a: egui::Pos2, b: egui::Pos2, color: egui::Color32| {
+                        let dx = (b.x - a.x).abs().max(80.0) * 0.5;
+                        let cp1 = egui::pos2(a.x + dx, a.y);
+                        let cp2 = egui::pos2(b.x - dx, b.y);
+                        let pts: Vec<egui::Pos2> = (0..=24)
+                            .map(|i| {
+                                let t = i as f32 / 24.0;
+                                let mt = 1.0 - t;
+                                egui::pos2(
+                                    mt * mt * mt * a.x
+                                        + 3.0 * mt * mt * t * cp1.x
+                                        + 3.0 * mt * t * t * cp2.x
+                                        + t * t * t * b.x,
+                                    mt * mt * mt * a.y
+                                        + 3.0 * mt * mt * t * cp1.y
+                                        + 3.0 * mt * t * t * cp2.y
+                                        + t * t * t * b.y,
+                                )
+                            })
+                            .collect();
+                        for w in pts.windows(2) {
+                            p.line_segment([w[0], w[1]], egui::Stroke::new(2.0, color));
+                        }
+                    };
 
                 // Draw existing connections
                 let conns: Vec<_> = self.node_graph.connections().to_vec();
                 for conn in &conns {
-                    let from_pos = socket_hits.iter().find(|(nid, sid, is_in, _)| *nid == conn.from_node && *sid == conn.from_socket && !is_in).map(|(_, _, _, p)| *p);
-                    let to_pos   = socket_hits.iter().find(|(nid, sid, is_in, _)| *nid == conn.to_node   && *sid == conn.to_socket   && *is_in).map(|(_, _, _, p)| *p);
+                    let from_pos = socket_hits
+                        .iter()
+                        .find(|(nid, sid, is_in, _)| {
+                            *nid == conn.from_node && *sid == conn.from_socket && !is_in
+                        })
+                        .map(|(_, _, _, p)| *p);
+                    let to_pos = socket_hits
+                        .iter()
+                        .find(|(nid, sid, is_in, _)| {
+                            *nid == conn.to_node && *sid == conn.to_socket && *is_in
+                        })
+                        .map(|(_, _, _, p)| *p);
                     if let (Some(a), Some(b)) = (from_pos, to_pos) {
                         draw_bezier(&painter, a, b, egui::Color32::from_rgb(180, 180, 180));
                     }
@@ -10819,11 +11237,19 @@ impl Nat3DApp {
 
                 // Draw pending wire (follows mouse)
                 if let Some((pn, ps)) = self.pending_connection {
-                    if let Some(start) = socket_hits.iter().find(|(nid, sid, is_in, _)| *nid == pn && *sid == ps && !is_in).map(|(_, _, _, p)| *p) {
+                    if let Some(start) = socket_hits
+                        .iter()
+                        .find(|(nid, sid, is_in, _)| *nid == pn && *sid == ps && !is_in)
+                        .map(|(_, _, _, p)| *p)
+                    {
                         let end = mouse_pos.unwrap_or(start);
                         draw_bezier(&painter, start, end, egui::Color32::from_rgb(220, 200, 60));
                         // Pulse dot at source
-                        painter.circle_stroke(start, SOCK_R + 3.0, egui::Stroke::new(1.5, egui::Color32::from_rgb(220, 200, 60)));
+                        painter.circle_stroke(
+                            start,
+                            SOCK_R + 3.0,
+                            egui::Stroke::new(1.5, egui::Color32::from_rgb(220, 200, 60)),
+                        );
                     }
                 }
 
@@ -10832,23 +11258,42 @@ impl Nat3DApp {
                 for nid in node_ids {
                     let (nx, ny, nw, name, category, inputs, outputs) = {
                         if let Some(n) = self.node_graph.get_node(nid) {
-                            let ins: Vec<(nodes::SocketId, String, [u8; 3])> = n.inputs.iter().map(|s| (s.id, s.name.clone(), s.socket_type.color())).collect();
-                            let outs: Vec<(nodes::SocketId, String, [u8; 3])> = n.outputs.iter().map(|s| (s.id, s.name.clone(), s.socket_type.color())).collect();
-                            (crect.left() + n.position[0], crect.top() + n.position[1], n.size[0], n.name.clone(), n.category, ins, outs)
-                        } else { continue; }
+                            let ins: Vec<(nodes::SocketId, String, [u8; 3])> = n
+                                .inputs
+                                .iter()
+                                .map(|s| (s.id, s.name.clone(), s.socket_type.color()))
+                                .collect();
+                            let outs: Vec<(nodes::SocketId, String, [u8; 3])> = n
+                                .outputs
+                                .iter()
+                                .map(|s| (s.id, s.name.clone(), s.socket_type.color()))
+                                .collect();
+                            (
+                                crect.left() + n.position[0],
+                                crect.top() + n.position[1],
+                                n.size[0],
+                                n.name.clone(),
+                                n.category,
+                                ins,
+                                outs,
+                            )
+                        } else {
+                            continue;
+                        }
                     };
 
                     let rows = inputs.len().max(outputs.len()).max(1);
                     let nh = HDR_H + ROW_H * rows as f32 + 4.0;
-                    let node_rect = egui::Rect::from_min_size(egui::pos2(nx, ny), egui::vec2(nw, nh));
+                    let node_rect =
+                        egui::Rect::from_min_size(egui::pos2(nx, ny), egui::vec2(nw, nh));
 
                     let bg = match category {
-                        nodes::NodeCategory::Shader    => egui::Color32::from_rgb(45, 75, 45),
-                        nodes::NodeCategory::Output    => egui::Color32::from_rgb(75, 45, 45),
-                        nodes::NodeCategory::Texture   => egui::Color32::from_rgb(45, 50, 80),
-                        nodes::NodeCategory::Color     => egui::Color32::from_rgb(70, 60, 35),
-                        nodes::NodeCategory::Input     => egui::Color32::from_rgb(50, 50, 70),
-                        _                              => egui::Color32::from_rgb(55, 55, 60),
+                        nodes::NodeCategory::Shader => egui::Color32::from_rgb(45, 75, 45),
+                        nodes::NodeCategory::Output => egui::Color32::from_rgb(75, 45, 45),
+                        nodes::NodeCategory::Texture => egui::Color32::from_rgb(45, 50, 80),
+                        nodes::NodeCategory::Color => egui::Color32::from_rgb(70, 60, 35),
+                        nodes::NodeCategory::Input => egui::Color32::from_rgb(50, 50, 70),
+                        _ => egui::Color32::from_rgb(55, 55, 60),
                     };
                     let hdr_bg = egui::Color32::from_rgb(
                         (bg.r() as u16).saturating_add(25).min(255) as u8,
@@ -10856,31 +11301,87 @@ impl Nat3DApp {
                         (bg.b() as u16).saturating_add(25).min(255) as u8,
                     );
                     let selected = self.node_graph.is_selected(nid);
-                    let border = if selected { egui::Color32::from_rgb(255, 180, 50) } else { egui::Color32::from_rgb(90, 90, 90) };
+                    let border = if selected {
+                        egui::Color32::from_rgb(255, 180, 50)
+                    } else {
+                        egui::Color32::from_rgb(90, 90, 90)
+                    };
 
                     painter.rect_filled(node_rect, 6.0, bg);
-                    painter.rect_stroke(node_rect, 6.0, egui::Stroke::new(if selected { 2.0 } else { 1.0 }, border));
-                    let hdr_rect = egui::Rect::from_min_size(egui::pos2(nx, ny), egui::vec2(nw, HDR_H));
-                    painter.rect_filled(hdr_rect, egui::Rounding { nw: 6.0, ne: 6.0, sw: 0.0, se: 0.0 }, hdr_bg);
-                    painter.text(hdr_rect.center(), egui::Align2::CENTER_CENTER, &name, egui::FontId::proportional(11.0), egui::Color32::WHITE);
+                    painter.rect_stroke(
+                        node_rect,
+                        6.0,
+                        egui::Stroke::new(if selected { 2.0 } else { 1.0 }, border),
+                    );
+                    let hdr_rect =
+                        egui::Rect::from_min_size(egui::pos2(nx, ny), egui::vec2(nw, HDR_H));
+                    painter.rect_filled(
+                        hdr_rect,
+                        egui::Rounding {
+                            nw: 6.0,
+                            ne: 6.0,
+                            sw: 0.0,
+                            se: 0.0,
+                        },
+                        hdr_bg,
+                    );
+                    painter.text(
+                        hdr_rect.center(),
+                        egui::Align2::CENTER_CENTER,
+                        &name,
+                        egui::FontId::proportional(11.0),
+                        egui::Color32::WHITE,
+                    );
 
                     for (i, (_sid, sname, col)) in inputs.iter().enumerate() {
                         let sp = egui::pos2(nx, ny + HDR_H + ROW_H * (i as f32 + 0.5));
-                        painter.circle_filled(sp, SOCK_R, egui::Color32::from_rgb(col[0], col[1], col[2]));
-                        painter.text(egui::pos2(sp.x + SOCK_R + 4.0, sp.y), egui::Align2::LEFT_CENTER, sname, egui::FontId::proportional(10.0), egui::Color32::from_rgb(210, 210, 210));
+                        painter.circle_filled(
+                            sp,
+                            SOCK_R,
+                            egui::Color32::from_rgb(col[0], col[1], col[2]),
+                        );
+                        painter.text(
+                            egui::pos2(sp.x + SOCK_R + 4.0, sp.y),
+                            egui::Align2::LEFT_CENTER,
+                            sname,
+                            egui::FontId::proportional(10.0),
+                            egui::Color32::from_rgb(210, 210, 210),
+                        );
                     }
                     for (i, (_sid, sname, col)) in outputs.iter().enumerate() {
                         let sp = egui::pos2(nx + nw, ny + HDR_H + ROW_H * (i as f32 + 0.5));
-                        painter.circle_filled(sp, SOCK_R, egui::Color32::from_rgb(col[0], col[1], col[2]));
-                        painter.text(egui::pos2(sp.x - SOCK_R - 4.0, sp.y), egui::Align2::RIGHT_CENTER, sname, egui::FontId::proportional(10.0), egui::Color32::from_rgb(210, 210, 210));
+                        painter.circle_filled(
+                            sp,
+                            SOCK_R,
+                            egui::Color32::from_rgb(col[0], col[1], col[2]),
+                        );
+                        painter.text(
+                            egui::pos2(sp.x - SOCK_R - 4.0, sp.y),
+                            egui::Align2::RIGHT_CENTER,
+                            sname,
+                            egui::FontId::proportional(10.0),
+                            egui::Color32::from_rgb(210, 210, 210),
+                        );
                     }
                 }
 
                 // Hint
                 if self.pending_connection.is_some() {
-                    painter.text(egui::pos2(crect.left() + 8.0, crect.bottom() - 12.0), egui::Align2::LEFT_CENTER, "Click an input socket to connect, or click empty space to cancel", egui::FontId::proportional(10.0), egui::Color32::from_rgb(220, 200, 60));
+                    painter.text(
+                        egui::pos2(crect.left() + 8.0, crect.bottom() - 12.0),
+                        egui::Align2::LEFT_CENTER,
+                        "Click an input socket to connect, or click empty space to cancel",
+                        egui::FontId::proportional(10.0),
+                        egui::Color32::from_rgb(220, 200, 60),
+                    );
                 } else {
-                    painter.text(egui::pos2(crect.left() + 8.0, crect.bottom() - 12.0), egui::Align2::LEFT_CENTER, "Click an output socket to start a connection · Drag node headers to move", egui::FontId::proportional(10.0), egui::Color32::from_rgb(120, 120, 120));
+                    painter.text(
+                        egui::pos2(crect.left() + 8.0, crect.bottom() - 12.0),
+                        egui::Align2::LEFT_CENTER,
+                        "Click an output socket to start a connection · Drag node headers to move",
+                        egui::FontId::proportional(10.0),
+                        egui::Color32::from_rgb(120, 120, 120),
+                    );
                 }
             });
 
@@ -11482,14 +11983,20 @@ impl Nat3DApp {
                                 let v0 = face[i];
                                 let v1 = face[(i + 1) % flen];
                                 if v0 < n && v1 < n {
-                                    if !neighbors[v0].contains(&v1) { neighbors[v0].push(v1); }
-                                    if !neighbors[v1].contains(&v0) { neighbors[v1].push(v0); }
+                                    if !neighbors[v0].contains(&v1) {
+                                        neighbors[v0].push(v1);
+                                    }
+                                    if !neighbors[v1].contains(&v0) {
+                                        neighbors[v1].push(v0);
+                                    }
                                 }
                             }
                         }
                         let old = verts.clone();
                         for i in 0..n {
-                            if neighbors[i].is_empty() { continue; }
+                            if neighbors[i].is_empty() {
+                                continue;
+                            }
                             let deg = neighbors[i].len() as f32;
                             let avg = [
                                 neighbors[i].iter().map(|&j| old[j][0]).sum::<f32>() / deg,
@@ -11507,8 +12014,8 @@ impl Nat3DApp {
                 "Hyperbolic Warp" => {
                     // Möbius addition in Poincaré ball model — Ungar 2001 "Analytic Hyperbolic Geometry"
                     // Projects vertices into hyperbolic space with curvature c=0.5 for visual effect
-                    use nat3d_core::geometry::non_euclidean::mobius_add;
                     use nalgebra::Vector3;
+                    use nat3d_core::geometry::non_euclidean::mobius_add;
                     let c = 0.5_f64;
                     let center = Vector3::new(
                         verts.iter().map(|v| v[0] as f64).sum::<f64>() / verts.len() as f64,
@@ -11516,12 +12023,16 @@ impl Nat3DApp {
                         verts.iter().map(|v| v[2] as f64).sum::<f64>() / verts.len() as f64,
                     );
                     // Scale to unit ball for hyperbolic math, apply Möbius addition, scale back
-                    let scale = verts.iter().map(|v| {
-                        let dx = v[0] as f64 - center.x;
-                        let dy = v[1] as f64 - center.y;
-                        let dz = v[2] as f64 - center.z;
-                        (dx*dx + dy*dy + dz*dz).sqrt()
-                    }).fold(0.0_f64, f64::max).max(1e-8);
+                    let scale = verts
+                        .iter()
+                        .map(|v| {
+                            let dx = v[0] as f64 - center.x;
+                            let dy = v[1] as f64 - center.y;
+                            let dz = v[2] as f64 - center.z;
+                            (dx * dx + dy * dy + dz * dz).sqrt()
+                        })
+                        .fold(0.0_f64, f64::max)
+                        .max(1e-8);
                     let warp_offset = Vector3::new(0.1, 0.05, 0.0); // small hyperbolic displacement
                     for v in &mut verts {
                         let u = Vector3::new(
@@ -11531,7 +12042,11 @@ impl Nat3DApp {
                         );
                         // Clamp to Poincaré ball (norm < 1/sqrt(c))
                         let max_r = (1.0 / c.sqrt()) * 0.95;
-                        let u_clamped = if u.norm() > max_r { u.normalize() * max_r } else { u };
+                        let u_clamped = if u.norm() > max_r {
+                            u.normalize() * max_r
+                        } else {
+                            u
+                        };
                         let warped = mobius_add(u_clamped, warp_offset, c);
                         v[0] = (center.x + warped.x * scale) as f32;
                         v[1] = (center.y + warped.y * scale) as f32;
@@ -11630,28 +12145,32 @@ impl Nat3DApp {
                     let faces = self.get_object_faces(idx);
 
                     // Use stored uv_coords if available, else fall back to box projection
-                    let uvs: Vec<[f32; 2]> = if let Some(stored) = &self.state.objects[idx].uv_coords {
-                        stored.clone()
-                    } else {
-                        vertices.iter().map(|v| {
-                            let obj = &self.state.objects[idx];
-                            let local = [
-                                (v[0] - obj.position[0]) / obj.scale[0].max(0.001),
-                                (v[1] - obj.position[1]) / obj.scale[1].max(0.001),
-                                (v[2] - obj.position[2]) / obj.scale[2].max(0.001),
-                            ];
-                            let ax = local[0].abs();
-                            let ay = local[1].abs();
-                            let az = local[2].abs();
-                            if ax >= ay && ax >= az {
-                                [(local[2] * 0.5 + 0.5), (local[1] * 0.5 + 0.5)]
-                            } else if ay >= ax && ay >= az {
-                                [(local[0] * 0.5 + 0.5), (local[2] * 0.5 + 0.5)]
-                            } else {
-                                [(local[0] * 0.5 + 0.5), (local[1] * 0.5 + 0.5)]
-                            }
-                        }).collect()
-                    };
+                    let uvs: Vec<[f32; 2]> =
+                        if let Some(stored) = &self.state.objects[idx].uv_coords {
+                            stored.clone()
+                        } else {
+                            vertices
+                                .iter()
+                                .map(|v| {
+                                    let obj = &self.state.objects[idx];
+                                    let local = [
+                                        (v[0] - obj.position[0]) / obj.scale[0].max(0.001),
+                                        (v[1] - obj.position[1]) / obj.scale[1].max(0.001),
+                                        (v[2] - obj.position[2]) / obj.scale[2].max(0.001),
+                                    ];
+                                    let ax = local[0].abs();
+                                    let ay = local[1].abs();
+                                    let az = local[2].abs();
+                                    if ax >= ay && ax >= az {
+                                        [(local[2] * 0.5 + 0.5), (local[1] * 0.5 + 0.5)]
+                                    } else if ay >= ax && ay >= az {
+                                        [(local[0] * 0.5 + 0.5), (local[2] * 0.5 + 0.5)]
+                                    } else {
+                                        [(local[0] * 0.5 + 0.5), (local[1] * 0.5 + 0.5)]
+                                    }
+                                })
+                                .collect()
+                        };
 
                     // Draw UV faces as wireframe
                     let uv_edge_color = egui::Color32::from_rgba_unmultiplied(100, 180, 255, 200);
@@ -11684,8 +12203,17 @@ impl Nat3DApp {
                         painter.circle_filled(p, 2.0, uv_vert_color);
                     }
 
-                    let uv_source = if self.state.objects[idx].uv_coords.is_some() { "computed" } else { "box preview" };
-                    ui.label(format!("UVs: {} vertices, {} faces ({})", uvs.len(), faces.len(), uv_source));
+                    let uv_source = if self.state.objects[idx].uv_coords.is_some() {
+                        "computed"
+                    } else {
+                        "box preview"
+                    };
+                    ui.label(format!(
+                        "UVs: {} vertices, {} faces ({})",
+                        uvs.len(),
+                        faces.len(),
+                        uv_source
+                    ));
                 } else {
                     // Centered text: "Select an object"
                     painter.text(

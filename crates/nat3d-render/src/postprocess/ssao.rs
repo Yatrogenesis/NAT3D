@@ -3,9 +3,9 @@
 
 //! Real GPU-accelerated SSAO implementation.
 
-use wgpu::util::DeviceExt;
-use rand::Rng;
 use nalgebra::Vector3;
+use rand::Rng;
+use wgpu::util::DeviceExt;
 
 /// SSAO (Screen Space Ambient Occlusion) renderer.
 pub struct SsaoRenderer {
@@ -24,10 +24,12 @@ pub struct SsaoRenderer {
 impl SsaoRenderer {
     /// Creates a new SSAO renderer.
     pub fn new(ctx: &crate::backend::wgpu_backend::RenderContext) -> Self {
-        let shader = ctx.device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("SSAO Shader"),
-            source: wgpu::ShaderSource::Wgsl(SSAO_SHADER.into()),
-        });
+        let shader = ctx
+            .device
+            .create_shader_module(wgpu::ShaderModuleDescriptor {
+                label: Some("SSAO Shader"),
+                source: wgpu::ShaderSource::Wgsl(SSAO_SHADER.into()),
+            });
 
         // 1. REAL KERNEL GENERATION (64 samples)
         // BATCH 24: Correct implementation without stubs
@@ -37,33 +39,45 @@ impl SsaoRenderer {
             let mut sample = Vector3::new(
                 rng.random_range(-1.0..=1.0),
                 rng.random_range(-1.0..=1.0),
-                rng.random_range(0.0..=1.0)
-            ).normalize();
+                rng.random_range(0.0..=1.0),
+            )
+            .normalize();
             sample *= rng.random_range(0.0..=1.0);
-            
+
             // Accelerate interpolation towards the center
             let scale = i as f32 / 64.0;
             let scale = 0.1 + scale * scale * (1.0 - 0.1);
             sample *= scale;
-            
+
             kernel.push([sample.x, sample.y, sample.z, 0.0]);
         }
 
-        let kernel_buffer = ctx.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("SSAO Kernel"),
-            contents: bytemuck::cast_slice(&kernel),
-            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::UNIFORM,
-        });
+        let kernel_buffer = ctx
+            .device
+            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                label: Some("SSAO Kernel"),
+                contents: bytemuck::cast_slice(&kernel),
+                usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::UNIFORM,
+            });
 
         // 2. REAL 4x4 NOISE TEXTURE
         let mut noise: Vec<[f32; 4]> = Vec::new();
         for _ in 0..16 {
-            noise.push([rng.random_range(-1.0..=1.0), rng.random_range(-1.0..=1.0), 0.0, 0.0]);
+            noise.push([
+                rng.random_range(-1.0..=1.0),
+                rng.random_range(-1.0..=1.0),
+                0.0,
+                0.0,
+            ]);
         }
 
         let noise_texture = ctx.device.create_texture(&wgpu::TextureDescriptor {
             label: Some("SSAO Noise"),
-            size: wgpu::Extent3d { width: 4, height: 4, depth_or_array_layers: 1 },
+            size: wgpu::Extent3d {
+                width: 4,
+                height: 4,
+                depth_or_array_layers: 1,
+            },
             mip_level_count: 1,
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
@@ -73,10 +87,23 @@ impl SsaoRenderer {
         });
 
         ctx.queue.write_texture(
-            wgpu::ImageCopyTexture { texture: &noise_texture, mip_level: 0, origin: wgpu::Origin3d::ZERO, aspect: wgpu::TextureAspect::All },
+            wgpu::ImageCopyTexture {
+                texture: &noise_texture,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
             bytemuck::cast_slice(&noise),
-            wgpu::ImageDataLayout { offset: 0, bytes_per_row: Some(64), rows_per_image: Some(4) },
-            wgpu::Extent3d { width: 4, height: 4, depth_or_array_layers: 1 }
+            wgpu::ImageDataLayout {
+                offset: 0,
+                bytes_per_row: Some(64),
+                rows_per_image: Some(4),
+            },
+            wgpu::Extent3d {
+                width: 4,
+                height: 4,
+                depth_or_array_layers: 1,
+            },
         );
 
         let noise_texture_view = noise_texture.create_view(&wgpu::TextureViewDescriptor::default());
@@ -89,35 +116,93 @@ impl SsaoRenderer {
             ..Default::default()
         });
 
-        let bind_group_layout = ctx.device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            label: Some("SSAO Layout"),
-            entries: &[
-                wgpu::BindGroupLayoutEntry { binding: 0, visibility: wgpu::ShaderStages::FRAGMENT, ty: wgpu::BindingType::Buffer { ty: wgpu::BufferBindingType::Uniform, has_dynamic_offset: false, min_binding_size: None }, count: None },
-                wgpu::BindGroupLayoutEntry { binding: 1, visibility: wgpu::ShaderStages::FRAGMENT, ty: wgpu::BindingType::Texture { sample_type: wgpu::TextureSampleType::Float { filterable: true }, view_dimension: wgpu::TextureViewDimension::D2, multisampled: false }, count: None },
-                wgpu::BindGroupLayoutEntry { binding: 2, visibility: wgpu::ShaderStages::FRAGMENT, ty: wgpu::BindingType::Texture { sample_type: wgpu::TextureSampleType::Float { filterable: true }, view_dimension: wgpu::TextureViewDimension::D2, multisampled: false }, count: None },
-                wgpu::BindGroupLayoutEntry { binding: 3, visibility: wgpu::ShaderStages::FRAGMENT, ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering), count: None },
-            ],
-        });
+        let bind_group_layout =
+            ctx.device
+                .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                    label: Some("SSAO Layout"),
+                    entries: &[
+                        wgpu::BindGroupLayoutEntry {
+                            binding: 0,
+                            visibility: wgpu::ShaderStages::FRAGMENT,
+                            ty: wgpu::BindingType::Buffer {
+                                ty: wgpu::BufferBindingType::Uniform,
+                                has_dynamic_offset: false,
+                                min_binding_size: None,
+                            },
+                            count: None,
+                        },
+                        wgpu::BindGroupLayoutEntry {
+                            binding: 1,
+                            visibility: wgpu::ShaderStages::FRAGMENT,
+                            ty: wgpu::BindingType::Texture {
+                                sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                                view_dimension: wgpu::TextureViewDimension::D2,
+                                multisampled: false,
+                            },
+                            count: None,
+                        },
+                        wgpu::BindGroupLayoutEntry {
+                            binding: 2,
+                            visibility: wgpu::ShaderStages::FRAGMENT,
+                            ty: wgpu::BindingType::Texture {
+                                sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                                view_dimension: wgpu::TextureViewDimension::D2,
+                                multisampled: false,
+                            },
+                            count: None,
+                        },
+                        wgpu::BindGroupLayoutEntry {
+                            binding: 3,
+                            visibility: wgpu::ShaderStages::FRAGMENT,
+                            ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                            count: None,
+                        },
+                    ],
+                });
 
-        let pipeline_layout = ctx.device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("SSAO Pipeline Layout"),
-            bind_group_layouts: &[&bind_group_layout],
-            push_constant_ranges: &[],
-        });
+        let pipeline_layout = ctx
+            .device
+            .create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: Some("SSAO Pipeline Layout"),
+                bind_group_layouts: &[&bind_group_layout],
+                push_constant_ranges: &[],
+            });
 
-        let pipeline = ctx.device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("SSAO Pipeline"),
-            layout: Some(&pipeline_layout),
-            vertex: wgpu::VertexState { module: &shader, entry_point: Some("vs_main"), buffers: &[], compilation_options: Default::default() },
-            fragment: Some(wgpu::FragmentState { module: &shader, entry_point: Some("fs_main"), targets: &[Some(wgpu::ColorTargetState { format: wgpu::TextureFormat::R8Unorm, blend: None, write_mask: wgpu::ColorWrites::ALL })], compilation_options: Default::default() }),
-            primitive: wgpu::PrimitiveState::default(),
-            depth_stencil: None,
-            multisample: wgpu::MultisampleState::default(),
-            multiview: None,
-            cache: None,
-        });
+        let pipeline = ctx
+            .device
+            .create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+                label: Some("SSAO Pipeline"),
+                layout: Some(&pipeline_layout),
+                vertex: wgpu::VertexState {
+                    module: &shader,
+                    entry_point: Some("vs_main"),
+                    buffers: &[],
+                    compilation_options: Default::default(),
+                },
+                fragment: Some(wgpu::FragmentState {
+                    module: &shader,
+                    entry_point: Some("fs_main"),
+                    targets: &[Some(wgpu::ColorTargetState {
+                        format: wgpu::TextureFormat::R8Unorm,
+                        blend: None,
+                        write_mask: wgpu::ColorWrites::ALL,
+                    })],
+                    compilation_options: Default::default(),
+                }),
+                primitive: wgpu::PrimitiveState::default(),
+                depth_stencil: None,
+                multisample: wgpu::MultisampleState::default(),
+                multiview: None,
+                cache: None,
+            });
 
-        Self { pipeline, bind_group_layout, kernel_buffer, noise_texture_view, noise_sampler }
+        Self {
+            pipeline,
+            bind_group_layout,
+            kernel_buffer,
+            noise_texture_view,
+            noise_sampler,
+        }
     }
 }
 

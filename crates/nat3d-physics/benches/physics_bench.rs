@@ -25,17 +25,23 @@ fn step_symplectic_euler(
     dt: f64,
 ) {
     // Update angular velocity first (explicit)
-    let alpha = inv_inertia * (torque - angular_velocity.cross(&(*inv_inertia * *angular_velocity)));
+    let alpha =
+        inv_inertia * (torque - angular_velocity.cross(&(*inv_inertia * *angular_velocity)));
     *angular_velocity += alpha * dt;
 
     // Integrate orientation with updated velocity (semi-implicit)
-    let w_quat = nalgebra::Quaternion::new(0.0, angular_velocity.x, angular_velocity.y, angular_velocity.z);
+    let w_quat = nalgebra::Quaternion::new(
+        0.0,
+        angular_velocity.x,
+        angular_velocity.y,
+        angular_velocity.z,
+    );
     let q_raw = orientation.quaternion();
     let dq = nalgebra::Quaternion::new(
         -0.5 * (w_quat.i * q_raw.i + w_quat.j * q_raw.j + w_quat.k * q_raw.k),
-         0.5 * (w_quat.i * q_raw.w + w_quat.k * q_raw.j - w_quat.j * q_raw.k),
-         0.5 * (w_quat.j * q_raw.w + w_quat.i * q_raw.k - w_quat.k * q_raw.i),
-         0.5 * (w_quat.k * q_raw.w + w_quat.j * q_raw.i - w_quat.i * q_raw.j),
+        0.5 * (w_quat.i * q_raw.w + w_quat.k * q_raw.j - w_quat.j * q_raw.k),
+        0.5 * (w_quat.j * q_raw.w + w_quat.i * q_raw.k - w_quat.k * q_raw.i),
+        0.5 * (w_quat.k * q_raw.w + w_quat.j * q_raw.i - w_quat.i * q_raw.j),
     );
     let sum = nalgebra::Quaternion::new(
         q_raw.w + dq.w * dt,
@@ -146,7 +152,10 @@ fn bench_b2_spinning_top(c: &mut Criterion) {
             }
             // Angular momentum magnitude should be conserved
             let inertia = Matrix3::from_diagonal(&Vector3::new(1.0_f64, 1.0, 0.3));
-            black_box(kinetic_energy_angular(&inertia, &body.state.angular_velocity))
+            black_box(kinetic_energy_angular(
+                &inertia,
+                &body.state.angular_velocity,
+            ))
         })
     });
 }
@@ -202,7 +211,10 @@ fn bench_b1_energy_comparison(c: &mut Criterion) {
             for _ in 0..600 {
                 body.integrate(black_box(1.0 / 60.0), Vector3::zeros());
             }
-            black_box(kinetic_energy_angular(&inertia, &body.state.angular_velocity))
+            black_box(kinetic_energy_angular(
+                &inertia,
+                &body.state.angular_velocity,
+            ))
         })
     });
 
@@ -211,7 +223,13 @@ fn bench_b1_energy_comparison(c: &mut Criterion) {
             let mut orientation = UnitQuaternion::identity();
             let mut w = Vector3::new(5.0_f64, 0.1, 0.0);
             for _ in 0..600 {
-                step_symplectic_euler(&mut orientation, &mut w, Vector3::zeros(), &inv_inertia, 1.0 / 60.0);
+                step_symplectic_euler(
+                    &mut orientation,
+                    &mut w,
+                    Vector3::zeros(),
+                    &inv_inertia,
+                    1.0 / 60.0,
+                );
             }
             black_box(kinetic_energy_angular(&inertia, &w))
         })

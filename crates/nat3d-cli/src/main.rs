@@ -1,16 +1,16 @@
 /*
  * NAT3D - Next-generation Advanced Technology for 3D
  * Professional 3D Modeling, CAD, Physics Simulation and Rendering Suite
- * 
+ *
  * Copyright (C) 2023-2026 Francisco Molina <pako.molina@gmail.com>
- * 
+ *
  * This software is dual-licensed:
  * 1. Open Source: GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)
  * 2. Commercial: For commercial use, please contact <fmolina@avermex.com>
- * 
+ *
  * For research information, visit: https://research.avermex.com
  * For collaborations, contact: <pako.molina@gmail.com>
- * 
+ *
  * DOI: [PENDING]
  */
 
@@ -64,9 +64,17 @@ fn render_industrial_atoms(input: &str, output: Option<&str>) -> Result<(), Stri
             let x: f64 = parts[1].parse().unwrap_or(0.0);
             let y: f64 = parts[2].parse().unwrap_or(0.0);
             let z: f64 = parts[3].parse().unwrap_or(0.0);
-            
-            if x < min_x { min_x = x; } else if x > max_x { max_x = x; }
-            if y < min_y { min_y = y; } else if y > max_y { max_y = y; }
+
+            if x < min_x {
+                min_x = x;
+            } else if x > max_x {
+                max_x = x;
+            }
+            if y < min_y {
+                min_y = y;
+            } else if y > max_y {
+                max_y = y;
+            }
             vertices.push((x, y, z));
         }
     }

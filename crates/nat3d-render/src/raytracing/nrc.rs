@@ -1,5 +1,5 @@
 // SOTA 4: Neural Radiance Caching (NRC) Forward Pass
-use nalgebra::{Vector3, DMatrix, DVector};
+use nalgebra::{DMatrix, DVector, Vector3};
 
 /// A simple Multi-Layer Perceptron (MLP) for Neural Radiance
 pub struct RadianceMLP {
@@ -32,10 +32,12 @@ impl RadianceMLP {
 
     /// ReLU activation
     fn relu(mut v: DVector<f64>) -> DVector<f64> {
-        for val in v.iter_mut() { *val = val.max(0.0); }
+        for val in v.iter_mut() {
+            *val = val.max(0.0);
+        }
         v
     }
-    
+
     /// Predicts radiance RGB from a 5D input (pos 3D + dir 2D)
     pub fn predict(&self, input: DVector<f64>) -> Vector3<f64> {
         let a1 = Self::relu(&self.w1 * &input + &self.b1);
