@@ -525,7 +525,7 @@ impl NurbsSurface {
             } else {
                 for (i, (pt, w)) in row_points
                     .into_iter()
-                    .zip(row_weights.into_iter())
+                    .zip(row_weights)
                     .enumerate()
                 {
                     new_points[i].push(pt);
