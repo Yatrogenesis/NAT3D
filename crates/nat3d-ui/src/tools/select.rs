@@ -345,7 +345,7 @@ impl SelectTool {
                     painter.rect_stroke(
                         rect,
                         0.0,
-                        Stroke::new(2.0, Color32::from_rgb(255, 255, 0)),
+                        Stroke::new(2.0_f32, Color32::from_rgb(255, 255, 0)),
                     );
                     painter.rect_filled(
                         rect,
@@ -363,7 +363,7 @@ impl SelectTool {
                         .collect();
                     painter.add(Shape::line(
                         points,
-                        Stroke::new(2.0, Color32::from_rgb(255, 255, 0)),
+                        Stroke::new(2.0_f32, Color32::from_rgb(255, 255, 0)),
                     ));
                 }
             }
@@ -372,7 +372,7 @@ impl SelectTool {
                     painter.circle_stroke(
                         Pos2::new(cx as f32, cy as f32),
                         self.circle_radius as f32,
-                        Stroke::new(2.0, Color32::from_rgb(255, 255, 0)),
+                        Stroke::new(2.0_f32, Color32::from_rgb(255, 255, 0)),
                     );
                 }
             }

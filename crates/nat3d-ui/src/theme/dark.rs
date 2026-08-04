@@ -97,7 +97,7 @@ impl DarkTheme {
                 color: Color32::from_black_alpha(100),
             },
             window_fill: Self::WINDOW,
-            window_stroke: Stroke::new(1.0, Self::BORDER),
+            window_stroke: Stroke::new(1.0_f32, Self::BORDER),
             panel_fill: Self::PANEL,
             popup_shadow: egui::epaint::Shadow {
                 offset: [2.0, 2.0].into(),
@@ -107,7 +107,7 @@ impl DarkTheme {
             },
             resize_corner_size: 12.0,
             text_cursor: egui::style::TextCursorStyle {
-                stroke: Stroke::new(2.0, Self::TEXT),
+                stroke: Stroke::new(2.0_f32, Self::TEXT),
                 ..Default::default()
             },
             clip_rect_margin: 3.0,
@@ -129,40 +129,40 @@ impl DarkTheme {
             noninteractive: egui::style::WidgetVisuals {
                 bg_fill: Self::BACKGROUND,
                 weak_bg_fill: Self::PANEL,
-                bg_stroke: Stroke::new(1.0, Self::BORDER),
-                fg_stroke: Stroke::new(1.0, Self::TEXT_DIM),
+                bg_stroke: Stroke::new(1.0_f32, Self::BORDER),
+                fg_stroke: Stroke::new(1.0_f32, Self::TEXT_DIM),
                 rounding: 4.0.into(),
                 expansion: 0.0,
             },
             inactive: egui::style::WidgetVisuals {
                 bg_fill: Self::BUTTON,
                 weak_bg_fill: Self::PANEL,
-                bg_stroke: Stroke::new(1.0, Self::BORDER),
-                fg_stroke: Stroke::new(1.0, Self::TEXT),
+                bg_stroke: Stroke::new(1.0_f32, Self::BORDER),
+                fg_stroke: Stroke::new(1.0_f32, Self::TEXT),
                 rounding: 4.0.into(),
                 expansion: 0.0,
             },
             hovered: egui::style::WidgetVisuals {
                 bg_fill: Self::BUTTON_HOVER,
                 weak_bg_fill: Color32::from_rgb(55, 55, 60),
-                bg_stroke: Stroke::new(1.0, Self::ACCENT),
-                fg_stroke: Stroke::new(1.5, Self::TEXT),
+                bg_stroke: Stroke::new(1.0_f32, Self::ACCENT),
+                fg_stroke: Stroke::new(1.5_f32, Self::TEXT),
                 rounding: 4.0.into(),
                 expansion: 1.0,
             },
             active: egui::style::WidgetVisuals {
                 bg_fill: Self::BUTTON_ACTIVE,
                 weak_bg_fill: Self::ACCENT,
-                bg_stroke: Stroke::new(1.0, Self::ACCENT_HOVER),
-                fg_stroke: Stroke::new(2.0, Color32::WHITE),
+                bg_stroke: Stroke::new(1.0_f32, Self::ACCENT_HOVER),
+                fg_stroke: Stroke::new(2.0_f32, Color32::WHITE),
                 rounding: 4.0.into(),
                 expansion: 1.0,
             },
             open: egui::style::WidgetVisuals {
                 bg_fill: Self::PANEL,
                 weak_bg_fill: Self::BACKGROUND,
-                bg_stroke: Stroke::new(1.0, Self::ACCENT),
-                fg_stroke: Stroke::new(1.0, Self::TEXT),
+                bg_stroke: Stroke::new(1.0_f32, Self::ACCENT),
+                fg_stroke: Stroke::new(1.0_f32, Self::TEXT),
                 rounding: 4.0.into(),
                 expansion: 0.0,
             },
@@ -173,7 +173,7 @@ impl DarkTheme {
     fn selection_style() -> egui::style::Selection {
         egui::style::Selection {
             bg_fill: Self::SELECTION,
-            stroke: Stroke::new(1.0, Self::SELECTION_STRONG),
+            stroke: Stroke::new(1.0_f32, Self::SELECTION_STRONG),
         }
     }
 

@@ -4337,7 +4337,7 @@ impl Nat3DApp {
                 let px = r.left() + 68.0 + t * avail_w;
                 painter.line_segment(
                     [egui::pos2(px, r.top()), egui::pos2(px, r.bottom())],
-                    egui::Stroke::new(1.5, egui::Color32::from_rgb(100, 200, 255)),
+                    egui::Stroke::new(1.5_f32, egui::Color32::from_rgb(100, 200, 255)),
                 );
             }
         }
@@ -4820,12 +4820,12 @@ impl Nat3DApp {
                         painter.circle_stroke(
                             hover_pos,
                             brush_radius,
-                            egui::Stroke::new(2.0, brush_color),
+                            egui::Stroke::new(2.0_f32, brush_color),
                         );
                         painter.circle_stroke(
                             hover_pos,
                             brush_radius * 0.15,
-                            egui::Stroke::new(1.0, egui::Color32::from_rgba_unmultiplied(200, 200, 200, 120)),
+                            egui::Stroke::new(1.0_f32, egui::Color32::from_rgba_unmultiplied(200, 200, 200, 120)),
                         );
                         painter.text(
                             rect.left_top() + egui::vec2(10.0, 36.0),
@@ -4851,7 +4851,7 @@ impl Nat3DApp {
                                 self.project_point(edit_verts[*i1], rect),
                                 self.project_point(edit_verts[*i2], rect),
                             ) {
-                                painter.line_segment([p1, p2], egui::Stroke::new(1.5, edge_color));
+                                painter.line_segment([p1, p2], egui::Stroke::new(1.5_f32, edge_color));
                             }
                         }
 
@@ -4859,7 +4859,7 @@ impl Nat3DApp {
                         for vert in &edit_verts {
                             if let Some(p) = self.project_point(*vert, rect) {
                                 painter.circle_filled(p, 3.5, egui::Color32::WHITE);
-                                painter.circle_stroke(p, 3.5, egui::Stroke::new(1.0, egui::Color32::BLACK));
+                                painter.circle_stroke(p, 3.5, egui::Stroke::new(1.0_f32, egui::Color32::BLACK));
                             }
                         }
 
@@ -4885,7 +4885,7 @@ impl Nat3DApp {
                         painter.circle_stroke(
                             hover_pos,
                             self.state.paint_radius,
-                            egui::Stroke::new(2.0, brush_color),
+                            egui::Stroke::new(2.0_f32, brush_color),
                         );
                         painter.circle_filled(hover_pos, 2.0, brush_color);
                         painter.text(
@@ -4912,7 +4912,7 @@ impl Nat3DApp {
                         painter.circle_stroke(
                             hover_pos,
                             self.state.paint_radius,
-                            egui::Stroke::new(2.5, brush_color),
+                            egui::Stroke::new(2.5_f32, brush_color),
                         );
                         painter.circle_filled(hover_pos, 3.0, brush_color);
                         painter.text(
@@ -4928,7 +4928,7 @@ impl Nat3DApp {
                 // Measurements display
                 if !self.state.measurements.is_empty() {
                     let measure_color = egui::Color32::from_rgb(255, 255, 100);
-                    let measure_stroke = egui::Stroke::new(1.5, measure_color);
+                    let measure_stroke = egui::Stroke::new(1.5_f32, measure_color);
                     for m in &self.state.measurements {
                         if let (Some(p1), Some(p2)) = (
                             self.project_point(m.start, rect),
@@ -4968,11 +4968,11 @@ impl Nat3DApp {
                     let cursor_color = egui::Color32::from_rgb(255, 50, 50);
                     painter.line_segment(
                         [cursor_proj - egui::vec2(cursor_size, 0.0), cursor_proj + egui::vec2(cursor_size, 0.0)],
-                        egui::Stroke::new(1.5, cursor_color));
+                        egui::Stroke::new(1.5_f32, cursor_color));
                     painter.line_segment(
                         [cursor_proj - egui::vec2(0.0, cursor_size), cursor_proj + egui::vec2(0.0, cursor_size)],
-                        egui::Stroke::new(1.5, cursor_color));
-                    painter.circle_stroke(cursor_proj, 4.0, egui::Stroke::new(1.0, cursor_color));
+                        egui::Stroke::new(1.5_f32, cursor_color));
+                    painter.circle_stroke(cursor_proj, 4.0, egui::Stroke::new(1.0_f32, cursor_color));
                 }
 
                 // Normals display overlay (short lines from object center in Y direction)
@@ -4985,7 +4985,7 @@ impl Nat3DApp {
                         let center = obj.position;
                         let normal_end = [center[0], center[1] + 0.5 * obj.scale[1], center[2]];
                         if let (Some(p1), Some(p2)) = (self.project_point(center, rect), self.project_point(normal_end, rect)) {
-                            painter.line_segment([p1, p2], egui::Stroke::new(1.5, normal_color));
+                            painter.line_segment([p1, p2], egui::Stroke::new(1.5_f32, normal_color));
                             // Arrow tip
                             let dir = p2 - p1;
                             let len = dir.length();
@@ -4995,8 +4995,8 @@ impl Nat3DApp {
                                 let tip_size = 4.0;
                                 let tip1 = p2 - norm * tip_size + perp * tip_size * 0.5;
                                 let tip2 = p2 - norm * tip_size - perp * tip_size * 0.5;
-                                painter.line_segment([p2, tip1], egui::Stroke::new(1.5, normal_color));
-                                painter.line_segment([p2, tip2], egui::Stroke::new(1.5, normal_color));
+                                painter.line_segment([p2, tip1], egui::Stroke::new(1.5_f32, normal_color));
+                                painter.line_segment([p2, tip2], egui::Stroke::new(1.5_f32, normal_color));
                             }
                         }
                     }
@@ -5069,7 +5069,7 @@ impl Nat3DApp {
                         let ry = dir[1] * pitch.cos() - (dir[2] * yaw.cos() - dir[0] * yaw.sin()) * pitch.sin();
                         let axis_len = cube_size * 0.55;
                         let end = egui::pos2(cube_center.x + rx * axis_len, cube_center.y - ry * axis_len);
-                        painter.line_segment([cube_center, end], egui::Stroke::new(2.0, *color));
+                        painter.line_segment([cube_center, end], egui::Stroke::new(2.0_f32, *color));
                         painter.text(end, egui::Align2::CENTER_CENTER, *label,
                             egui::FontId::proportional(11.0), *color);
                     }
@@ -5088,7 +5088,7 @@ impl Nat3DApp {
                         );
                         // Background
                         painter.rect_filled(preview_rect, 4.0, egui::Color32::from_rgba_unmultiplied(20, 20, 28, 220));
-                        painter.rect_stroke(preview_rect, 4.0, egui::Stroke::new(1.0, egui::Color32::from_rgb(100, 100, 120)));
+                        painter.rect_stroke(preview_rect, 4.0, egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(100, 100, 120)));
                         // Camera icon and info
                         let cam_pos = cam.position;
                         let cam_rot = cam.rotation;
@@ -5120,7 +5120,7 @@ impl Nat3DApp {
                         ];
                         for i in 0..4 {
                             painter.line_segment([icon_pts[i], icon_pts[(i + 1) % 4]],
-                                egui::Stroke::new(1.5, egui::Color32::from_rgb(200, 200, 220)));
+                                egui::Stroke::new(1.5_f32, egui::Color32::from_rgb(200, 200, 220)));
                         }
                     }
                 }
@@ -5179,7 +5179,7 @@ impl Nat3DApp {
                                 ) {
                                     // Dashed line from child to parent
                                     let dash_color = egui::Color32::from_rgba_unmultiplied(100, 150, 255, 120);
-                                    painter.line_segment([child_proj, parent_proj], egui::Stroke::new(1.0, dash_color));
+                                    painter.line_segment([child_proj, parent_proj], egui::Stroke::new(1.0_f32, dash_color));
                                 }
                             }
                         }
@@ -5206,7 +5206,7 @@ impl Nat3DApp {
                             painter.line_segment([
                                 egui::pos2(proj.x, proj.y - 8.0),
                                 end,
-                            ], egui::Stroke::new(1.0, egui::Color32::from_rgba_unmultiplied(255, 180, 50, 150)));
+                            ], egui::Stroke::new(1.0_f32, egui::Color32::from_rgba_unmultiplied(255, 180, 50, 150)));
                             painter.circle_filled(end, 1.5, egui::Color32::from_rgba_unmultiplied(255, 200, 80, 180));
                         }
                         painter.text(
@@ -5279,10 +5279,10 @@ impl Nat3DApp {
                             let left = egui::pos2(mid.x + nx, mid.y + ny);
                             let right = egui::pos2(mid.x - nx, mid.y - ny);
                             // Diamond shape
-                            painter.line_segment([p1, left], egui::Stroke::new(1.5, bone_color));
-                            painter.line_segment([left, p2], egui::Stroke::new(1.5, bone_color));
-                            painter.line_segment([p1, right], egui::Stroke::new(1.5, bone_color));
-                            painter.line_segment([right, p2], egui::Stroke::new(1.5, bone_color));
+                            painter.line_segment([p1, left], egui::Stroke::new(1.5_f32, bone_color));
+                            painter.line_segment([left, p2], egui::Stroke::new(1.5_f32, bone_color));
+                            painter.line_segment([p1, right], egui::Stroke::new(1.5_f32, bone_color));
+                            painter.line_segment([right, p2], egui::Stroke::new(1.5_f32, bone_color));
                             // Head dot
                             painter.circle_filled(p1, 3.0, bone_color);
                             // Tail dot
@@ -5316,8 +5316,8 @@ impl Nat3DApp {
                             };
                             // Concentric circles to represent force field
                             let r = 12.0 + ff.strength * 3.0;
-                            painter.circle_stroke(center, r, egui::Stroke::new(1.0, ff_color));
-                            painter.circle_stroke(center, r * 0.6, egui::Stroke::new(0.5, ff_color));
+                            painter.circle_stroke(center, r, egui::Stroke::new(1.0_f32, ff_color));
+                            painter.circle_stroke(center, r * 0.6, egui::Stroke::new(0.5_f32, ff_color));
                             painter.text(
                                 center + egui::vec2(0.0, r + 6.0),
                                 egui::Align2::CENTER_TOP,
@@ -5428,7 +5428,7 @@ impl Nat3DApp {
                             let y2 = graph_rect.bottom() - (history[i] / max_fps) * graph_h;
                             painter.line_segment(
                                 [egui::pos2(x1, y1), egui::pos2(x2, y2)],
-                                egui::Stroke::new(1.0, egui::Color32::from_rgb(100, 255, 100)),
+                                egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(100, 255, 100)),
                             );
                         }
                     }
@@ -5462,7 +5462,7 @@ impl Nat3DApp {
                                     ) {
                                         painter.line_segment(
                                             [p1, p2],
-                                            egui::Stroke::new(1.5, mp_color),
+                                            egui::Stroke::new(1.5_f32, mp_color),
                                         );
                                     }
                                 }
@@ -5543,7 +5543,7 @@ impl Nat3DApp {
                             end,
                         );
                         painter.rect_filled(sel_rect, 0.0, egui::Color32::from_rgba_unmultiplied(100, 150, 255, 30));
-                        painter.rect_stroke(sel_rect, 0.0, egui::Stroke::new(1.0, egui::Color32::from_rgba_unmultiplied(100, 150, 255, 200)));
+                        painter.rect_stroke(sel_rect, 0.0, egui::Stroke::new(1.0_f32, egui::Color32::from_rgba_unmultiplied(100, 150, 255, 200)));
                     }
 
                     // Draw "BOX SELECT" indicator
@@ -5671,9 +5671,15 @@ impl Nat3DApp {
                 // Don't draw center lines here - axes handler draws those
                 continue;
             } else if i % 5 == 0 {
-                (egui::Color32::from_rgba_unmultiplied(70, 70, 75, 80), 1.0)
+                (
+                    egui::Color32::from_rgba_unmultiplied(70, 70, 75, 80),
+                    1.0_f32,
+                )
             } else {
-                (egui::Color32::from_rgba_unmultiplied(55, 55, 60, 50), 0.5)
+                (
+                    egui::Color32::from_rgba_unmultiplied(55, 55, 60, 50),
+                    0.5_f32,
+                )
             };
 
             // Lines along X axis (on XZ plane)
@@ -5706,7 +5712,7 @@ impl Nat3DApp {
             self.project_point([-grid_extent, 0.0, 0.0], rect),
             self.project_point([grid_extent, 0.0, 0.0], rect),
         ) {
-            painter.line_segment([p1, p2], egui::Stroke::new(1.5, x_color));
+            painter.line_segment([p1, p2], egui::Stroke::new(1.5_f32, x_color));
         }
 
         // Z axis line across full grid (blue) on XZ plane
@@ -5714,7 +5720,7 @@ impl Nat3DApp {
             self.project_point([0.0, 0.0, -grid_extent], rect),
             self.project_point([0.0, 0.0, grid_extent], rect),
         ) {
-            painter.line_segment([p1, p2], egui::Stroke::new(1.5, z_color));
+            painter.line_segment([p1, p2], egui::Stroke::new(1.5_f32, z_color));
         }
 
         // Y axis (green, vertical, shorter)
@@ -5722,7 +5728,7 @@ impl Nat3DApp {
             self.project_point([0.0, 0.0, 0.0], rect),
             self.project_point([0.0, grid_extent * 0.5, 0.0], rect),
         ) {
-            painter.line_segment([p1, p2], egui::Stroke::new(1.5, y_color));
+            painter.line_segment([p1, p2], egui::Stroke::new(1.5_f32, y_color));
         }
     }
 
@@ -5747,7 +5753,7 @@ impl Nat3DApp {
             egui::Color32::from_rgba_unmultiplied(180, 180, 180, 120)
         };
 
-        let stroke = egui::Stroke::new(if selected { 2.0 } else { 1.0 }, wire_color);
+        let stroke = egui::Stroke::new(if selected { 2.0_f32 } else { 1.0_f32 }, wire_color);
 
         // Get vertices for the object type (with rotation applied)
         let base_vertices = self.get_object_vertices(obj_idx);
@@ -6052,8 +6058,10 @@ impl Nat3DApp {
         if is_wireframe || selected || show_overlay {
             // Selected objects get a glow outline (draw wider stroke behind)
             if selected && !is_wireframe {
-                let glow_stroke =
-                    egui::Stroke::new(4.0, egui::Color32::from_rgba_unmultiplied(255, 150, 50, 80));
+                let glow_stroke = egui::Stroke::new(
+                    4.0_f32,
+                    egui::Color32::from_rgba_unmultiplied(255, 150, 50, 80),
+                );
                 for &(i1, i2) in &edges {
                     if let (Some(p1), Some(p2)) = (
                         self.project_point(vertices[i1], rect),
@@ -6066,7 +6074,7 @@ impl Nat3DApp {
             // Wireframe overlay uses subtle semi-transparent lines
             let edge_stroke = if show_overlay && !selected && !is_wireframe {
                 egui::Stroke::new(
-                    0.5,
+                    0.5_f32,
                     egui::Color32::from_rgba_unmultiplied(100, 100, 100, 60),
                 )
             } else {
@@ -7004,18 +7012,20 @@ impl Nat3DApp {
                     if let Some(p2) =
                         self.project_point([pos[0] + gizmo_size, pos[1], pos[2]], rect)
                     {
-                        painter
-                            .line_segment([center, p2], egui::Stroke::new(3.0, egui::Color32::RED));
+                        painter.line_segment(
+                            [center, p2],
+                            egui::Stroke::new(3.0_f32, egui::Color32::RED),
+                        );
                         // Arrow head
                         let dir = (p2 - center).normalized();
                         let perp = egui::vec2(-dir.y, dir.x) * 5.0;
                         painter.line_segment(
                             [p2, p2 - dir * 10.0 + perp],
-                            egui::Stroke::new(2.0, egui::Color32::RED),
+                            egui::Stroke::new(2.0_f32, egui::Color32::RED),
                         );
                         painter.line_segment(
                             [p2, p2 - dir * 10.0 - perp],
-                            egui::Stroke::new(2.0, egui::Color32::RED),
+                            egui::Stroke::new(2.0_f32, egui::Color32::RED),
                         );
                     }
 
@@ -7025,17 +7035,17 @@ impl Nat3DApp {
                     {
                         painter.line_segment(
                             [center, p2],
-                            egui::Stroke::new(3.0, egui::Color32::GREEN),
+                            egui::Stroke::new(3.0_f32, egui::Color32::GREEN),
                         );
                         let dir = (p2 - center).normalized();
                         let perp = egui::vec2(-dir.y, dir.x) * 5.0;
                         painter.line_segment(
                             [p2, p2 - dir * 10.0 + perp],
-                            egui::Stroke::new(2.0, egui::Color32::GREEN),
+                            egui::Stroke::new(2.0_f32, egui::Color32::GREEN),
                         );
                         painter.line_segment(
                             [p2, p2 - dir * 10.0 - perp],
-                            egui::Stroke::new(2.0, egui::Color32::GREEN),
+                            egui::Stroke::new(2.0_f32, egui::Color32::GREEN),
                         );
                     }
 
@@ -7045,17 +7055,17 @@ impl Nat3DApp {
                     {
                         painter.line_segment(
                             [center, p2],
-                            egui::Stroke::new(3.0, egui::Color32::from_rgb(100, 100, 255)),
+                            egui::Stroke::new(3.0_f32, egui::Color32::from_rgb(100, 100, 255)),
                         );
                         let dir = (p2 - center).normalized();
                         let perp = egui::vec2(-dir.y, dir.x) * 5.0;
                         painter.line_segment(
                             [p2, p2 - dir * 10.0 + perp],
-                            egui::Stroke::new(2.0, egui::Color32::from_rgb(100, 100, 255)),
+                            egui::Stroke::new(2.0_f32, egui::Color32::from_rgb(100, 100, 255)),
                         );
                         painter.line_segment(
                             [p2, p2 - dir * 10.0 - perp],
-                            egui::Stroke::new(2.0, egui::Color32::from_rgb(100, 100, 255)),
+                            egui::Stroke::new(2.0_f32, egui::Color32::from_rgb(100, 100, 255)),
                         );
                     }
                 }
@@ -7080,7 +7090,7 @@ impl Nat3DApp {
                         let next = (i + 1) % points_x.len();
                         painter.line_segment(
                             [points_x[i], points_x[next]],
-                            egui::Stroke::new(2.0, egui::Color32::RED),
+                            egui::Stroke::new(2.0_f32, egui::Color32::RED),
                         );
                     }
 
@@ -7100,7 +7110,7 @@ impl Nat3DApp {
                         let next = (i + 1) % points_y.len();
                         painter.line_segment(
                             [points_y[i], points_y[next]],
-                            egui::Stroke::new(2.0, egui::Color32::GREEN),
+                            egui::Stroke::new(2.0_f32, egui::Color32::GREEN),
                         );
                     }
 
@@ -7120,7 +7130,7 @@ impl Nat3DApp {
                         let next = (i + 1) % points_z.len();
                         painter.line_segment(
                             [points_z[i], points_z[next]],
-                            egui::Stroke::new(2.0, egui::Color32::from_rgb(100, 100, 255)),
+                            egui::Stroke::new(2.0_f32, egui::Color32::from_rgb(100, 100, 255)),
                         );
                     }
                 }
@@ -7132,8 +7142,10 @@ impl Nat3DApp {
                     if let Some(p2) =
                         self.project_point([pos[0] + gizmo_size, pos[1], pos[2]], rect)
                     {
-                        painter
-                            .line_segment([center, p2], egui::Stroke::new(2.0, egui::Color32::RED));
+                        painter.line_segment(
+                            [center, p2],
+                            egui::Stroke::new(2.0_f32, egui::Color32::RED),
+                        );
                         painter.rect_filled(
                             egui::Rect::from_center_size(p2, egui::vec2(cube_size, cube_size)),
                             0.0,
@@ -7147,7 +7159,7 @@ impl Nat3DApp {
                     {
                         painter.line_segment(
                             [center, p2],
-                            egui::Stroke::new(2.0, egui::Color32::GREEN),
+                            egui::Stroke::new(2.0_f32, egui::Color32::GREEN),
                         );
                         painter.rect_filled(
                             egui::Rect::from_center_size(p2, egui::vec2(cube_size, cube_size)),
@@ -7162,7 +7174,7 @@ impl Nat3DApp {
                     {
                         painter.line_segment(
                             [center, p2],
-                            egui::Stroke::new(2.0, egui::Color32::from_rgb(100, 100, 255)),
+                            egui::Stroke::new(2.0_f32, egui::Color32::from_rgb(100, 100, 255)),
                         );
                         painter.rect_filled(
                             egui::Rect::from_center_size(p2, egui::vec2(cube_size, cube_size)),
@@ -7187,7 +7199,7 @@ impl Nat3DApp {
                         center,
                         20.0,
                         egui::Stroke::new(
-                            1.5,
+                            1.5_f32,
                             egui::Color32::from_rgba_unmultiplied(255, 150, 50, 150),
                         ),
                     );
@@ -7323,7 +7335,10 @@ impl Nat3DApp {
         painter.circle_stroke(
             gizmo_center,
             gizmo_radius + 2.0,
-            egui::Stroke::new(1.0, egui::Color32::from_rgba_unmultiplied(80, 80, 80, 150)),
+            egui::Stroke::new(
+                1.0_f32,
+                egui::Color32::from_rgba_unmultiplied(80, 80, 80, 150),
+            ),
         );
 
         // Project axes using current camera orientation
@@ -7358,9 +7373,9 @@ impl Nat3DApp {
         let y_color = egui::Color32::from_rgb(60, 200, 60);
         let z_color = egui::Color32::from_rgb(80, 80, 230);
 
-        painter.line_segment([gizmo_center, x_tip], egui::Stroke::new(2.5, x_color));
-        painter.line_segment([gizmo_center, y_tip], egui::Stroke::new(2.5, y_color));
-        painter.line_segment([gizmo_center, z_tip], egui::Stroke::new(2.5, z_color));
+        painter.line_segment([gizmo_center, x_tip], egui::Stroke::new(2.5_f32, x_color));
+        painter.line_segment([gizmo_center, y_tip], egui::Stroke::new(2.5_f32, y_color));
+        painter.line_segment([gizmo_center, z_tip], egui::Stroke::new(2.5_f32, z_color));
 
         painter.circle_filled(x_tip, 6.0, x_color);
         painter.circle_filled(y_tip, 6.0, y_color);
@@ -11050,7 +11065,7 @@ impl Nat3DApp {
                 while x < crect.right() {
                     painter.line_segment(
                         [egui::pos2(x, crect.top()), egui::pos2(x, crect.bottom())],
-                        egui::Stroke::new(0.5, grid_color),
+                        egui::Stroke::new(0.5_f32, grid_color),
                     );
                     x += 20.0;
                 }
@@ -11058,7 +11073,7 @@ impl Nat3DApp {
                 while y < crect.bottom() {
                     painter.line_segment(
                         [egui::pos2(crect.left(), y), egui::pos2(crect.right(), y)],
-                        egui::Stroke::new(0.5, grid_color),
+                        egui::Stroke::new(0.5_f32, grid_color),
                     );
                     y += 20.0;
                 }
@@ -11211,7 +11226,7 @@ impl Nat3DApp {
                             })
                             .collect();
                         for w in pts.windows(2) {
-                            p.line_segment([w[0], w[1]], egui::Stroke::new(2.0, color));
+                            p.line_segment([w[0], w[1]], egui::Stroke::new(2.0_f32, color));
                         }
                     };
 
@@ -11248,7 +11263,7 @@ impl Nat3DApp {
                         painter.circle_stroke(
                             start,
                             SOCK_R + 3.0,
-                            egui::Stroke::new(1.5, egui::Color32::from_rgb(220, 200, 60)),
+                            egui::Stroke::new(1.5_f32, egui::Color32::from_rgb(220, 200, 60)),
                         );
                     }
                 }
@@ -11311,7 +11326,7 @@ impl Nat3DApp {
                     painter.rect_stroke(
                         node_rect,
                         6.0,
-                        egui::Stroke::new(if selected { 2.0 } else { 1.0 }, border),
+                        egui::Stroke::new(if selected { 2.0_f32 } else { 1.0_f32 }, border),
                     );
                     let hdr_rect =
                         egui::Rect::from_min_size(egui::pos2(nx, ny), egui::vec2(nw, HDR_H));
@@ -12124,11 +12139,11 @@ impl Nat3DApp {
                     let y = rect.top() + t * rect.height();
                     painter.line_segment(
                         [egui::pos2(x, rect.top()), egui::pos2(x, rect.bottom())],
-                        egui::Stroke::new(0.5, grid_color),
+                        egui::Stroke::new(0.5_f32, grid_color),
                     );
                     painter.line_segment(
                         [egui::pos2(rect.left(), y), egui::pos2(rect.right(), y)],
-                        egui::Stroke::new(0.5, grid_color),
+                        egui::Stroke::new(0.5_f32, grid_color),
                     );
                 }
 
@@ -12136,7 +12151,7 @@ impl Nat3DApp {
                 painter.rect_stroke(
                     rect,
                     0.0,
-                    egui::Stroke::new(1.5, egui::Color32::from_rgb(100, 100, 100)),
+                    egui::Stroke::new(1.5_f32, egui::Color32::from_rgb(100, 100, 100)),
                 );
 
                 // Draw UV coordinates for selected object
@@ -12187,8 +12202,10 @@ impl Nat3DApp {
                                     rect.left() + uvs[b][0].clamp(0.0, 1.0) * rect.width(),
                                     rect.bottom() - uvs[b][1].clamp(0.0, 1.0) * rect.height(),
                                 );
-                                painter
-                                    .line_segment([pa, pb], egui::Stroke::new(1.0, uv_edge_color));
+                                painter.line_segment(
+                                    [pa, pb],
+                                    egui::Stroke::new(1.0_f32, uv_edge_color),
+                                );
                             }
                         }
                     }
@@ -12317,7 +12334,7 @@ impl Nat3DApp {
                     let x = time_to_sx(tn);
                     painter.line_segment(
                         [egui::pos2(x, r.top()), egui::pos2(x, r.bottom())],
-                        egui::Stroke::new(0.5, egui::Color32::from_rgb(40, 40, 50)),
+                        egui::Stroke::new(0.5_f32, egui::Color32::from_rgb(40, 40, 50)),
                     );
                     painter.text(
                         egui::pos2(x + 2.0, r.bottom() - 10.0),
@@ -12329,7 +12346,7 @@ impl Nat3DApp {
                     let y = r.top() + t * r.height();
                     painter.line_segment(
                         [egui::pos2(r.left(), y), egui::pos2(r.right(), y)],
-                        egui::Stroke::new(0.5, egui::Color32::from_rgb(40, 40, 50)),
+                        egui::Stroke::new(0.5_f32, egui::Color32::from_rgb(40, 40, 50)),
                     );
                 }
                 // Zero line
@@ -12337,7 +12354,7 @@ impl Nat3DApp {
                 if zero_y >= r.top() && zero_y <= r.bottom() {
                     painter.line_segment(
                         [egui::pos2(r.left(), zero_y), egui::pos2(r.right(), zero_y)],
-                        egui::Stroke::new(1.0, egui::Color32::from_rgb(70, 70, 85)),
+                        egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(70, 70, 85)),
                     );
                 }
 
@@ -12395,7 +12412,8 @@ impl Nat3DApp {
                             .collect()
                     };
                     for w in pts.windows(2) {
-                        painter.line_segment([w[0], w[1]], egui::Stroke::new(1.5, CH_COLORS[ch]));
+                        painter
+                            .line_segment([w[0], w[1]], egui::Stroke::new(1.5_f32, CH_COLORS[ch]));
                     }
                     for &(ki, _, pt) in dots.iter().filter(|(_, c, _)| *c == ch) {
                         let sel = self.graph_selected.contains(&ki);
@@ -12409,7 +12427,7 @@ impl Nat3DApp {
                             pt,
                             dot_r,
                             egui::Stroke::new(
-                                1.0,
+                                1.0_f32,
                                 egui::Color32::from_rgba_unmultiplied(255, 255, 255, 60),
                             ),
                         );
@@ -12428,7 +12446,7 @@ impl Nat3DApp {
                 if px >= r.left() && px <= r.right() {
                     painter.line_segment(
                         [egui::pos2(px, r.top()), egui::pos2(px, r.bottom())],
-                        egui::Stroke::new(1.5, egui::Color32::from_rgb(255, 255, 100)),
+                        egui::Stroke::new(1.5_f32, egui::Color32::from_rgb(255, 255, 100)),
                     );
                 }
 
@@ -12440,7 +12458,7 @@ impl Nat3DApp {
                     painter.rect_stroke(
                         sel_r,
                         0.0,
-                        egui::Stroke::new(1.0, egui::Color32::from_rgb(100, 150, 255)),
+                        egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(100, 150, 255)),
                     );
                     painter.rect_filled(
                         sel_r,
@@ -13737,7 +13755,7 @@ impl Nat3DApp {
                             track_rect.min + egui::vec2(px, 0.0),
                             track_rect.min + egui::vec2(px, h),
                         ],
-                        egui::Stroke::new(2.0, egui::Color32::from_rgb(255, 100, 100)),
+                        egui::Stroke::new(2.0_f32, egui::Color32::from_rgb(255, 100, 100)),
                     );
                 }
                 ui.allocate_space(egui::vec2(w, h));

@@ -464,7 +464,7 @@ impl JobQueue {
 
     /// Sort jobs by priority.
     fn sort_by_priority(&mut self) {
-        self.jobs.sort_by(|a, b| b.priority.cmp(&a.priority));
+        self.jobs.sort_by_key(|b| std::cmp::Reverse(b.priority));
     }
 
     /// Update active count.

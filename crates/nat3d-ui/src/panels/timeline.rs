@@ -166,7 +166,7 @@ impl TimelinePanel {
             };
             painter.line_segment(
                 [egui::pos2(x, y_top), egui::pos2(x, y_top + tick_height)],
-                egui::Stroke::new(1.0, egui::Color32::from_gray(100)),
+                egui::Stroke::new(1.0_f32, egui::Color32::from_gray(100)),
             );
 
             // Draw frame number every 10 frames
@@ -189,7 +189,7 @@ impl TimelinePanel {
                 egui::pos2(current_x, response.rect.top()),
                 egui::pos2(current_x, response.rect.bottom()),
             ],
-            egui::Stroke::new(2.0, egui::Color32::from_rgb(255, 200, 0)),
+            egui::Stroke::new(2.0_f32, egui::Color32::from_rgb(255, 200, 0)),
         );
 
         // Handle click to jump to frame

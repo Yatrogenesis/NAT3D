@@ -523,11 +523,7 @@ impl NurbsSurface {
                     new_weights.push(vec![w]);
                 }
             } else {
-                for (i, (pt, w)) in row_points
-                    .into_iter()
-                    .zip(row_weights)
-                    .enumerate()
-                {
+                for (i, (pt, w)) in row_points.into_iter().zip(row_weights).enumerate() {
                     new_points[i].push(pt);
                     new_weights[i].push(w);
                 }
