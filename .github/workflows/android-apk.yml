@@ -1,0 +1,75 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Francisco Molina-Burgos
+#
+# Compila el APK de NAT3D (crate `nat3d-mobile`) en GitHub Actions.
+#
+# POR QUÉ EN CI Y NO EN LOCAL:
+#   El NDK de Android pesa varios GB y la máquina de desarrollo va justa de RAM
+#   y de disco. Aquí el runner de GitHub aporta el NDK, la memoria y el disco,
+#   y devuelve el `.apk` como artefacto descargable. No hay que instalar nada.
+#
+# QUÉ COMPILA:
+#   `nat3d-mobile` — el único crate del workspace preparado para Android
+#   (declara `android-activity` con la feature `native-activity` y
+#   `winit/android-native-activity`). NO compila `nat3d-app`: esa es la GUI de
+#   escritorio y no tiene punto de entrada Android.
+#
+# ⚠️ SIN FIRMAR: produce un APK de depuración. Instalable activando "orígenes
+#    desconocidos" en el teléfono; NO subible a Play Store. Firmarlo requiere un
+#    keystore, que es un secreto y una decisión aparte.
+
+name: Android APK
+
+on:
+  workflow_dispatch:        # se lanza a mano desde la pestaña Actions
+  push:
+    tags: ['v*']            # y automáticamente al etiquetar una versión
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain Rust + target Android
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          # arm64 cubre prácticamente todo teléfono desde ~2017.
+          # Añadir armv7-linux-androideabi si hace falta soportar más viejos.
+          targets: aarch64-linux-android
+
+      - name: JDK (lo exige el empaquetado de Android)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: SDK + NDK de Android
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar NDK
+        run: sdkmanager --install "ndk;26.3.11579264"
+
+      - name: Cachear dependencias de cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Instalar cargo-apk
+        run: cargo install cargo-apk --locked
+
+      - name: Construir APK
+        env:
+          # cargo-apk localiza el NDK por esta variable.
+          ANDROID_NDK_ROOT: ${{ env.ANDROID_HOME }}/ndk/26.3.11579264
+        run: |
+          cargo apk build -p nat3d-mobile --target aarch64-linux-android
+          echo "--- APKs generados ---"
+          find target -name '*.apk' -print
+
+      - name: Publicar el APK como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: nat3d-android-apk
+          path: target/**/*.apk
+          if-no-files-found: error   # falla ruidosamente si no se generó nada
+          retention-days: 30
+</content>
