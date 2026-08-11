@@ -115,6 +115,17 @@ impl IPadInput {
         });
     }
 
+    /// Whether a gesture is currently being tracked (i.e. `initial_*` fields
+    /// have already been seeded). Callers driving this from raw touch events
+    /// should call [`Self::handle_gesture`] only while this is `false`, then
+    /// let subsequent [`Self::handle_touch_event`] calls update the running
+    /// deltas — calling `handle_gesture` again mid-gesture resets
+    /// `initial_distance`/`initial_angle` and makes pinch/rotate deltas
+    /// always read as zero.
+    pub fn is_tracking_gesture(&self) -> bool {
+        self.gesture_state.is_some()
+    }
+
     /// Get viewport transform from gestures.
     pub fn get_viewport_transform(&self) -> ViewportTransform {
         if let Some(ref state) = self.gesture_state {
@@ -181,6 +192,24 @@ impl IPadInput {
             let distance = self.distance_between(touches[0], touches[1]);
             let angle = self.angle_between(touches[0], touches[1]);
 
+            // Bootstrap tracking on the very first two-finger sample. Without
+            // this, `gesture_state` starts as `None` and stays `None`
+            // forever: the branch below only *updates* an existing state, it
+            // never creates one, so a caller relying solely on this method's
+            // return value (rather than also calling `handle_gesture`
+            // externally) could never begin a pinch/rotate gesture.
+            if self.gesture_state.is_none() {
+                self.gesture_state = Some(GestureState {
+                    gesture: IPadGesture::Pinch, // provisional, reclassified below
+                    initial_distance: Some(distance),
+                    initial_angle: Some(angle),
+                    current_distance: Some(distance),
+                    current_angle: Some(angle),
+                });
+                // No delta yet on the first sample.
+                return Some(IPadGesture::Pinch);
+            }
+
             if let Some(ref mut state) = self.gesture_state {
                 if state.initial_distance.is_none() {
                     state.initial_distance = Some(distance);
@@ -193,11 +222,13 @@ impl IPadInput {
                 let distance_change = (distance - state.initial_distance.unwrap()).abs();
                 let angle_change = (angle - state.initial_angle.unwrap()).abs();
 
-                if distance_change > angle_change {
-                    return Some(IPadGesture::Pinch);
+                let gesture = if distance_change > angle_change {
+                    IPadGesture::Pinch
                 } else {
-                    return Some(IPadGesture::Rotate);
-                }
+                    IPadGesture::Rotate
+                };
+                state.gesture = gesture;
+                return Some(gesture);
             }
         }
 

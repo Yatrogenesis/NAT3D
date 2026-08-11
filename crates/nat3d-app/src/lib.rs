@@ -385,6 +385,25 @@ pub struct Nat3DApp {
     pending_connection: Option<(nodes::NodeId, nodes::SocketId)>,
     /// Node being dragged: (node id, mouse offset from node origin at drag start).
     node_drag: Option<(nodes::NodeId, egui::Vec2)>,
+    /// iPad remote input — decoded messages from the background TCP listener
+    /// thread (see BATCH 24). Wrapped in Mutex for the same Sync reason as
+    /// `edu_oauth_rx` (Receiver is Send but not Sync).
+    #[cfg(feature = "ipad")]
+    ipad_rx: Option<parking_lot::Mutex<std::sync::mpsc::Receiver<nat3d_sync::protocol::SyncMessage>>>,
+    /// Touch gesture state machine — turns raw touch points into pan/zoom/orbit.
+    #[cfg(feature = "ipad")]
+    ipad_input: nat3d_sync::input::ipad::IPadInput,
+    /// Pressure-curve state — turns raw Apple Pencil samples into brush parameters.
+    #[cfg(feature = "ipad")]
+    pencil_input: nat3d_sync::input::pencil::PencilInput,
+    /// Most recent brush parameters derived from Apple Pencil input.
+    /// NOTE: no paint/sculpt tool consumes this yet — there's no brush
+    /// system in the app to feed. Kept so that one has somewhere to read
+    /// from once such a tool exists, instead of the pencil data being
+    /// silently discarded as it was before.
+    #[cfg(feature = "ipad")]
+    #[allow(dead_code)]
+    last_pencil_params: Option<nat3d_sync::input::pencil::BrushParams>,
 }
 
 /// GPU rendering state (wgpu-based).
@@ -1262,6 +1281,11 @@ impl Nat3DApp {
         #[cfg(feature = "ipad")]
         // BATCH 24: iPad Remote Input Listener (P3.4)
         let ctx_clone = cc.egui_ctx.clone();
+        // Decoded messages are forwarded to the UI thread through this channel
+        // instead of being decoded-and-discarded (see `process_ipad_input`,
+        // called from `update()`).
+        #[cfg(feature = "ipad")]
+        let (ipad_tx, ipad_rx) = std::sync::mpsc::channel::<nat3d_sync::protocol::SyncMessage>();
         #[cfg(feature = "ipad")]
         std::thread::spawn(move || {
             // Creamos un runtime dedicado para el listener de iPad,
@@ -1283,8 +1307,11 @@ impl Nat3DApp {
                     while let Ok((mut socket, _)) = listener.accept().await {
                         let mut buf = vec![0u8; 4096];
                         if let Ok(n) = socket.read(&mut buf).await {
-                            if let Ok(_msg) = nat3d_sync::protocol::SyncProtocol::decode(&buf[..n])
+                            if let Ok(msg) = nat3d_sync::protocol::SyncProtocol::decode(&buf[..n])
                             {
+                                // Best-effort: drop silently if the UI side
+                                // already shut down (receiver dropped).
+                                let _ = ipad_tx.send(msg);
                                 ctx_clone.request_repaint();
                             }
                         }
@@ -1404,6 +1431,86 @@ impl Nat3DApp {
             node_graph: nodes::NodeGraph::default_material(),
             pending_connection: None,
             node_drag: None,
+            #[cfg(feature = "ipad")]
+            ipad_rx: Some(parking_lot::Mutex::new(ipad_rx)),
+            #[cfg(feature = "ipad")]
+            ipad_input: nat3d_sync::input::ipad::IPadInput::new(1600, 900),
+            #[cfg(feature = "ipad")]
+            pencil_input: nat3d_sync::input::pencil::PencilInput::new(),
+            #[cfg(feature = "ipad")]
+            last_pencil_params: None,
+        }
+    }
+
+    /// Drain messages received from the iPad TCP listener thread (see
+    /// `Self::new`) and apply them: touch gestures drive the viewport camera
+    /// the same way mouse drag does, pencil samples are run through the
+    /// pressure curve and stashed for a future paint/sculpt tool to read.
+    /// Called once per frame from `update()`.
+    #[cfg(feature = "ipad")]
+    fn process_ipad_input(&mut self) {
+        let Some(rx) = self.ipad_rx.as_ref() else {
+            return;
+        };
+        // Drain everything pending this frame without holding the lock
+        // while we mutate other app state.
+        let messages: Vec<nat3d_sync::protocol::SyncMessage> = {
+            let rx = rx.lock();
+            std::iter::from_fn(|| rx.try_recv().ok()).collect()
+        };
+
+        for msg in messages {
+            match msg {
+                nat3d_sync::protocol::SyncMessage::InputEvent {
+                    event_type, x, y, ..
+                } => {
+                    let ended = matches!(event_type.as_str(), "up" | "end" | "cancel");
+                    if let Some(gesture) = self.ipad_input.handle_touch_event(0, x, y, ended) {
+                        // Seed tracking once per gesture; re-calling
+                        // `handle_gesture` mid-gesture would reset the
+                        // initial distance/angle and zero out every delta
+                        // (see `IPadInput::is_tracking_gesture` docs).
+                        if !self.ipad_input.is_tracking_gesture() {
+                            self.ipad_input.handle_gesture(gesture);
+                        }
+                    }
+                    match self.ipad_input.get_viewport_transform() {
+                        nat3d_sync::input::ipad::ViewportTransform::Pan { dx, dy } => {
+                            self.state.camera.pan(dx, dy);
+                        }
+                        nat3d_sync::input::ipad::ViewportTransform::Zoom { factor } => {
+                            self.state.camera.zoom(factor - 1.0);
+                        }
+                        nat3d_sync::input::ipad::ViewportTransform::Rotate { angle } => {
+                            self.state.camera.orbit(angle.to_degrees(), 0.0);
+                        }
+                        nat3d_sync::input::ipad::ViewportTransform::None => {}
+                    }
+                }
+                nat3d_sync::protocol::SyncMessage::PencilUpdate {
+                    x,
+                    y,
+                    force,
+                    tilt_x,
+                    tilt_y,
+                    azimuth,
+                    in_contact,
+                    ..
+                } => {
+                    if in_contact {
+                        let altitude = (std::f32::consts::FRAC_PI_2
+                            - tilt_x.hypot(tilt_y))
+                        .max(0.0);
+                        let event = nat3d_sync::input::pencil::PencilEvent::new(x, y)
+                            .with_pressure(force)
+                            .with_altitude(altitude)
+                            .with_azimuth(azimuth);
+                        self.last_pencil_params =
+                            Some(self.pencil_input.handle_pencil_event(event));
+                    }
+                }
+                _ => {}
+            }
         }
     }
 
@@ -14530,6 +14637,10 @@ impl eframe::App for Nat3DApp {
             ctx.send_viewport_cmd(egui::ViewportCommand::Focus);
             ctx.request_repaint();
         });
+        // Apply any iPad touch/pencil input received since the last frame.
+        #[cfg(feature = "ipad")]
+        self.process_ipad_input();
+
         // Update timeline playback
         let dt = ctx.input(|i| i.predicted_dt);
         if self.state.timeline.update(dt) {
