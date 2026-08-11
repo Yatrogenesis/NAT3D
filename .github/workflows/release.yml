@@ -206,6 +206,7 @@ jobs:
             | Windows 10/11 (x64) | `NAT3D-${{ github.ref_name }}-x86_64-windows.msi` |
             | macOS 13+ (Universal) | `NAT3D-${{ github.ref_name }}-universal-macos.dmg` |
             | Linux (x86_64) | `NAT3D-${{ github.ref_name }}-x86_64-linux.tar.gz` |
+            | Android (arm64, unsigned debug build) | `NAT3D-${{ github.ref_name }}-android-arm64.apk` — enable "unknown sources" to install; built separately by `android-apk.yml`, may land a few minutes after the other assets |
 
             ### Zenodo
             > DOI: *(add after Zenodo upload)*

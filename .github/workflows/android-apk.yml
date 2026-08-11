@@ -80,3 +80,28 @@ jobs:
           path: target/**/*.apk
           if-no-files-found: error   # falla ruidosamente si no se genero nada
           retention-days: 30
+
+      # Sin esto, el APK solo vivia como artefacto de Actions: requiere sesion
+      # en GitHub para descargarlo y expira a los 30 dias — no aparecia en la
+      # pagina publica de Releases junto al .msi/.dmg/.tar.gz. Lo renombramos
+      # igual que los demas assets (`NAT3D-$tag-...`) y lo adjuntamos al
+      # Release del mismo tag (release.yml lo crea como draft; softprops
+      # actualiza ese mismo release si ya existe, o lo crea si esta accion
+      # corre primero — no importa el orden entre los dos workflows).
+      - name: Renombrar APK para el Release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          TAG="${{ github.ref_name }}"
+          APK=$(find target -name '*.apk' | head -1)
+          cp "$APK" "NAT3D-$TAG-android-arm64.apk"
+
+      - name: Adjuntar APK al GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: NAT3D-*-android-arm64.apk
+          draft: true
+          fail_on_unmatched_files: true
+          append_body: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
