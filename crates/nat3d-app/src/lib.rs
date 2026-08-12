@@ -101,11 +101,21 @@ impl egui_wgpu::CallbackTrait for ViewportCallback {
     ) -> Vec<wgpu::CommandBuffer> {
         let mut renderer = self.renderer.write();
 
-        // Resize render texture if viewport dimensions changed
+        // Record a viewport size change for `update()` to act on — do NOT resize
+        // here. `resize()` needs the `egui_wgpu::Renderer` lock to re-register
+        // the render texture, and eframe already holds that same lock (as a
+        // writer) for the whole duration of this callback:
+        //   egui-wgpu winit.rs:401  render_state.renderer.write()
+        //   egui-wgpu winit.rs:411  renderer.update_buffers(..)
+        //   egui-wgpu renderer.rs:974  callback.prepare(..)   <- we are here
+        // `egui::mutex::RwLock` (parking_lot) is not reentrant, so taking it
+        // again from this thread deadlocked the main thread permanently: the
+        // window painted exactly one frame and then froze, which the desktop
+        // reported as "application is not responding / force quit".
         let w = screen_descriptor.size_in_pixels[0].max(1);
         let h = screen_descriptor.size_in_pixels[1].max(1);
         if renderer.dimensions != (w, h) {
-            renderer.resize(device, w, h);
+            renderer.pending_resize = Some((w, h));
         }
 
         // Sync mesh cache: upload new objects, evict removed ones
@@ -422,6 +432,10 @@ struct GpuRendererState {
     /// egui renderer reference — needed to re-register render_texture after resize.
     egui_renderer: Arc<egui::mutex::RwLock<egui_wgpu::Renderer>>,
     dimensions: (u32, u32),
+    /// Viewport size requested by the paint callback, pending application by
+    /// `update()`. The resize itself cannot run inside the callback — see the
+    /// deadlock note in `ViewportCallback::prepare`.
+    pending_resize: Option<(u32, u32)>,
     /// Per-object GPU buffers keyed by scene object index.
     mesh_cache: HashMap<usize, MeshEntry>,
 }
@@ -626,6 +640,7 @@ impl GpuRendererState {
             egui_texture_id,
             egui_renderer,
             dimensions: (width, height),
+            pending_resize: None,
             mesh_cache: HashMap::new(),
         })
     }
@@ -14625,7 +14640,23 @@ impl Nat3DApp {
 }
 
 impl eframe::App for Nat3DApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        // Apply any viewport resize requested by the paint callback. This has
+        // to happen here, not in the callback: re-registering the render
+        // texture needs the `egui_wgpu::Renderer` lock, which eframe holds for
+        // the entire callback but not during `update()`. See the deadlock note
+        // in `ViewportCallback::prepare`.
+        if let (Some(gpu), Some(render_state)) =
+            (self.gpu_renderer.as_ref(), frame.wgpu_render_state())
+        {
+            let pending = gpu.read().pending_resize;
+            if let Some((w, h)) = pending {
+                let mut gpu = gpu.write();
+                gpu.resize(&render_state.device, w, h);
+                gpu.pending_resize = None;
+            }
+        }
+
         // GPU rendering is handled by ViewportCallback::prepare() via egui_wgpu callbacks.
         static FIRST_FRAME: std::sync::OnceLock<()> = std::sync::OnceLock::new();
         FIRST_FRAME.get_or_init(|| {
