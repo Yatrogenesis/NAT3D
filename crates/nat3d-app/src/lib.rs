@@ -4290,7 +4290,7 @@ impl Nat3DApp {
 
             // Keyframe controls (BATCH 24: Animation keyframing UI)
             if ui
-                .button("🔑 Insert")
+                .button("Insert")
                 .on_hover_text("Insert keyframe (I)")
                 .clicked()
             {
@@ -4305,7 +4305,7 @@ impl Nat3DApp {
                 }
             }
             if ui
-                .button("❌ Delete")
+                .button("Delete")
                 .on_hover_text("Delete keyframe (Alt+I)")
                 .clicked()
             {
@@ -9760,27 +9760,27 @@ impl Nat3DApp {
                     cols[1].add_space(6.0);
                     for (label, detail) in &[
                         (
-                            "★ Spectral Smooth",
+                            "Spectral Smooth",
                             "Laplacian mesh processing\n  (Sorkine 2006)",
                         ),
                         (
-                            "★ Hyperbolic Warp",
+                            "Hyperbolic Warp",
                             "Poincaré ball geometry\n  (Ungar 2001)",
                         ),
                         (
-                            "★ NeRF Render Engine",
+                            "NeRF Render Engine",
                             "Volumetric neural radiance\n  (Mildenhall et al. 2020)",
                         ),
                         (
-                            "★ Neural Cache (NRC)",
+                            "Neural Cache (NRC)",
                             "Real-time GI via MLP\n  (Müller et al. 2021)",
                         ),
                         (
-                            "★ Non-Euclidean Core",
+                            "Non-Euclidean Core",
                             "Möbius/hyperbolic math\n  in nat3d-core",
                         ),
                         (
-                            "★ Differentiable Render",
+                            "Differentiable Render",
                             "Adjoint gradient pipeline\n  in nat3d-render",
                         ),
                     ] {
@@ -10582,8 +10582,8 @@ impl Nat3DApp {
                 // ── Current status ────────────────────────────────────────────
                 let (color, label) = match &self.license_status {
                     license::LicenseStatus::Trial => (egui::Color32::YELLOW, "Trial mode"),
-                    license::LicenseStatus::Licensed { tier: license::Tier::Pro } => (egui::Color32::GREEN, "NAT3D Pro — Licensed ✓"),
-                    license::LicenseStatus::Licensed { tier: license::Tier::Edu } => (egui::Color32::LIGHT_BLUE, "NAT3D Edu — Licensed ✓"),
+                    license::LicenseStatus::Licensed { tier: license::Tier::Pro } => (egui::Color32::GREEN, "NAT3D Pro — Licensed"),
+                    license::LicenseStatus::Licensed { tier: license::Tier::Edu } => (egui::Color32::LIGHT_BLUE, "NAT3D Edu — Licensed"),
                     license::LicenseStatus::Invalid => (egui::Color32::RED, "Invalid license"),
                 };
                 ui.label(egui::RichText::new(label).color(color).strong());
@@ -10599,7 +10599,7 @@ impl Nat3DApp {
                 // ── GitHub Education flow state machine ───────────────────────
                 match &self.edu_oauth_step {
                     EduOAuthStep::Idle => {
-                        ui.label(egui::RichText::new("🎓  Free for students & teachers").strong());
+                        ui.label(egui::RichText::new("Free for students and teachers").strong());
                         ui.label("Verify your GitHub Education account to activate NAT3D Edu at no cost.");
                         ui.add_space(4.0);
                         if ui.button("  Activate with GitHub Education  ").clicked() {
@@ -10612,12 +10612,12 @@ impl Nat3DApp {
                         ui.separator();
                     }
                     EduOAuthStep::Polling => {
-                        ui.label(egui::RichText::new("🔄  Connecting to GitHub…").italics());
+                        ui.label(egui::RichText::new("Connecting to GitHub...").italics());
                         ui.add_space(4.0);
                         ui.separator();
                     }
                     EduOAuthStep::AwaitingUser { user_code, verification_uri } => {
-                        ui.label(egui::RichText::new("🎓  GitHub Education verification").strong());
+                        ui.label(egui::RichText::new("GitHub Education verification").strong());
                         ui.add_space(4.0);
                         ui.label("1. Your browser should have opened. If not, go to:");
                         ui.hyperlink(verification_uri);
@@ -10639,7 +10639,7 @@ impl Nat3DApp {
                         ui.separator();
                     }
                     EduOAuthStep::Confirmed { serial, github_handle } => {
-                        ui.colored_label(egui::Color32::GREEN, format!("✅  Welcome, @{github_handle}! GitHub Education confirmed."));
+                        ui.colored_label(egui::Color32::GREEN, format!("Welcome, @{github_handle}. GitHub Education confirmed."));
                         ui.add_space(4.0);
                         ui.label("Your NAT3D Edu serial:");
                         ui.horizontal(|ui| {

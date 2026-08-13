@@ -166,11 +166,11 @@ impl HierarchyPanel {
 
             // Object icon
             let icon = match obj.object_type.as_str() {
-                "mesh" => "🔷",
-                "camera" => "📷",
-                "light" => "💡",
-                "empty" => "⭘",
-                _ => "📦",
+                "mesh" => "[M]",
+                "camera" => "[C]",
+                "light" => "[L]",
+                "empty" => "[E]",
+                _ => "[O]",
             };
             ui.label(icon);
 
@@ -200,13 +200,13 @@ impl HierarchyPanel {
             }
 
             // Visibility toggle
-            let vis_icon = if obj.visible { "👁" } else { "🚫" };
+            let vis_icon = if obj.visible { "vis" } else { "hid" };
             if ui.small_button(vis_icon).clicked() {
                 // Visibility toggle would be handled by callback
             }
 
             // Lock toggle
-            let lock_icon = if obj.locked { "🔒" } else { "🔓" };
+            let lock_icon = if obj.locked { "lock" } else { "open" };
             if ui.small_button(lock_icon).clicked() {
                 // Lock toggle would be handled by callback
             }

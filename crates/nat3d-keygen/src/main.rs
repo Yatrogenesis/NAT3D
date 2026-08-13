@@ -130,7 +130,7 @@ fn main() {
                 match base32::decode(Alphabet::Rfc4648 { padding: false }, &serial_clean) {
                     Some(bytes) if bytes.len() == 64 => bytes,
                     _ => {
-                        println!("❌ INVALID — serial is not a well-formed 64-byte signature");
+                        println!("INVALID: serial is not a well-formed 64-byte signature");
                         std::process::exit(1);
                     }
                 };
@@ -141,11 +141,11 @@ fn main() {
             for tier in &["pro", "edu"] {
                 let message = format!("NAT3D|{machine_id}|{tier}");
                 if verifying_key.verify(message.as_bytes(), &signature).is_ok() {
-                    println!("✅ VALID — machine={machine_id} tier={tier}");
+                    println!("VALID: machine={machine_id} tier={tier}");
                     return;
                 }
             }
-            println!("❌ INVALID — serial does not match machine {machine_id}");
+            println!("INVALID: serial does not match machine {machine_id}");
             std::process::exit(1);
         }
         Command::MachineId => {

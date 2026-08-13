@@ -77,7 +77,7 @@ fn main() {
 
         // Imprimir Pantalla
         print!("\x1B[H"); // Reset cursor a inicio
-        println!("🚀 FRAME: {} | NAT3D TACTICAL VIEW | ▲=Drone X=FALLEN ·=Perimeter", frame);
+        println!("FRAME: {} | NAT3D TACTICAL VIEW | ^=Drone X=FALLEN .=Perimeter", frame);
         for row in grid {
             let s: String = row.into_iter().collect();
             println!("{}", s);

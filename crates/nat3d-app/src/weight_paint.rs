@@ -324,14 +324,14 @@ pub fn show_weight_paint_panel(
     state: &mut AppState,
     vertex_count: usize,
 ) {
-    ui.heading("⚖ Weight Paint");
+    ui.heading("Weight Paint");
     ui.separator();
 
     // Active mode toggle
     let active_label = if engine.active {
-        "🎨 Painting ON"
+        "Painting ON"
     } else {
-        "🎨 Start Painting"
+        "Start Painting"
     };
     if ui.button(active_label).clicked() {
         engine.active = !engine.active;
@@ -361,7 +361,7 @@ pub fn show_weight_paint_panel(
                 if ui.selectable_label(selected, name).clicked() {
                     engine.active_group = i;
                 }
-                if ui.small_button("🗑").clicked() {
+                if ui.small_button("Remove").clicked() {
                     to_remove = Some(i);
                 }
             });
@@ -377,7 +377,7 @@ pub fn show_weight_paint_panel(
         ui.separator();
 
         // Normalize button
-        if ui.button("⚖ Normalize All Weights").clicked() {
+        if ui.button("Normalize All Weights").clicked() {
             normalize_weights(obj, vertex_count);
         }
 
