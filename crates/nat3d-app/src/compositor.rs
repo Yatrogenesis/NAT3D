@@ -735,7 +735,7 @@ pub fn show_compositor_panel(
     compositor: &mut Compositor,
     render_layer: Option<&CompositorImage>,
 ) {
-    ui.heading("🎬 Compositor");
+    ui.heading("Compositor");
     ui.separator();
 
     // Execute button
@@ -834,7 +834,7 @@ pub fn show_compositor_panel(
                 header.show(ui, |ui| {
                     show_node_params(ui, node);
                 });
-                if ui.small_button("🗑").clicked() {
+                if ui.small_button("Remove").clicked() {
                     to_remove = Some(id);
                 }
             });

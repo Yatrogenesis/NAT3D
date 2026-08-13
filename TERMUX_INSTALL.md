@@ -1,6 +1,6 @@
 # NAT3D en Termux (Android)
 
-**⚠️ NO PROBADO EN DISPOSITIVO.** Este procedimiento está derivado de las
+**NO PROBADO EN DISPOSITIVO.** Este procedimiento está derivado de las
 dependencias reales declaradas en los `Cargo.toml` del workspace (verificadas
 2026-08-09), no de una instalación ejecutada. Los puntos que hay que confirmar
 en el primer intento están marcados con **[VERIFICAR]**.
