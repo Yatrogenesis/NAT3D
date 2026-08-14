@@ -20,7 +20,13 @@ nat3d-ui = { workspace = true }
 nat3d-modeling = { workspace = true }
 nat3d-animation = { workspace = true }
 nat3d-io = { workspace = true }
-nat3d-scripting = { workspace = true }
+# default-features = false is load-bearing: nat3d-scripting enables its
+# python feature by default, which pulls in PyO3 and makes the link step
+# require libpython. Without this, the python feature of this crate cannot
+# actually be turned off, and any target without a libpython for its
+# architecture fails to link. That is what broke every Android build, where
+# no libpython for aarch64-linux-android exists on the runner.
+nat3d-scripting = { workspace = true, default-features = false }
 nat3d-cloud = { workspace = true }
 nat3d-sync = { workspace = true }
 

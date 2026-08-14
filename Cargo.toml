@@ -41,7 +41,11 @@ nat3d-ui = { path = "crates/nat3d-ui" }
 nat3d-modeling = { path = "crates/nat3d-modeling" }
 nat3d-animation = { path = "crates/nat3d-animation" }
 nat3d-io = { path = "crates/nat3d-io" }
-nat3d-scripting = { path = "crates/nat3d-scripting" }
+# default-features = false here, not in the consuming crate: cargo ignores
+# the setting downstream unless the workspace dependency declares it too.
+# nat3d-scripting turns on its python feature by default, which pulls in
+# PyO3 and makes linking require libpython for the target architecture.
+nat3d-scripting = { path = "crates/nat3d-scripting", default-features = false }
 nat3d-cloud = { path = "crates/nat3d-cloud" }
 nat3d-sync = { path = "crates/nat3d-sync" }
 nat3d-cli = { path = "crates/nat3d-cli" }
