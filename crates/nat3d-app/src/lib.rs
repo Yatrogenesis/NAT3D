@@ -399,7 +399,8 @@ pub struct Nat3DApp {
     /// thread (see BATCH 24). Wrapped in Mutex for the same Sync reason as
     /// `edu_oauth_rx` (Receiver is Send but not Sync).
     #[cfg(feature = "ipad")]
-    ipad_rx: Option<parking_lot::Mutex<std::sync::mpsc::Receiver<nat3d_sync::protocol::SyncMessage>>>,
+    ipad_rx:
+        Option<parking_lot::Mutex<std::sync::mpsc::Receiver<nat3d_sync::protocol::SyncMessage>>>,
     /// Touch gesture state machine — turns raw touch points into pan/zoom/orbit.
     #[cfg(feature = "ipad")]
     ipad_input: nat3d_sync::input::ipad::IPadInput,
@@ -1322,8 +1323,7 @@ impl Nat3DApp {
                     while let Ok((mut socket, _)) = listener.accept().await {
                         let mut buf = vec![0u8; 4096];
                         if let Ok(n) = socket.read(&mut buf).await {
-                            if let Ok(msg) = nat3d_sync::protocol::SyncProtocol::decode(&buf[..n])
-                            {
+                            if let Ok(msg) = nat3d_sync::protocol::SyncProtocol::decode(&buf[..n]) {
                                 // Best-effort: drop silently if the UI side
                                 // already shut down (receiver dropped).
                                 let _ = ipad_tx.send(msg);
@@ -1513,9 +1513,8 @@ impl Nat3DApp {
                     ..
                 } => {
                     if in_contact {
-                        let altitude = (std::f32::consts::FRAC_PI_2
-                            - tilt_x.hypot(tilt_y))
-                        .max(0.0);
+                        let altitude =
+                            (std::f32::consts::FRAC_PI_2 - tilt_x.hypot(tilt_y)).max(0.0);
                         let event = nat3d_sync::input::pencil::PencilEvent::new(x, y)
                             .with_pressure(force)
                             .with_altitude(altitude)
@@ -9639,10 +9638,7 @@ impl Nat3DApp {
                             "Spectral Smooth",
                             "Laplacian mesh processing\n  (Sorkine 2006)",
                         ),
-                        (
-                            "Hyperbolic Warp",
-                            "Poincaré ball geometry\n  (Ungar 2001)",
-                        ),
+                        ("Hyperbolic Warp", "Poincaré ball geometry\n  (Ungar 2001)"),
                         (
                             "Non-Euclidean Core",
                             "Möbius/hyperbolic math\n  in nat3d-core",

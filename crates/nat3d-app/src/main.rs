@@ -80,7 +80,8 @@ fn main() -> eframe::Result<()> {
 /// logic if none of them work (keeps prior behavior — and its error
 /// reporting — as a last resort rather than failing silently here).
 async fn select_wgpu_setup() -> eframe::egui_wgpu::WgpuSetup {
-    let backends = eframe::wgpu::util::backend_bits_from_env().unwrap_or(eframe::wgpu::Backends::PRIMARY);
+    let backends =
+        eframe::wgpu::util::backend_bits_from_env().unwrap_or(eframe::wgpu::Backends::PRIMARY);
     let instance = eframe::wgpu::Instance::new(eframe::wgpu::InstanceDescriptor {
         backends,
         ..Default::default()

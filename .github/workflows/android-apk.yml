@@ -53,8 +53,15 @@ jobs:
       - name: SDK + NDK de Android
         uses: android-actions/setup-android@v3
 
-      - name: Instalar NDK
-        run: sdkmanager --install "ndk;${NDK_VERSION}"
+      - name: Instalar NDK y plataforma del SDK
+        # cargo-apk necesita una plataforma del SDK ademas del NDK. Sin ella
+        # falla con "Platform `30` is not installed", que es exactamente lo que
+        # impidio que este workflow produjera un APK en todas sus ejecuciones
+        # anteriores. La API 30 es la que cargo-apk toma por defecto cuando el
+        # manifiesto no fija target_sdk_version.
+        run: |
+          sdkmanager --install "ndk;${NDK_VERSION}"
+          sdkmanager --install "platforms;android-30"
 
       - name: Cachear dependencias de cargo
         uses: Swatinem/rust-cache@v2
