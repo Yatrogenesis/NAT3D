@@ -221,7 +221,28 @@ jobs:
             | Windows 10/11 (x64) | `NAT3D-${{ github.ref_name }}-x86_64-windows.msi` |
             | macOS 10.13+ Intel, 11.0+ Apple Silicon (Universal) | `NAT3D-${{ github.ref_name }}-universal-macos.dmg` |
             | Linux (x86_64) | `NAT3D-${{ github.ref_name }}-x86_64-linux.tar.gz` |
-            | Android (arm64, unsigned debug build) | `NAT3D-${{ github.ref_name }}-android-arm64.apk` — enable "unknown sources" to install; built separately by `android-apk.yml`, may land a few minutes after the other assets |
+            | Android (arm64) | `NAT3D-${{ github.ref_name }}-android-arm64.apk` — see the note below before installing; built separately by `android-apk.yml` and may land a few minutes after the other assets |
+
+            ### About the Android build
+
+            The APK is signed with a throwaway key that is generated during the
+            build, never stored and never reused. Three consequences follow, and
+            all three matter before you install it.
+
+            The signature identifies nothing. It does not attest that the file
+            came from this project, so it gives you no more assurance than an
+            unsigned file would.
+
+            Updates will not install over it. Because a new key is generated on
+            every build, Android treats each APK as coming from a different
+            author and refuses to replace one with another. Uninstall the
+            previous version first, which also removes its data.
+
+            It has not been run on a device. It compiles and it is optimised;
+            nothing beyond that has been verified about it. Whether the interface
+            works on Android is untested.
+
+            You will also need to allow installation from unknown sources.
 
             ### Zenodo
             > DOI: *(add after Zenodo upload)*

@@ -75,6 +75,31 @@ jobs:
       - name: Instalar cargo-apk
         run: cargo install cargo-apk --locked
 
+      # cargo-apk refuses to build a release APK without a signing key, and
+      # reads one from CARGO_APK_RELEASE_KEYSTORE. The key generated here is
+      # deliberately throwaway: it is created fresh on every run, never stored,
+      # and never reused.
+      #
+      # What that means for anyone installing the result, and it is not a
+      # detail: the signature identifies nothing. It does not attest that the
+      # file came from this project, and because a different key is generated
+      # each time, an APK from one build cannot be installed over an APK from
+      # another. Android will refuse the update and the previous install has to
+      # be removed first. This is adequate for trying the application out and
+      # inadequate for distributing it. Real distribution needs a persistent key
+      # held as a repository secret, which is a decision with its own
+      # consequences: lose that key and no future update to the app can ever be
+      # published.
+      - name: Generar clave de firma desechable
+        run: |
+          keytool -genkeypair -v \
+            -keystore $RUNNER_TEMP/throwaway.keystore \
+            -alias throwaway -keyalg RSA -keysize 2048 -validity 365 \
+            -storepass throwaway -keypass throwaway \
+            -dname 'CN=NAT3D throwaway build key, O=unverified, C=MX'
+          echo "CARGO_APK_RELEASE_KEYSTORE=$RUNNER_TEMP/throwaway.keystore" >> $GITHUB_ENV
+          echo "CARGO_APK_RELEASE_KEYSTORE_PASSWORD=throwaway" >> $GITHUB_ENV
+
       - name: Construir APK
         # ANDROID_NDK_ROOT se exporta en el propio `run` y no en un bloque
         # `env:`, porque ahi no se puede referenciar el contexto `env` para
