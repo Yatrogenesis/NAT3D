@@ -1,8 +1,10 @@
-// SOTA 2: Spectral Mesh Processing
+// Spectral mesh processing: uniform Laplacian construction.
 use nalgebra::{DMatrix, Point3};
 
 /// Computes the uniform Laplacian matrix for a mesh
-/// REF: [Sorkine, 2006] "Differential Representations for Mesh Processing"
+/// REF: [Sorkine, 2006] "Differential Representations for Mesh Processing",
+///      Computer Graphics Forum 25(4), pp. 789-807
+///      DOI: 10.1111/j.1467-8659.2006.00999.x
 pub fn compute_uniform_laplacian(vertices: &[Point3<f64>], faces: &[Vec<usize>]) -> DMatrix<f64> {
     let n = vertices.len();
     let mut laplacian = DMatrix::from_element(n, n, 0.0);

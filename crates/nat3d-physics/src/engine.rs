@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Francisco Molina-Burgos, Avermex Research Division
 
-//! High-precision Physics Engine using Runge-Kutta 4th Order (RK4).
-//! REF: [Press et al., 2007] "Numerical Recipes: The Art of Scientific Computing"
-//!      DOI: 10.1017/CBO9780511812163
+//! Physics integration using the classical fourth-order Runge-Kutta method.
+//! REF: [Hairer, Norsett and Wanner, 1993] "Solving Ordinary Differential
+//!      Equations I: Nonstiff Problems", 2nd edition, Springer Series in
+//!      Computational Mathematics vol. 8, section II.1 (Runge-Kutta methods)
+//!      DOI: 10.1007/978-3-540-78862-1
 
 use crate::rigid_body::dynamics::RigidBody;
 use nalgebra::Vector3;

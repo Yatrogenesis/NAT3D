@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// REF: Macklin et al. 2016 "XPBD: Position-Based Simulation of Compliant Constrained Dynamics"
+// REF: [Macklin, Muller and Chentanez, 2016] "XPBD: Position-Based Simulation
+//      of Compliant Constrained Dynamics", Proceedings of the 9th International
+//      Conference on Motion in Games (MIG '16)
+//      DOI: 10.1145/2994258.2994272
 
 use nalgebra::{Point3, Vector3};
 
