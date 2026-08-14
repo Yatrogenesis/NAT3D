@@ -16,6 +16,13 @@ use std::sync::Arc;
 
 pub mod ai;
 pub mod macros;
+// The whole module is PyO3 code, so it only exists when the feature that
+// brings PyO3 in is enabled. Without this gate the `python` feature is not
+// really optional: the crate fails to compile without it, which in turn
+// forces libpython on every target that consumes it, including Android
+// where no such library exists. ScriptingHost, the only part nat3d-app
+// uses, has no dependency on Python at all.
+#[cfg(feature = "python")]
 pub mod python;
 pub mod rust_api;
 
