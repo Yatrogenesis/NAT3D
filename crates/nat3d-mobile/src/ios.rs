@@ -288,8 +288,37 @@ pub fn ios_main() {
 mod tests {
     use super::*;
 
+    /// Serialises the tests that touch the process-wide event queue.
+    ///
+    /// The queue is a single `static` shared by the whole process, and cargo
+    /// runs tests in parallel threads inside one process, so without this the
+    /// three tests below interleave: the overflow test pushes three hundred
+    /// events while the event test is trying to read the three it queued, and
+    /// the init test clears `connected` underneath both. That is what made them
+    /// flaky. The global is not a defect in the code under test, it is how an
+    /// FFI callback surface has to work, so the tests are serialised rather
+    /// than the design changed.
+    static TEST_LOCK: Mutex<()> = Mutex::new(());
+
+    /// Takes the lock and returns the queue to a known empty, disconnected
+    /// state, so each test starts from the same place regardless of order.
+    ///
+    /// A poisoned lock means an earlier test panicked while holding it. The
+    /// state it left behind does not matter because this function resets it, so
+    /// the guard is recovered instead of turning one failure into four.
+    fn exclusive() -> std::sync::MutexGuard<'static, ()> {
+        let guard = TEST_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let queue = get_queue();
+        let mut q = queue.lock().unwrap_or_else(|e| e.into_inner());
+        q.events.clear();
+        q.connected = false;
+        drop(q);
+        guard
+    }
+
     #[test]
     fn test_pencil_init_shutdown() {
+        let _guard = exclusive();
         nat3d_ios_pencil_init();
 
         let queue = get_queue();
@@ -301,6 +330,7 @@ mod tests {
 
     #[test]
     fn test_pencil_events() {
+        let _guard = exclusive();
         nat3d_ios_pencil_init();
 
         nat3d_ios_pencil_down(0.5, 0.5, 0.8, 1.2, 0.5);
@@ -323,6 +353,8 @@ mod tests {
         nat3d_ios_pencil_shutdown();
     }
 
+    // Not serialised: this one reads nothing from the shared queue, so it is
+    // free to run alongside the others.
     #[test]
     fn test_provider_capabilities() {
         let provider = ApplePencilProvider::new();
@@ -336,6 +368,7 @@ mod tests {
 
     #[test]
     fn test_event_queue_overflow() {
+        let _guard = exclusive();
         nat3d_ios_pencil_init();
 
         // Push more than queue capacity

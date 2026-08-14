@@ -80,7 +80,7 @@ fn test_render_farm_load_balancing_stability() {
         }
     }
 
-    assert!(tiles.len() > 0);
+    assert!(!tiles.is_empty());
     assert_eq!(tiles[0].x, 0);
     assert_eq!(tiles[0].y, 0);
 }
