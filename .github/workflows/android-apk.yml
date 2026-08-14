@@ -15,7 +15,7 @@
 #   punto de entrada `android_main` en lib.rs:17). NO compila `nat3d-app`:
 #   esa es la GUI de escritorio y no tiene punto de entrada Android.
 #
-# AVISO: produce un APK de depuracion SIN FIRMAR. Instalable activando
+# AVISO: produce un APK de release SIN FIRMAR. Instalable activando
 #   "origenes desconocidos" en el telefono; NO subible a Play Store. Firmarlo
 #   requiere un keystore, que es un secreto y una decision aparte.
 
@@ -82,7 +82,11 @@ jobs:
         run: |
           export ANDROID_NDK_ROOT="$ANDROID_HOME/ndk/$NDK_VERSION"
           echo "NDK en: $ANDROID_NDK_ROOT"
-          cargo apk build -p nat3d-mobile --target aarch64-linux-android
+          # --release is not cosmetic here. The first APK this workflow ever
+          # produced was a debug build of 336 MB, fifty times the size of the
+          # Windows installer for the same application, because debug builds
+          # carry symbols and skip optimisation.
+          cargo apk build --release -p nat3d-mobile --target aarch64-linux-android
           echo "--- APKs generados ---"
           find target -name '*.apk' -print
 
