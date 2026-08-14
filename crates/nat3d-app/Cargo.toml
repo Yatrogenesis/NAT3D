@@ -61,7 +61,6 @@ bincode = { workspace = true }
 sha2 = { workspace = true }
 base32 = { workspace = true }
 ed25519-dalek = { workspace = true }
-reqwest = { workspace = true }
 
 [lib]
 path = "src/lib.rs"

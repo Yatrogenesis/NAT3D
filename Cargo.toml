@@ -141,7 +141,13 @@ clap = { version = "4.5", features = ["derive"] }
 # ══════════════════════════════════════════════════════════════════════════════
 # NETWORKING
 # ══════════════════════════════════════════════════════════════════════════════
-reqwest = { version = "0.12", features = ["json", "blocking"] }
+# rustls rather than the default native TLS: native-tls resolves to
+# openssl-sys, which cannot be cross-compiled to aarch64-linux-android
+# without a prebuilt OpenSSL for that target, and that is what has made
+# every Android build of this project fail. rustls is pure Rust and its
+# ring backend was already in the dependency graph, so this removes a
+# native dependency rather than adding one.
+reqwest = { version = "0.12", default-features = false, features = ["json", "blocking", "rustls-tls"] }
 mdns-sd = "0.11"
 
 # ══════════════════════════════════════════════════════════════════════════════
