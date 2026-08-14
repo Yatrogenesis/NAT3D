@@ -63,11 +63,26 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
+      # Deployment targets are set explicitly rather than left to the default,
+      # so the linker is told which macOS the binary must run on instead of
+      # inheriting whatever SDK the runner happens to ship.
+      #
+      # 10.13 for the Intel slice is the floor imposed by wgpu, whose Metal
+      # backend states in wgpu-hal/src/metal/mod.rs that its minimum target is
+      # macOS 10.13. rustc's own default for this target is lower, 10.12, so
+      # wgpu is the binding constraint rather than the toolchain.
+      #
+      # 11.0 for the Apple Silicon slice is inherent: no Apple Silicon Mac ever
+      # shipped with an earlier system, and rustc defaults to exactly that.
       - name: Build Apple Silicon binary
         run: cargo build --release --target aarch64-apple-darwin -p nat3d-app
+        env:
+          MACOSX_DEPLOYMENT_TARGET: "11.0"
 
       - name: Build Intel binary
         run: cargo build --release --target x86_64-apple-darwin -p nat3d-app
+        env:
+          MACOSX_DEPLOYMENT_TARGET: "10.13"
 
       - name: Create universal binary (lipo)
         run: |
@@ -101,7 +116,7 @@ jobs:
             <key>CFBundlePackageType</key><string>APPL</string>
             <key>CFBundleSupportedPlatforms</key>
             <array><string>MacOSX</string></array>
-            <key>LSMinimumSystemVersion</key><string>13.0</string>
+            <key>LSMinimumSystemVersion</key><string>10.13</string>
             <key>NSHighResolutionCapable</key><true/>
           </dict></plist>
           PLIST
@@ -204,7 +219,7 @@ jobs:
             | Platform | File |
             |----------|------|
             | Windows 10/11 (x64) | `NAT3D-${{ github.ref_name }}-x86_64-windows.msi` |
-            | macOS 13+ (Universal) | `NAT3D-${{ github.ref_name }}-universal-macos.dmg` |
+            | macOS 10.13+ Intel, 11.0+ Apple Silicon (Universal) | `NAT3D-${{ github.ref_name }}-universal-macos.dmg` |
             | Linux (x86_64) | `NAT3D-${{ github.ref_name }}-x86_64-linux.tar.gz` |
             | Android (arm64, unsigned debug build) | `NAT3D-${{ github.ref_name }}-android-arm64.apk` — enable "unknown sources" to install; built separately by `android-apk.yml`, may land a few minutes after the other assets |
 
