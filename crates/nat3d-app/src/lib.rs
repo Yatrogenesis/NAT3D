@@ -9077,15 +9077,6 @@ impl Nat3DApp {
     }
 
     fn render_image(&mut self) {
-        // Neural engine branch: NeRF / NRC render without file dialog (outputs to status + image editor)
-        if matches!(
-            self.state.render_engine,
-            RenderEngine::NeRF | RenderEngine::NeuralCache
-        ) {
-            self.render_image_neural();
-            return;
-        }
-
         #[cfg(feature = "file-dialog")]
         if let Some(path) = rfd::FileDialog::new()
             .add_filter("PNG Image", &["png"])
@@ -9542,121 +9533,6 @@ impl Nat3DApp {
         }
     }
 
-    /// Neural render pass: NeRF volumetric ray marching or NRC MLP prediction.
-    /// Produces a low-resolution preview (64×64) and logs to console.
-    fn render_image_neural(&mut self) {
-        use nalgebra::DVector;
-        use nat3d_render::raytracing::nerf::{accumulate_radiance, VolumeSample};
-        use nat3d_render::raytracing::nrc::RadianceMLP;
-
-        let preview_w = 64_usize;
-        let preview_h = 64_usize;
-        let is_nerf = matches!(self.state.render_engine, RenderEngine::NeRF);
-
-        let cam = &self.state.camera;
-        let cam_pos = cam.position;
-        let yaw = cam.orbit_angles[0].to_radians();
-        let pitch = cam.orbit_angles[1].to_radians();
-        let forward = [
-            -yaw.sin() * pitch.cos(),
-            -pitch.sin(),
-            -yaw.cos() * pitch.cos(),
-        ];
-        let right = [yaw.cos(), 0.0, -yaw.sin()];
-        let up_vec = [
-            yaw.sin() * pitch.sin(),
-            pitch.cos(),
-            yaw.cos() * pitch.sin(),
-        ];
-        let fov_half_tan = (cam.fov.to_radians() * 0.5).tan();
-        let aspect = preview_w as f32 / preview_h as f32;
-
-        // NRC: one MLP per render, initialized with fixed seed weights
-        let mlp = if !is_nerf {
-            Some(RadianceMLP::new_random(5, 64, 3))
-        } else {
-            None
-        };
-
-        let mut total_luminance = 0.0_f64;
-        let mut hit_pixels = 0_usize;
-
-        for py in 0..preview_h {
-            for px in 0..preview_w {
-                let ndc_x = (2.0 * px as f32 / preview_w as f32 - 1.0) * aspect * fov_half_tan;
-                let ndc_y = (1.0 - 2.0 * py as f32 / preview_h as f32) * fov_half_tan;
-                let rd = [
-                    forward[0] + right[0] * ndc_x + up_vec[0] * ndc_y,
-                    forward[1] + right[1] * ndc_x + up_vec[1] * ndc_y,
-                    forward[2] + right[2] * ndc_x + up_vec[2] * ndc_y,
-                ];
-                let rd_len = (rd[0] * rd[0] + rd[1] * rd[1] + rd[2] * rd[2])
-                    .sqrt()
-                    .max(1e-8);
-                let rd_n = [rd[0] / rd_len, rd[1] / rd_len, rd[2] / rd_len];
-
-                if is_nerf {
-                    // NeRF: march 16 samples along ray, density from scene bounding volume
-                    let step_size = 0.25_f64;
-                    let samples: Vec<VolumeSample> = (0..16)
-                        .map(|s| {
-                            let t = s as f64 * step_size;
-                            let px3 = cam_pos[0] as f64 + rd_n[0] as f64 * t;
-                            let py3 = cam_pos[1] as f64 + rd_n[1] as f64 * t;
-                            let pz3 = cam_pos[2] as f64 + rd_n[2] as f64 * t;
-                            // Density peaks near origin (scene center proxy)
-                            let dist2 = px3 * px3 + py3 * py3 + pz3 * pz3;
-                            VolumeSample {
-                                color: nalgebra::Vector3::new(0.6, 0.7, 0.9),
-                                density: (-(dist2 * 0.1)).exp() * 0.5,
-                            }
-                        })
-                        .collect();
-                    let rgb = accumulate_radiance(&samples, step_size);
-                    total_luminance += 0.2126 * rgb.x + 0.7152 * rgb.y + 0.0722 * rgb.z;
-                    if rgb.x + rgb.y + rgb.z > 0.01 {
-                        hit_pixels += 1;
-                    }
-                } else if let Some(ref m) = mlp {
-                    // NRC: predict radiance from 5D input (pos 3D + dir 2D)
-                    let theta = (rd_n[1] as f64).acos();
-                    let phi = (rd_n[2] as f64).atan2(rd_n[0] as f64);
-                    let input = DVector::from_vec(vec![
-                        cam_pos[0] as f64,
-                        cam_pos[1] as f64,
-                        cam_pos[2] as f64,
-                        theta,
-                        phi,
-                    ]);
-                    let rgb = m.predict(input);
-                    total_luminance += 0.2126 * rgb.x + 0.7152 * rgb.y + 0.0722 * rgb.z;
-                    if rgb.x + rgb.y + rgb.z > 0.01 {
-                        hit_pixels += 1;
-                    }
-                }
-            }
-        }
-
-        let engine_name = if is_nerf {
-            "NeRF"
-        } else {
-            "Neural Cache (NRC)"
-        };
-        let avg_lum = total_luminance / (preview_w * preview_h) as f64;
-        self.status_message = format!(
-            "{} preview {}×{} complete — avg luminance: {:.4}, hit pixels: {}",
-            engine_name, preview_w, preview_h, avg_lum, hit_pixels
-        );
-        self.log_console(
-            console::LogLevel::Info,
-            &format!(
-                "{} render pass: {}×{} @ λ̄={:.4}",
-                engine_name, preview_w, preview_h, avg_lum
-            ),
-            "Neural Render",
-        );
-    }
-
     fn welcome_screen_window(&mut self, ctx: &egui::Context) {
         if !self.show_welcome || self.preferences.dont_show_welcome {
             return;
@@ -9766,14 +9642,6 @@ impl Nat3DApp {
                         (
                             "Hyperbolic Warp",
                             "Poincaré ball geometry\n  (Ungar 2001)",
-                        ),
-                        (
-                            "NeRF Render Engine",
-                            "Volumetric neural radiance\n  (Mildenhall et al. 2020)",
-                        ),
-                        (
-                            "Neural Cache (NRC)",
-                            "Real-time GI via MLP\n  (Müller et al. 2021)",
                         ),
                         (
                             "Non-Euclidean Core",
@@ -10373,25 +10241,7 @@ impl Nat3DApp {
                             RenderEngine::Workbench,
                             "Workbench (Fast)",
                         );
-                        ui.separator();
-                        ui.selectable_value(
-                            &mut self.state.render_engine,
-                            RenderEngine::NeRF,
-                            "NeRF — Neural Radiance Fields",
-                        );
-                        ui.selectable_value(
-                            &mut self.state.render_engine,
-                            RenderEngine::NeuralCache,
-                            "Neural Cache (NRC) — Real-time GI",
-                        );
                     });
-
-                if matches!(self.state.render_engine, RenderEngine::NeRF | RenderEngine::NeuralCache) {
-                    ui.colored_label(
-                        egui::Color32::from_rgb(100, 200, 255),
-                        "★ SOTA: Neural rendering active. Render Image uses volumetric ray marching.",
-                    );
-                }
 
                 ui.separator();
                 ui.heading("Output");

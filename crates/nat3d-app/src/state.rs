@@ -1892,10 +1892,6 @@ pub enum RenderEngine {
     Eevee,
     Cycles,
     Workbench,
-    /// Neural Radiance Fields volumetric renderer (Mildenhall et al. 2020).
-    NeRF,
-    /// Neural Radiance Cache MLP for real-time global illumination (Müller et al. 2021).
-    NeuralCache,
 }
 
 impl std::fmt::Display for RenderEngine {
@@ -1904,8 +1900,6 @@ impl std::fmt::Display for RenderEngine {
             Self::Eevee => write!(f, "Eevee"),
             Self::Cycles => write!(f, "Cycles"),
             Self::Workbench => write!(f, "Workbench"),
-            Self::NeRF => write!(f, "NeRF (Neural Radiance Fields)"),
-            Self::NeuralCache => write!(f, "Neural Cache (NRC)"),
         }
     }
 }
