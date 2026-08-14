@@ -1,6 +1,6 @@
 # NAT3D
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21796068.svg)](https://doi.org/10.5281/zenodo.21796068)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21796067.svg)](https://doi.org/10.5281/zenodo.21796067)
 [![CI](https://github.com/Yatrogenesis/NAT3D/actions/workflows/ci.yml/badge.svg)](https://github.com/Yatrogenesis/NAT3D/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-AGPL--3.0--or--later%20OR%20Commercial-blue.svg)](LICENSE-AGPL)
 
