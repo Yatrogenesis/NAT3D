@@ -247,7 +247,7 @@ mod tests {
             let z = i as f64 * 0.23;
             let value = perlin_3d(x, y, z);
             assert!(
-                value >= -1.0 && value <= 1.0,
+                (-1.0..=1.0).contains(&value),
                 "Perlin noise out of range: {}",
                 value
             );
@@ -264,7 +264,7 @@ mod tests {
     #[test]
     fn test_fbm() {
         let value = fbm_3d(0.5, 0.5, 0.5, 4, 0.5, 2.0);
-        assert!(value >= -1.0 && value <= 1.0);
+        assert!((-1.0..=1.0).contains(&value));
     }
 
     #[test]

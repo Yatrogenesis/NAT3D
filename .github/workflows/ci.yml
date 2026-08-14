@@ -43,7 +43,10 @@ jobs:
         with:
           components: clippy
       - uses: Swatinem/rust-cache@v2
-      - run: cargo clippy --workspace -- -D warnings
+      # --all-targets so that tests and benches are linted too. Without it the
+      # lint never sees a line of test code, which is how a length comparison
+      # to zero sat in an integration test through several green builds.
+      - run: cargo clippy --workspace --all-targets -- -D warnings
 
   test:
     name: Test

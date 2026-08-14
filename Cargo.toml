@@ -18,6 +18,23 @@ members = [
     "crates/nat3d-mobile",
 ]
 
+# nat3d-tui is deliberately excluded rather than deleted. It compiles and its
+# terminal interface works, but its menu offers eight actions and the command
+# line tool it drives implements one of them, Render. The other seven would
+# invoke subcommands that do not exist. Shipping it would advertise seven
+# capabilities the product does not have, which is the same defect that removed
+# the NeRF and Neural Cache engines from this repository.
+#
+# It also resolves the binary as "nat3d.exe", a Windows name, while the binary
+# is called "nat3d", so every action fails on Linux, macOS and Android
+# regardless.
+#
+# Completing it means implementing those seven subcommands in nat3d-cli, which
+# is a piece of work in its own right and not a cleanup. Until then the crate
+# stays in the tree, out of the build, with this note. See
+# crates/nat3d-tui/README.md.
+exclude = ["crates/nat3d-tui"]
+
 [workspace.package]
 version = "0.2.0"
 edition = "2021"

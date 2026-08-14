@@ -370,14 +370,19 @@ mod tests {
 
     #[test]
     fn test_modifiers() {
-        assert!(!Modifiers::NONE.ctrl);
-        assert!(!Modifiers::NONE.shift);
-        assert!(!Modifiers::NONE.alt);
+        // These are compile-time constants, so the checks belong in a const
+        // block: a mistake in one of the presets then fails the build rather
+        // than waiting for the test suite to run.
+        const _: () = {
+            assert!(!Modifiers::NONE.ctrl);
+            assert!(!Modifiers::NONE.shift);
+            assert!(!Modifiers::NONE.alt);
 
-        assert!(Modifiers::CTRL.ctrl);
-        assert!(!Modifiers::CTRL.shift);
+            assert!(Modifiers::CTRL.ctrl);
+            assert!(!Modifiers::CTRL.shift);
 
-        assert!(Modifiers::CTRL_SHIFT.ctrl);
-        assert!(Modifiers::CTRL_SHIFT.shift);
+            assert!(Modifiers::CTRL_SHIFT.ctrl);
+            assert!(Modifiers::CTRL_SHIFT.shift);
+        };
     }
 }

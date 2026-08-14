@@ -702,7 +702,15 @@ struct VertexOutput { @builtin(position) clip_pos: vec4<f32>, @location(0) world
     var final_color = albedo * (diffuse + 0.1);
 
     // BATCH 24: Procedural Infinite Grid (P1.3)
-    // REF: [Acerola, 2023] "Infinite Grid Shader"
+    // The grid is filtered analytically rather than sampled: fwidth gives the
+    // per-pixel derivative of the coordinate, and the line is widened to match
+    // it, so the pattern fades instead of aliasing as it recedes.
+    // REF: [Crow, 1977] "The aliasing problem in computer-generated shaded
+    //      images", Communications of the ACM 20(11), pp. 799-805
+    //      DOI: 10.1145/359863.359869
+    // The specific formulation follows a technique in wide circulation among
+    // shader authors; no primary source with a stable identifier was found for
+    // it, so none is cited here rather than citing a video.
     // Only draw grid on world Y=0 (approx)
     if abs(in.world_pos.y) < 0.01 {
         let coord = in.world_pos.xz;
@@ -759,7 +767,15 @@ struct VertexOutput { @builtin(position) clip_pos: vec4<f32>, @location(0) world
     var final_color = albedo * (diffuse + 0.1);
 
     // BATCH 24: Procedural Infinite Grid (P1.3)
-    // REF: [Acerola, 2023] "Infinite Grid Shader"
+    // The grid is filtered analytically rather than sampled: fwidth gives the
+    // per-pixel derivative of the coordinate, and the line is widened to match
+    // it, so the pattern fades instead of aliasing as it recedes.
+    // REF: [Crow, 1977] "The aliasing problem in computer-generated shaded
+    //      images", Communications of the ACM 20(11), pp. 799-805
+    //      DOI: 10.1145/359863.359869
+    // The specific formulation follows a technique in wide circulation among
+    // shader authors; no primary source with a stable identifier was found for
+    // it, so none is cited here rather than citing a video.
     // Only draw grid on world Y=0 (approx)
     if abs(in.world_pos.y) < 0.01 {
         let coord = in.world_pos.xz;
