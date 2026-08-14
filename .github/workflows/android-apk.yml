@@ -15,9 +15,14 @@
 #   punto de entrada `android_main` en lib.rs:17). NO compila `nat3d-app`:
 #   esa es la GUI de escritorio y no tiene punto de entrada Android.
 #
-# AVISO: produce un APK de release SIN FIRMAR. Instalable activando
-#   "origenes desconocidos" en el telefono; NO subible a Play Store. Firmarlo
-#   requiere un keystore, que es un secreto y una decision aparte.
+# AVISO: produce un APK de release firmado con una clave DESECHABLE, generada
+#   en el runner en cada ejecucion y descartada al terminar. Es instalable
+#   activando "origenes desconocidos" en el telefono, pero la clave no es una
+#   identidad estable: cada release se firma con una distinta, asi que Android
+#   rechazara la instalacion como actualizacion y habra que desinstalar la
+#   version anterior. NO subible a Play Store, que exige una clave persistente.
+#   Publicar por esa via requiere un keystore propio guardado como secreto, que
+#   es una decision aparte y todavia no se ha tomado.
 
 name: Android APK
 
