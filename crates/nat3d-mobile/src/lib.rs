@@ -17,8 +17,15 @@ use android_activity::AndroidApp;
 fn android_main(app: AndroidApp) {
     use nat3d_app::Nat3DApp;
 
-    // Set up options
+    // The handle has to be handed to eframe, not merely accepted. winit builds
+    // the Android event loop from it, and eframe treats it as required: with
+    // the field left at its default of None, `run_native` returns
+    // "`NativeOptions` is missing required `android_app`" and the unwrap below
+    // turns that into a panic at launch. The application would install, start
+    // and die before drawing a frame, which is exactly what the released
+    // v0.2.0 package did.
     let options = eframe::NativeOptions {
+        android_app: Some(app),
         viewport: egui::ViewportBuilder::default().with_title("NAT3D Mobile"),
         ..Default::default()
     };
