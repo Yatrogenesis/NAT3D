@@ -35,6 +35,11 @@ num-complex = { workspace = true }
 # Parallelism
 rayon = { workspace = true }
 
+# WASM: flips on getrandom 0.2's "js" feature for the whole build — see the
+# `getrandom02` comment in the workspace root Cargo.toml for why. This crate
+# never calls getrandom itself.
+getrandom02 = { workspace = true }
+
 # Error handling
 thiserror = { workspace = true }
 

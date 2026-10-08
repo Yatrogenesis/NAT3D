@@ -27,6 +27,11 @@ use std::path::PathBuf;
 pub mod license;
 pub mod startup;
 pub mod viewport;
+// Only used by the iPad remote-input TCP listener (feature "ipad", further
+// down in this file), which is itself desktop-only — see the matching
+// `[target.'cfg(not(target_arch = "wasm32"))'.dependencies]` gate in
+// Cargo.toml for why tokio isn't in the dependency graph at all on wasm32.
+#[cfg(not(target_arch = "wasm32"))]
 use tokio::io::AsyncReadExt;
 pub mod compositor;
 pub mod console;
@@ -8438,8 +8443,8 @@ impl Nat3DApp {
         let is_nat_binary = path.extension().and_then(|e| e.to_str()) == Some("nat");
 
         if is_nat_binary {
-            let now = std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
+            let now = web_time::SystemTime::now()
+                .duration_since(web_time::UNIX_EPOCH)
                 .unwrap_or_default()
                 .as_secs();
             let scene = nat3d_io::NativeScene {

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>NAT3D</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: #1e1e1e;
+            overflow: hidden;
+        }
+        #nat3d_canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        #nat3d_loading {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font: 16px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: #cccccc;
+            background: #1e1e1e;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="nat3d_canvas"></canvas>
+    <div id="nat3d_loading">Loading NAT3D&hellip;</div>
+    <link data-trunk rel="rust" data-wasm-opt="0" />
+    <script>
+        // Diagnostic only: never fires once startup succeeds (main.rs removes
+        // #nat3d_loading first). The build has WebGPU + WebGL2 backends, so
+        // being stuck here means neither produced a usable adapter.
+        setTimeout(function () {
+            var el = document.getElementById('nat3d_loading');
+            if (!el) return;
+            el.innerHTML = 'Stuck loading — no usable WebGPU or WebGL2 adapter (WebGPU present: ' +
+                !!navigator.gpu + '). Check the browser console for errors.';
+        }, 6000);
+    </script>
+</body>
+</html>

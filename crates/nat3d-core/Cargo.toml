@@ -31,6 +31,9 @@ smallvec = { workspace = true }
 bitflags = { workspace = true }
 bytemuck = { workspace = true }
 parking_lot = { workspace = true }
+# std::time::Instant panics on wasm32-unknown-unknown; see the web-time
+# comment in the workspace root Cargo.toml.
+web-time = { workspace = true }
 
 # Logging
 tracing = { workspace = true }

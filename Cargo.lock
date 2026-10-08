@@ -928,6 +928,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "console_error_panic_hook"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a06aeb73f470f66dcdbf7223caeebb85984942f22f1adb2a088cf9668146bbbc"
+dependencies = [
+ "cfg-if",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "const-oid"
 version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1769,9 +1779,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "899def5c37c4fd7b2664648c28120ecec138e4d395b459e5ca34f9cce2dd77fd"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "r-efi 5.3.0",
  "wasip2",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -2936,6 +2948,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uuid",
+ "web-time",
  "wgpu",
 ]
 
@@ -2997,6 +3010,7 @@ dependencies = [
  "thiserror 2.0.18",
  "tracing",
  "uuid",
+ "web-time",
 ]
 
 [[package]]
@@ -3025,6 +3039,7 @@ name = "nat3d-math"
 version = "0.2.1"
 dependencies = [
  "criterion",
+ "getrandom 0.2.17",
  "glam",
  "nalgebra",
  "ndarray",
@@ -3079,6 +3094,7 @@ version = "0.2.1"
 dependencies = [
  "criterion",
  "crossbeam",
+ "getrandom 0.3.4",
  "glam",
  "nalgebra",
  "nat3d-core",
@@ -3103,6 +3119,7 @@ dependencies = [
  "anyhow",
  "bytemuck",
  "criterion",
+ "getrandom 0.3.4",
  "glam",
  "image",
  "nalgebra",
@@ -3174,6 +3191,21 @@ dependencies = [
  "tracing",
  "wgpu",
  "winit",
+]
+
+[[package]]
+name = "nat3d-web"
+version = "0.2.0"
+dependencies = [
+ "console_error_panic_hook",
+ "eframe",
+ "egui-wgpu",
+ "log",
+ "nat3d-app",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+ "wgpu",
 ]
 
 [[package]]

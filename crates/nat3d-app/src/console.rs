@@ -17,7 +17,7 @@
 //! Console and logging system for NAT3D.
 
 use std::collections::VecDeque;
-use std::time::{Instant, SystemTime, UNIX_EPOCH};
+use web_time::{Instant, SystemTime, UNIX_EPOCH};
 
 /// Log level.
 #[allow(dead_code)]

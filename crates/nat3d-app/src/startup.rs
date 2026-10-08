@@ -23,7 +23,7 @@
 //! and system capability detection.
 
 use std::path::PathBuf;
-use std::time::Instant;
+use web_time::Instant;
 
 /// System capabilities detected at startup.
 #[derive(Debug, Clone)]
@@ -397,8 +397,8 @@ impl RecentFiles {
             0,
             RecentFile {
                 path,
-                last_opened: std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
+                last_opened: web_time::SystemTime::now()
+                    .duration_since(web_time::UNIX_EPOCH)
                     .unwrap_or_default()
                     .as_secs(),
                 thumbnail: None,
@@ -493,8 +493,8 @@ pub fn setup_crash_reporter() {
         let thread = std::thread::current();
         let thread_name = thread.name().unwrap_or("<unnamed>");
 
-        let now = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
+        let now = web_time::SystemTime::now()
+            .duration_since(web_time::UNIX_EPOCH)
             .map(|d| d.as_secs())
             .unwrap_or(0);
 

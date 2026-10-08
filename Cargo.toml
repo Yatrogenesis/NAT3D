@@ -15,6 +15,7 @@ members = [
     "crates/nat3d-cli",
     "crates/nat3d-app",
     "crates/nat3d-mobile",
+    "crates/nat3d-web",
 ]
 
 # nat3d-tui is deliberately excluded rather than deleted. It compiles and its
@@ -117,6 +118,21 @@ realfft    = "3.3"
 rustfft    = "6.2"
 faer       = "0.19"
 
+# WASM: getrandom refuses to build for wasm32-unknown-unknown unless one of
+# its JS-backed features is turned on somewhere in the resolved dependency
+# graph (Cargo unifies features per package+semver, so any crate pulling in
+# the same major version can flip this on for everyone). Two major versions
+# are in play here: getrandom 0.2 arrives transitively via yatrosci-random/
+# -stats -> rand 0.8 -> rand_core 0.6 ("js" feature is sufficient); getrandom
+# 0.3 arrives via the workspace's own rand 0.9 -> rand_core 0.9 ("wasm_js"
+# feature, PLUS a rustc --cfg flag set in .cargo/config.toml — the feature
+# alone isn't enough as of getrandom 0.3). `[workspace.dependencies]` keys by
+# crate name, so the two versions need distinct renamed keys; the consuming
+# crates below reference them via `getrandom02`/`getrandom03`. Neither crate
+# calls getrandom directly — these deps exist purely to set the feature flag.
+getrandom02 = { package = "getrandom", version = "0.2", features = ["js"] }
+getrandom03 = { package = "getrandom", version = "0.3", features = ["wasm_js"] }
+
 # ══════════════════════════════════════════════════════════════════════════════
 # SERIALIZATION
 # ══════════════════════════════════════════════════════════════════════════════
@@ -192,12 +208,20 @@ anyhow = "1.0"
 # ══════════════════════════════════════════════════════════════════════════════
 # UTILITIES
 # ══════════════════════════════════════════════════════════════════════════════
-uuid = { version = "1.11", features = ["v4", "serde"] }
+uuid = { version = "1.11", features = ["v4", "serde", "js"] }
 chrono = { version = "0.4", features = ["serde"] }
 bytemuck = { version = "1.19", features = ["derive"] }
 smallvec = { version = "1.13", features = ["serde"] }
 bitflags = "2.6"
 ordered-float = "4.5"
+# std::time::Instant::now() and SystemTime::now() both panic on
+# wasm32-unknown-unknown (no OS clock syscall to back them). web-time is a
+# drop-in replacement with the identical std::time API: on native targets it
+# is a thin re-export of std::time, on wasm32 it backs onto
+# performance.now()/Date.now() via web-sys. Swapping the import is enough;
+# no call sites need to change. (eframe already depends on this crate anyway,
+# so this doesn't add a new transitive dependency to the graph.)
+web-time = "1.1"
 
 [profile.release]
 lto = true

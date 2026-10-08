@@ -33,6 +33,12 @@ parking_lot = { workspace = true }
 # Random number generation
 rand = { workspace = true }
 
+# WASM: flips on getrandom 0.3's "wasm_js" feature for the whole build — see
+# the `getrandom03` comment in the workspace root Cargo.toml. That feature
+# alone isn't enough for getrandom 0.3; a matching rustc --cfg flag is also
+# needed, set in .cargo/config.toml.
+getrandom03 = { workspace = true }
+
 # Serialization
 serde = { workspace = true }
 

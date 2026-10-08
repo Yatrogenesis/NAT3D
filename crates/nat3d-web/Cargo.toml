@@ -1,0 +1,68 @@
+[package]
+name = "nat3d-web"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "wasm32 entry point that runs NAT3D's eframe UI in a browser tab"
+keywords = ["3d", "modeling", "wasm", "web"]
+categories = ["graphics", "gui", "wasm"]
+publish = false
+
+# This crate exists only to give trunk a wasm32 binary target to build. It
+# has no logic of its own beyond wiring eframe::WebRunner up to a canvas —
+# all the application code lives in nat3d-app (crates/nat3d-app), which this
+# crate depends on with default-features = false so the "ipad" feature (and
+# the tokio/nat3d-sync TCP listener it gates) never gets enabled for wasm32.
+# See crates/nat3d-app/Cargo.toml for why those deps are target-gated out of
+# the wasm32 dependency graph entirely, not just feature-gated.
+
+[dependencies]
+nat3d-app = { path = "../nat3d-app", default-features = false }
+
+# eframe itself needs no special "wasm" feature — its WebRunner/web backend
+# is compiled in whenever the target is wasm32, unconditionally. What DOES
+# need trimming is the *default* feature set nat3d-app's own eframe entry
+# uses (workspace root Cargo.toml): it turns on "wayland"/"x11", which pull
+# in egui-winit/egui-wgpu native-windowing features that only exist on the
+# `cfg(not(target_arch = "wasm32"))` side of eframe's own dependency table.
+# Declaring our own minimal eframe feature set here avoids depending on
+# whether Cargo's feature unification would otherwise carry that no-op
+# through cleanly.
+eframe = { version = "0.30", default-features = false, features = ["default_fonts", "wgpu"] }
+
+# eframe's own default feature set forwards
+# "egui-wgpu?/fragile-send-sync-non-atomic-wasm" to egui-wgpu, which is what
+# lets wgpu's context/pipeline handles implement Send+Sync on wasm32 (they
+# don't by default there, since the underlying WebGPU/WebGL objects aren't
+# actually thread-safe — but wasm32-unknown-unknown has no threads to race,
+# so the crate offers this as an opt-in "trust me" flag). Disabling eframe's
+# default features above (to drop "wayland"/"x11", see the comment there)
+# throws that forwarding away too. Depending on egui-wgpu directly re-enables
+# it: Cargo unifies features per package+version across the whole build, so
+# this reaches the same egui-wgpu instance eframe pulls in internally. Every
+# `Nat3DApp` field wrapping a wgpu type in an `Arc`/`RwLock` (see
+# nat3d-app/src/lib.rs GpuRendererState) needs this to satisfy
+# nat3d-scripting's `ScriptingHost: Send + Sync` bound on wasm32; without it,
+# `cargo check --target wasm32-unknown-unknown` fails with ~8 E0277 errors.
+egui-wgpu = "0.30"
+
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = ["HtmlCanvasElement", "Window", "Document", "Element"] }
+console_error_panic_hook = "0.1"
+log = "0.4"
+
+# Plain `[[bin]]` (autodetected from src/main.rs), same shape as the official
+# eframe_template: trunk builds a wasm32 binary target and runs wasm-bindgen
+# over the resulting .wasm, rather than this crate exporting a cdylib itself.
+
+# Adds the WebGL2 backend next to WebGPU so browsers without WebGPU (or
+# served over plain http, where navigator.gpu is hidden) still get a renderer.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wgpu = { workspace = true, features = ["webgl"] }
+
+[lints]
+workspace = true
