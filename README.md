@@ -61,7 +61,6 @@ crates/
 ├── nat3d-mobile      iOS/Android native wrappers
 ├── nat3d-cli         Command-line tools
 ├── nat3d-app         Main desktop application
-└── nat3d-keygen      License key generation
 ```
 
 ## Dependencies

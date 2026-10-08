@@ -21,14 +21,15 @@ use base32::Alphabet;
 use ed25519_dalek::{Signature, Verifier, VerifyingKey};
 
 // PUBLIC KEY ONLY — safe to embed, cannot generate signatures.
-// Generate a production keypair with: nat3d-keygen gen-keypair
-// Then update this constant with your public key.
 //
-// This is the public key corresponding to the development private key (all zeros).
-// REPLACE THIS with your production public key before distributing.
+// Key rotation 2026-10-08: the previous public key (3b6a27bc…) belonged to a development
+// keypair whose private key was committed to this public repository. It was REVOKED here:
+// any serial signed with it is now rejected (see tests::revoked_development_key_is_rejected).
+// The private key of the current pair lives OUTSIDE every repository, with the licence-issuing
+// tool in a private repository. Rotating again requires only replacing this constant.
 const LICENSE_PUBLIC_KEY: &[u8; 32] = &[
-    0x3b, 0x6a, 0x27, 0xbc, 0xce, 0xb6, 0xa4, 0x2d, 0x62, 0xa3, 0xa8, 0xd0, 0x2a, 0x6f, 0x0d, 0x73,
-    0x65, 0x32, 0x15, 0x77, 0x1d, 0xe2, 0x43, 0xa6, 0x3a, 0xc0, 0x48, 0xa1, 0x8b, 0x59, 0xda, 0x29,
+    0xee, 0xc0, 0x02, 0xac, 0xa8, 0x60, 0x1e, 0x29, 0x10, 0x6b, 0x63, 0xce, 0xf0, 0x63, 0x4e, 0x4c,
+    0x28, 0x13, 0x25, 0xb2, 0xea, 0xf5, 0x74, 0xb6, 0x69, 0xcd, 0x1c, 0xb7, 0x3c, 0x81, 0x21, 0x41,
 ];
 
 fn get_verifying_key() -> VerifyingKey {
@@ -36,7 +37,16 @@ fn get_verifying_key() -> VerifyingKey {
 }
 
 pub fn validate_license(serial: &str, machine_id: &str) -> LicenseStatus {
-    let verifying_key = get_verifying_key();
+    validate_license_with_key(serial, machine_id, &get_verifying_key())
+}
+
+/// Same check with an explicit verifying key (lets tests exercise the full path without the
+/// production private key, and lets a revoked key be proven rejected).
+fn validate_license_with_key(
+    serial: &str,
+    machine_id: &str,
+    verifying_key: &VerifyingKey,
+) -> LicenseStatus {
     let serial_clean = serial.trim().to_uppercase().replace('-', "");
 
     // Decode the FULL 64-byte signature from base32. A real Ed25519 signature
@@ -183,8 +193,57 @@ mod tests {
         );
     }
 
-    // NOTE: a true positive test (valid serial -> Licensed) requires signing
-    // with the matching production private key, which does not live in this
-    // repo. Add that test in the keygen crate's integration tests instead,
-    // where the private key is available via NAT3D_LICENSE_PRIVKEY.
+    // ── Signing helpers: tests sign with THROWAWAY keys only, never with a production key ──
+
+    use ed25519_dalek::{Signer, SigningKey};
+
+    fn serial_for(sk: &SigningKey, machine_id: &str, tier: &str) -> String {
+        let msg = format!("NAT3D|{machine_id}|{tier}");
+        let sig = sk.sign(msg.as_bytes());
+        base32::encode(Alphabet::Rfc4648 { padding: false }, &sig.to_bytes())
+    }
+
+    #[test]
+    fn valid_serials_verify_for_both_tiers_with_a_test_key() {
+        let sk = SigningKey::from_bytes(&[7u8; 32]);
+        let vk = sk.verifying_key();
+        assert_eq!(
+            validate_license_with_key(&serial_for(&sk, "MACH1", "pro"), "MACH1", &vk),
+            LicenseStatus::Licensed { tier: Tier::Pro }
+        );
+        assert_eq!(
+            validate_license_with_key(&serial_for(&sk, "MACH1", "edu"), "MACH1", &vk),
+            LicenseStatus::Licensed { tier: Tier::Edu }
+        );
+    }
+
+    #[test]
+    fn serial_is_bound_to_machine_and_to_the_key() {
+        let sk = SigningKey::from_bytes(&[7u8; 32]);
+        let other = SigningKey::from_bytes(&[8u8; 32]);
+        let vk = sk.verifying_key();
+        let s = serial_for(&sk, "MACH1", "pro");
+        assert_eq!(validate_license_with_key(&s, "MACH2", &vk), LicenseStatus::Invalid);
+        assert_eq!(
+            validate_license_with_key(&s, "MACH1", &other.verifying_key()),
+            LicenseStatus::Invalid
+        );
+    }
+
+    #[test]
+    fn revoked_development_key_is_rejected() {
+        // The all-zero seed was the development key whose private half was published in this
+        // repository. Serials it signs MUST NOT validate against the embedded production key.
+        let revoked = SigningKey::from_bytes(&[0u8; 32]);
+        assert_eq!(
+            revoked.verifying_key().to_bytes()[..4],
+            [0x3b, 0x6a, 0x27, 0xbc],
+            "sanity: this is the revoked key"
+        );
+        for tier in ["pro", "edu"] {
+            let forged = serial_for(&revoked, "ANYMACHINE", tier);
+            assert_eq!(validate_license(&forged, "ANYMACHINE"), LicenseStatus::Invalid);
+        }
+        assert_ne!(*LICENSE_PUBLIC_KEY, revoked.verifying_key().to_bytes());
+    }
 }

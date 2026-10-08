@@ -14,7 +14,6 @@ members = [
     "crates/nat3d-sync",
     "crates/nat3d-cli",
     "crates/nat3d-app",
-    "crates/nat3d-keygen",
     "crates/nat3d-mobile",
 ]
 

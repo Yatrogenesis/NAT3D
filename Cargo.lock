@@ -3021,18 +3021,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nat3d-keygen"
-version = "0.2.0"
-dependencies = [
- "base32",
- "clap",
- "ed25519-dalek",
- "hex",
- "rand_core 0.6.4",
- "sha2",
-]
-
-[[package]]
 name = "nat3d-math"
 version = "0.2.0"
 dependencies = [
