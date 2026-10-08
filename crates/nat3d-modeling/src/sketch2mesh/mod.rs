@@ -202,9 +202,7 @@ impl MeshResult {
     /// Recalculate normals from triangles.
     pub fn recalculate_normals(&mut self) {
         // Reset normals
-        for n in &mut self.normals {
-            *n = [0.0, 0.0, 0.0];
-        }
+        self.normals.fill([0.0, 0.0, 0.0]);
 
         // Accumulate face normals
         for i in (0..self.indices.len()).step_by(3) {

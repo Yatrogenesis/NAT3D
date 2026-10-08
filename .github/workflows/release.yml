@@ -245,10 +245,11 @@ jobs:
             You will also need to allow installation from unknown sources.
 
             ### Zenodo
-            > DOI: *(add after Zenodo upload)*
+            > Archived automatically by Zenodo for each release (see the repository README for the concept DOI).
 
             ### License
-            AGPL-3.0-or-later — free for academic and research use.
-            Commercial licenses available at https://nat3d.lemonsqueezy.com
+            AGPL-3.0-or-later — free and open source, including commercial use under the AGPL's terms
+            (derivative works stay open and network use requires offering the source).
+            A separate commercial license is available for those who cannot comply: https://nat3d.lemonsqueezy.com
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
