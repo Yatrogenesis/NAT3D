@@ -2925,6 +2925,7 @@ dependencies = [
  "ed25519-dalek",
  "eframe",
  "image",
+ "js-sys",
  "nalgebra",
  "nat3d-animation",
  "nat3d-cloud",
@@ -2948,6 +2949,8 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uuid",
+ "wasm-bindgen",
+ "web-sys",
  "web-time",
  "wgpu",
 ]
@@ -3195,7 +3198,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-web"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "console_error_panic_hook",
  "eframe",

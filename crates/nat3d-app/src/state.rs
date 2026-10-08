@@ -668,46 +668,36 @@ impl EditableMesh {
             return;
         }
 
-        // Remap all selected vertices to the target.
-        let mut remap = (0..self.vertices.len()).collect::<Vec<_>>();
-        for &v in &vertex_indices[1..] {
-            if v < remap.len() {
-                remap[v] = target;
-            }
-        }
+        let to_remove: std::collections::HashSet<usize> = vertex_indices[1..]
+            .iter()
+            .copied()
+            .filter(|&v| v < self.vertices.len() && v != target)
+            .collect();
 
-        // Update face indices.
-        for face in &mut self.faces {
-            for v in face {
-                *v = remap[*v];
-            }
-        }
-
-        // Remove duplicate vertices and remap again.
-        let mut seen = std::collections::HashSet::new();
+        // Build new vertex list excluding merged vertices
         let mut final_remap = vec![0; self.vertices.len()];
         let mut new_vertices = Vec::new();
         let mut new_idx = 0;
         for (old_idx, &v_pos) in self.vertices.iter().enumerate() {
-            if !seen.contains(&old_idx) || old_idx == target {
-                seen.insert(old_idx);
+            if !to_remove.contains(&old_idx) {
                 final_remap[old_idx] = new_idx;
                 new_vertices.push(v_pos);
                 new_idx += 1;
-            } else {
-                final_remap[old_idx] = final_remap[target];
             }
+        }
+        for &removed in &to_remove {
+            final_remap[removed] = final_remap[target];
         }
         self.vertices = new_vertices;
 
-        // Apply final remap to faces.
+        // Apply final remap to faces
         for face in &mut self.faces {
             for v in face {
                 *v = final_remap[*v];
             }
         }
 
-        // Remove degenerate faces.
+        // Remove degenerate faces
         self.faces.retain(|face| {
             let unique: std::collections::HashSet<_> = face.iter().collect();
             unique.len() >= 3
@@ -3059,6 +3049,56 @@ impl AppState {
             object_type: ObjectType::Light,
             position: [0.0, 5.0, 0.0],
             rotation: [-45.0, 45.0, 0.0],
+            scale: [1.0, 1.0, 1.0],
+            material: mat,
+            modifiers: Vec::new(),
+            visible: true,
+            smooth_shading: true,
+            locked: false,
+            parent: None,
+            keyframes: Vec::new(),
+            shape_keys: Vec::new(),
+            constraints: Vec::new(),
+            vertex_colors: Vec::new(),
+            vertex_weights: Vec::new(),
+            vertex_groups: Vec::new(),
+            particle_systems: Vec::new(),
+            bones: Vec::new(),
+            drivers: Vec::new(),
+            force_field: None,
+            cloth: None,
+            soft_body: None,
+            nla_tracks: Vec::new(),
+            gp_strokes: Vec::new(),
+            texture_slots: Vec::new(),
+            custom_properties: Vec::new(),
+            motion_path: None,
+            pass_index: 0,
+            hair_settings: None,
+            fluid: None,
+            linked_data: None,
+            edit_mesh: None,
+            edit_selection: EditModeSelection::default(),
+            custom_vertices: None,
+            custom_faces: None,
+            uv_coords: None,
+        };
+        self.next_object_id += 1;
+        self.objects.push(obj);
+        self.selected_object = Some(self.objects.len() - 1);
+    }
+
+    /// Add a spot light to the scene.
+    pub fn add_spot_light(&mut self) {
+        let mut mat = MaterialState::default();
+        mat.emissive = 1.0;
+        mat.base_color = [1.0, 0.95, 0.8, 1.0];
+        let obj = SceneObject {
+            physiological_signal: 0.0,
+            name: format!("SpotLight.{:03}", self.next_object_id),
+            object_type: ObjectType::Light,
+            position: [0.0, 4.0, 0.0],
+            rotation: [-60.0, 0.0, 0.0],
             scale: [1.0, 1.0, 1.0],
             material: mat,
             modifiers: Vec::new(),

@@ -38,15 +38,19 @@ pub mod step;
 pub mod stl;
 
 // Re-exports for convenience
-pub use gltf_format::{export_gltf, import_gltf, GltfError, GltfExporter, GltfImporter, GltfScene};
+pub use gltf_format::{
+    export_gltf, export_mesh_glb_bytes, import_gltf, import_gltf_from_slice, GltfError,
+    GltfExporter, GltfImporter, GltfScene,
+};
 pub use native::{
     export_nat, import_nat, NativeCamera, NativeError, NativeMaterial, NativeObject, NativeResult,
     NativeScene, SceneMetadata,
 };
 pub use obj::{
-    export_mesh_obj, export_obj, import_obj, ObjData, ObjError, ObjExporter, ObjGroup, ObjImporter,
-    ObjObject,
+    export_mesh_obj, export_mesh_obj_bytes, export_obj, export_obj_bytes, import_obj,
+    import_obj_from_bytes, ObjData, ObjError, ObjExporter, ObjGroup, ObjImporter, ObjObject,
 };
 pub use stl::{
-    export_mesh_stl, export_stl, import_stl, StlData, StlError, StlExporter, StlImporter,
+    export_mesh_stl, export_mesh_stl_bytes, export_stl, import_stl, import_stl_from_bytes,
+    StlData, StlError, StlExporter, StlImporter,
 };

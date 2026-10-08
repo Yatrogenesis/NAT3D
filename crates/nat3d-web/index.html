@@ -16,6 +16,7 @@
             display: block;
             width: 100%;
             height: 100%;
+            touch-action: none;
         }
         #nat3d_loading {
             position: fixed;
@@ -33,8 +34,39 @@
 <body>
     <canvas id="nat3d_canvas"></canvas>
     <div id="nat3d_loading">Loading NAT3D&hellip;</div>
+    <input type="file" id="nat3d_file_input" style="display:none;" />
+    <pre id="selftest" style="display:none;"></pre>
     <link data-trunk rel="rust" data-wasm-opt="0" />
     <script>
+        // File selection integration for web
+        window.__nat3d_pending_files = window.__nat3d_pending_files || [];
+        var fileInput = document.getElementById('nat3d_file_input');
+        if (fileInput) {
+            fileInput.addEventListener('change', function (e) {
+                var files = e.target.files;
+                if (!files) return;
+                for (var i = 0; i < files.length; i++) {
+                    (function (file) {
+                        var reader = new FileReader();
+                        reader.onload = function (evt) {
+                            window.__nat3d_pending_files.push({
+                                name: file.name,
+                                bytes: new Uint8Array(evt.target.result)
+                            });
+                        };
+                        reader.readAsArrayBuffer(file);
+                    })(files[i]);
+                }
+                fileInput.value = '';
+            });
+        }
+        window.nat3d_trigger_file_input = function (accept) {
+            if (fileInput) {
+                fileInput.accept = accept || '*';
+                fileInput.click();
+            }
+        };
+
         // Diagnostic only: never fires once startup succeeds (main.rs removes
         // #nat3d_loading first). The build has WebGPU + WebGL2 backends, so
         // being stuck here means neither produced a usable adapter.

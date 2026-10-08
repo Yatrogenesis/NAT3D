@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NAT3D Web — Demostración Interactiva</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --surface-color: #1a1a1e;
+            --border-color: #2e2e36;
+            --primary-color: #64b4ff;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 1.25rem 2rem;
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: var(--primary-color);
+        }
+
+        .tagline {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            background-color: rgba(100, 180, 255, 0.15);
+            color: var(--primary-color);
+            border: 1px solid rgba(100, 180, 255, 0.3);
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        main {
+            flex: 1;
+            padding: 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .viewer-card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            height: 780px;
+        }
+
+        .viewer-header {
+            padding: 0.75rem 1.25rem;
+            background-color: #161619;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+        }
+
+        .viewer-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-fullscreen {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.25rem 0.625rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-fullscreen:hover {
+            background: rgba(100, 180, 255, 0.2);
+            border-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .iframe-container {
+            flex: 1;
+            position: relative;
+            background: #1e1e1e;
+        }
+
+        .iframe-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .feature-item {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+
+        .feature-item h3 {
+            font-size: 1rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-item p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        footer {
+            padding: 1.25rem 2rem;
+            text-align: center;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <h1>NAT3D Web</h1>
+            <span class="tagline">Suite Profesional de Modelado 3D en WebAssembly</span>
+        </div>
+        <div class="badge">WASM32 + WebGL2 / WebGPU</div>
+    </header>
+
+    <main>
+        <section class="viewer-card" id="viewer-container">
+            <div class="viewer-header">
+                <span>Viewport Interactivo · NAT3D v0.2.1 (Port Web Optimizado)</span>
+                <div class="viewer-controls">
+                    <button class="btn-fullscreen" onclick="toggleFullscreen()">Pantalla Completa</button>
+                </div>
+            </div>
+            <div class="iframe-container">
+                <iframe
+                    id="nat3d-frame"
+                    src="crates/nat3d-web/dist/index.html"
+                    title="NAT3D Web Editor"
+                    allow="autoplay; fullscreen; clipboard-read; clipboard-write; web-share"
+                    loading="lazy">
+                </iframe>
+            </div>
+        </section>
+
+        <section class="features-grid">
+            <div class="feature-item">
+                <h3>📁 I/O Nativo Web</h3>
+                <p>Apertura y descarga de proyectos (.nat3d / JSON), importación y exportación directa de formatos estándar (Wavefront OBJ, STL y glTF/GLB) en memoria mediante Blob y FileReader.</p>
+            </div>
+            <div class="feature-item">
+                <h3>📐 Geometría Real</h3>
+                <p>Evaluación matemática y renderizado tridimensional exacto sin reemplazos genéricos. Soporta arrastrar y soltar (Drag & Drop) mallas tridimensionales completas al canvas.</p>
+            </div>
+            <div class="feature-item">
+                <h3>⚡ Modo Edición</h3>
+                <p>Herramientas interactivas integradas: Extrude, Inset, Subdivide Edges, Catmull-Clark y Merge de vértices ejecutándose directamente en el navegador.</p>
+            </div>
+            <div class="feature-item">
+                <h3>🛡️ Interfaz Robusta</h3>
+                <p>Todas las operaciones inviables en web (Python nativo, formatos propietarios sin parser, horneado en disco) se deshabilitan elegantemente con mensajes explicativos.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2026 Francisco Molina Burgos — Avermex Research Division. Desarrollado con Rust, eframe y WebAssembly.
+    </footer>
+
+    <script>
+        function toggleFullscreen() {
+            var container = document.getElementById('viewer-container');
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(function(err) {
+                    alert('Error intentando entrar en pantalla completa: ' + err.message);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -478,6 +478,11 @@ pub fn import_stl<P: AsRef<Path>>(path: P) -> StlResult<StlData> {
     StlImporter::new().import_file(path)
 }
 
+/// Import STL data from an in-memory byte slice.
+pub fn import_stl_from_bytes(data: &[u8]) -> StlResult<StlData> {
+    StlImporter::new().import_bytes(data)
+}
+
 /// Export STL data to a file.
 pub fn export_stl<P: AsRef<Path>>(path: P, data: &StlData) -> StlResult<()> {
     StlExporter::new().export_file(path, data)
@@ -487,6 +492,13 @@ pub fn export_stl<P: AsRef<Path>>(path: P, data: &StlData) -> StlResult<()> {
 pub fn export_mesh_stl<P: AsRef<Path>>(path: P, mesh: &MeshData) -> StlResult<()> {
     let file = std::fs::File::create(path)?;
     StlExporter::new().export_mesh(file, mesh)
+}
+
+/// Export a mesh to in-memory Binary STL bytes.
+pub fn export_mesh_stl_bytes(mesh: &MeshData) -> StlResult<Vec<u8>> {
+    let mut buf = Vec::new();
+    StlExporter::binary().export_mesh(&mut buf, mesh)?;
+    Ok(buf)
 }
 
 #[cfg(test)]

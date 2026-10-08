@@ -620,6 +620,11 @@ pub fn import_obj<P: AsRef<Path>>(path: P) -> ObjResult<ObjData> {
     ObjImporter::new().import_file(path)
 }
 
+/// Import OBJ data from an in-memory byte slice.
+pub fn import_obj_from_bytes(bytes: &[u8]) -> ObjResult<ObjData> {
+    ObjImporter::new().import_reader(BufReader::new(std::io::Cursor::new(bytes)))
+}
+
 /// Export mesh data to an OBJ file.
 pub fn export_obj<P: AsRef<Path>>(path: P, data: &ObjData) -> ObjResult<()> {
     ObjExporter::new().export_file(path, data)
@@ -629,6 +634,20 @@ pub fn export_obj<P: AsRef<Path>>(path: P, data: &ObjData) -> ObjResult<()> {
 pub fn export_mesh_obj<P: AsRef<Path>>(path: P, mesh: &MeshData, name: &str) -> ObjResult<()> {
     let file = std::fs::File::create(path)?;
     ObjExporter::new().export_mesh(file, mesh, name)
+}
+
+/// Export a single mesh to in-memory OBJ bytes.
+pub fn export_mesh_obj_bytes(mesh: &MeshData, name: &str) -> ObjResult<Vec<u8>> {
+    let mut buf = Vec::new();
+    ObjExporter::new().export_mesh(&mut buf, mesh, name)?;
+    Ok(buf)
+}
+
+/// Export full scene ObjData to in-memory OBJ bytes.
+pub fn export_obj_bytes(data: &ObjData) -> ObjResult<Vec<u8>> {
+    let mut buf = Vec::new();
+    ObjExporter::new().export_writer(&mut buf, data)?;
+    Ok(buf)
 }
 
 #[cfg(test)]

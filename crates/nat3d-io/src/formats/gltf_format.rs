@@ -152,6 +152,12 @@ impl GltfImporter {
         self.import_document(&document, &buffers)
     }
 
+    /// Import a glTF/GLB file from an in-memory byte slice.
+    pub fn import_slice(&self, slice: &[u8]) -> GltfResult<GltfScene> {
+        let (document, buffers, _images) = gltf::import_slice(slice)?;
+        self.import_document(&document, &buffers)
+    }
+
     /// Import from glTF document and buffers.
     fn import_document(
         &self,
@@ -560,6 +566,183 @@ impl GltfExporter {
 
         Ok(())
     }
+
+    /// Export mesh directly to in-memory binary GLB bytes.
+    pub fn export_mesh_glb_bytes(&self, mesh: &MeshData, name: &str) -> GltfResult<Vec<u8>> {
+        let mut buffer_data = Vec::new();
+
+        let positions_offset = buffer_data.len();
+        for pos in &mesh.positions {
+            buffer_data.extend_from_slice(&(pos.x as f32).to_le_bytes());
+            buffer_data.extend_from_slice(&(pos.y as f32).to_le_bytes());
+            buffer_data.extend_from_slice(&(pos.z as f32).to_le_bytes());
+        }
+        let positions_length = buffer_data.len() - positions_offset;
+
+        let normals_offset = buffer_data.len();
+        for normal in &mesh.normals {
+            buffer_data.extend_from_slice(&(normal.x as f32).to_le_bytes());
+            buffer_data.extend_from_slice(&(normal.y as f32).to_le_bytes());
+            buffer_data.extend_from_slice(&(normal.z as f32).to_le_bytes());
+        }
+        let normals_length = buffer_data.len() - normals_offset;
+
+        let uvs_offset = buffer_data.len();
+        for uv in &mesh.uvs {
+            buffer_data.extend_from_slice(&(uv.x as f32).to_le_bytes());
+            buffer_data.extend_from_slice(&(uv.y as f32).to_le_bytes());
+        }
+        let uvs_length = buffer_data.len() - uvs_offset;
+
+        let indices_offset = buffer_data.len();
+        let mut index_count = 0u32;
+        for face in &mesh.faces {
+            if face.len() >= 3 {
+                for i in 1..face.len() - 1 {
+                    buffer_data.extend_from_slice(&(face[0] as u32).to_le_bytes());
+                    buffer_data.extend_from_slice(&(face[i] as u32).to_le_bytes());
+                    buffer_data.extend_from_slice(&(face[i + 1] as u32).to_le_bytes());
+                    index_count += 3;
+                }
+            }
+        }
+        let indices_length = buffer_data.len() - indices_offset;
+
+        let (min, max) = compute_bounds(&mesh.positions);
+
+        let mut buffer_views = Vec::new();
+        let mut accessors = Vec::new();
+        let mut attributes = serde_json::Map::new();
+
+        buffer_views.push(json!({
+            "buffer": 0,
+            "byteOffset": positions_offset,
+            "byteLength": positions_length,
+            "target": 34962
+        }));
+        accessors.push(json!({
+            "bufferView": 0,
+            "componentType": 5126,
+            "count": mesh.positions.len(),
+            "type": "VEC3",
+            "min": [min[0], min[1], min[2]],
+            "max": [max[0], max[1], max[2]]
+        }));
+        attributes.insert("POSITION".to_string(), json!(0));
+
+        let mut accessor_idx = 1;
+
+        if !mesh.normals.is_empty() {
+            buffer_views.push(json!({
+                "buffer": 0,
+                "byteOffset": normals_offset,
+                "byteLength": normals_length,
+                "target": 34962
+            }));
+            accessors.push(json!({
+                "bufferView": accessor_idx,
+                "componentType": 5126,
+                "count": mesh.normals.len(),
+                "type": "VEC3"
+            }));
+            attributes.insert("NORMAL".to_string(), json!(accessor_idx));
+            accessor_idx += 1;
+        }
+
+        if !mesh.uvs.is_empty() {
+            buffer_views.push(json!({
+                "buffer": 0,
+                "byteOffset": uvs_offset,
+                "byteLength": uvs_length,
+                "target": 34962
+            }));
+            accessors.push(json!({
+                "bufferView": accessor_idx,
+                "componentType": 5126,
+                "count": mesh.uvs.len(),
+                "type": "VEC2"
+            }));
+            attributes.insert("TEXCOORD_0".to_string(), json!(accessor_idx));
+            accessor_idx += 1;
+        }
+
+        let indices_accessor = if index_count > 0 {
+            buffer_views.push(json!({
+                "buffer": 0,
+                "byteOffset": indices_offset,
+                "byteLength": indices_length,
+                "target": 34963
+            }));
+            accessors.push(json!({
+                "bufferView": accessor_idx,
+                "componentType": 5125,
+                "count": index_count,
+                "type": "SCALAR"
+            }));
+            Some(accessor_idx)
+        } else {
+            None
+        };
+
+        let mut primitive = json!({
+            "attributes": attributes,
+            "mode": 4
+        });
+        if let Some(idx) = indices_accessor {
+            primitive["indices"] = json!(idx);
+        }
+
+        let gltf_json = json!({
+            "asset": {
+                "version": "2.0",
+                "generator": "NAT3D"
+            },
+            "scene": 0,
+            "scenes": [{
+                "name": name,
+                "nodes": [0]
+            }],
+            "nodes": [{
+                "name": name,
+                "mesh": 0
+            }],
+            "meshes": [{
+                "name": name,
+                "primitives": [primitive]
+            }],
+            "accessors": accessors,
+            "bufferViews": buffer_views,
+            "buffers": [{
+                "byteLength": buffer_data.len()
+            }]
+        });
+
+        let json_bytes = serde_json::to_vec(&gltf_json)?;
+        let json_len = json_bytes.len();
+        let json_padding = (4 - (json_len % 4)) % 4;
+
+        let bin_len = buffer_data.len();
+        let bin_padding = (4 - (bin_len % 4)) % 4;
+
+        let total_len = 12 + 8 + json_len + json_padding + 8 + bin_len + bin_padding;
+
+        let mut out = Vec::with_capacity(total_len);
+        out.extend_from_slice(b"glTF");
+        out.extend_from_slice(&2u32.to_le_bytes());
+        out.extend_from_slice(&(total_len as u32).to_le_bytes());
+
+        out.extend_from_slice(&((json_len + json_padding) as u32).to_le_bytes());
+        out.extend_from_slice(&0x4E4F534Au32.to_le_bytes());
+        out.extend_from_slice(&json_bytes);
+        out.extend_from_slice(&vec![0x20u8; json_padding]);
+
+        out.extend_from_slice(&((bin_len + bin_padding) as u32).to_le_bytes());
+        out.extend_from_slice(&0x004E4942u32.to_le_bytes());
+        out.extend_from_slice(&buffer_data);
+        out.extend_from_slice(&vec![0u8; bin_padding]);
+
+        Ok(out)
+    }
 }
 
 /// Compute bounding box of positions.
@@ -622,9 +805,19 @@ pub fn import_gltf<P: AsRef<Path>>(path: P) -> GltfResult<GltfScene> {
     GltfImporter::new().import_file(path)
 }
 
+/// Import a glTF/GLB file from an in-memory byte slice.
+pub fn import_gltf_from_slice(slice: &[u8]) -> GltfResult<GltfScene> {
+    GltfImporter::new().import_slice(slice)
+}
+
 /// Export a mesh to glTF/GLB format.
 pub fn export_gltf<P: AsRef<Path>>(path: P, mesh: &MeshData, name: &str) -> GltfResult<()> {
     GltfExporter::new().export_mesh(path, mesh, name)
+}
+
+/// Export a mesh to in-memory binary GLB format.
+pub fn export_mesh_glb_bytes(mesh: &MeshData, name: &str) -> GltfResult<Vec<u8>> {
+    GltfExporter::new().export_mesh_glb_bytes(mesh, name)
 }
 
 #[cfg(test)]
