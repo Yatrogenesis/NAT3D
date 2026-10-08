@@ -2888,7 +2888,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-animation"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "criterion",
  "glam",
@@ -2904,7 +2904,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-app"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "base32",
@@ -2941,7 +2941,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-cli"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -2963,7 +2963,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-cloud"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "nat3d-core",
@@ -2979,7 +2979,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "bincode",
@@ -3001,7 +3001,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-io"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "bincode",
@@ -3021,20 +3021,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "nat3d-keygen"
-version = "0.2.0"
-dependencies = [
- "base32",
- "clap",
- "ed25519-dalek",
- "hex",
- "rand_core 0.6.4",
- "sha2",
-]
-
-[[package]]
 name = "nat3d-math"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "criterion",
  "glam",
@@ -3058,7 +3046,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-mobile"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "android-activity",
  "eframe",
@@ -3071,7 +3059,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-modeling"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "criterion",
  "glam",
@@ -3087,7 +3075,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-physics"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "criterion",
  "crossbeam",
@@ -3110,7 +3098,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-render"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "bytemuck",
@@ -3131,7 +3119,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-scripting"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "lazy_static",
@@ -3147,7 +3135,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-sync"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "automerge",
@@ -3168,7 +3156,7 @@ dependencies = [
 
 [[package]]
 name = "nat3d-ui"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "eframe",

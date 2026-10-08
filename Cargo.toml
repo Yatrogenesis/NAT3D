@@ -14,7 +14,6 @@ members = [
     "crates/nat3d-sync",
     "crates/nat3d-cli",
     "crates/nat3d-app",
-    "crates/nat3d-keygen",
     "crates/nat3d-mobile",
 ]
 
@@ -36,7 +35,7 @@ members = [
 exclude = ["crates/nat3d-tui"]
 
 [workspace.package]
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 rust-version = "1.85"
 authors = ["Francisco Molina <pako.molina@gmail.com>"]

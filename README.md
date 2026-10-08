@@ -61,7 +61,6 @@ crates/
 ├── nat3d-mobile      iOS/Android native wrappers
 ├── nat3d-cli         Command-line tools
 ├── nat3d-app         Main desktop application
-└── nat3d-keygen      License key generation
 ```
 
 ## Dependencies
@@ -81,10 +80,15 @@ Windows installer scripts are provided in `installer/windows/`. See `installer/R
 
 NAT3D is **dual-licensed** — choose one:
 
-- **AGPL-3.0-or-later** (`LICENSE-AGPL`) — open-source, academic, and non-commercial
-  use. Network use requires disclosing your source under the same license.
-- **Commercial** (`LICENSE-COMMERCIAL`) — proprietary/closed-source deployment
-  without AGPL source-disclosure obligations, under a signed agreement.
+- **AGPL-3.0-or-later** (`LICENSE-AGPL`) — free and open source. It allows use, study,
+  modification and redistribution by anyone, **including commercial use**, as long as you
+  comply with the AGPL: derivative works stay under the AGPL and, if you offer NAT3D (or a
+  modified version) over a network, you must make the corresponding source available to its
+  users. (The AGPL is not a "non-commercial" license.)
+- **Commercial** (`LICENSE-COMMERCIAL`) — for those who cannot or do not want to comply
+  with the AGPL's source-disclosure terms (for example, proprietary/closed-source
+  deployment), under a signed agreement. Separate from the AGPL option; it is not required
+  for ordinary use of the AGPL-licensed software.
 
 SPDX: `AGPL-3.0-or-later OR LicenseRef-Commercial`
 
