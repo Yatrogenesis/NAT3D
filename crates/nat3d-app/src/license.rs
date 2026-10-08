@@ -223,7 +223,10 @@ mod tests {
         let other = SigningKey::from_bytes(&[8u8; 32]);
         let vk = sk.verifying_key();
         let s = serial_for(&sk, "MACH1", "pro");
-        assert_eq!(validate_license_with_key(&s, "MACH2", &vk), LicenseStatus::Invalid);
+        assert_eq!(
+            validate_license_with_key(&s, "MACH2", &vk),
+            LicenseStatus::Invalid
+        );
         assert_eq!(
             validate_license_with_key(&s, "MACH1", &other.verifying_key()),
             LicenseStatus::Invalid
@@ -242,7 +245,10 @@ mod tests {
         );
         for tier in ["pro", "edu"] {
             let forged = serial_for(&revoked, "ANYMACHINE", tier);
-            assert_eq!(validate_license(&forged, "ANYMACHINE"), LicenseStatus::Invalid);
+            assert_eq!(
+                validate_license(&forged, "ANYMACHINE"),
+                LicenseStatus::Invalid
+            );
         }
         assert_ne!(*LICENSE_PUBLIC_KEY, revoked.verifying_key().to_bytes());
     }
