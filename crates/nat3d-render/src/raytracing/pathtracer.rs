@@ -183,8 +183,15 @@ impl<P: BvhPrimitive> PathTracer<P> {
         // Get hit point and normal (simplified - real implementation would use intersection data)
         let hit_point = ray.at(t);
 
-        // Compute normal from primitive (placeholder)
-        let normal = Vector3::new(0.0, 1.0, 0.0); // Would be computed from primitive
+        // Use the intersected primitive's actual geometric normal. A primitive
+        // without normal data cannot be shaded correctly: fail visibly (magenta).
+        let Some(normal) = self.bvh.primitives[prim_idx].surface_normal(&hit_point) else {
+            return Vector3::new(1.0, 0.0, 1.0);
+        };
+        // Preserve which side was hit before orienting the shading normal.
+        // Refraction needs the geometric side to distinguish entering/exiting.
+        let front_face = normal.dot(&ray.direction) <= 0.0;
+        let normal = if front_face { normal } else { -normal };
 
         // Start with emission
         let mut color = material.emission();
@@ -209,20 +216,17 @@ impl<P: BvhPrimitive> PathTracer<P> {
                 }
             }
             Material::Dielectric { ior } => {
-                let (outward_normal, ni_over_nt, cosine) = if ray.direction.dot(&normal) > 0.0 {
-                    (-normal, *ior, ior * ray.direction.dot(&normal))
-                } else {
-                    (normal, 1.0 / ior, -ray.direction.dot(&normal))
-                };
+                let ni_over_nt = if front_face { 1.0 / ior } else { *ior };
+                let cosine = (-ray.direction.dot(&normal)).clamp(0.0, 1.0);
 
                 let reflect_prob = schlick(cosine, *ior);
 
                 let scattered_dir = if rng.random::<f64>() < reflect_prob {
-                    reflect(ray.direction, outward_normal)
-                } else if let Some(refracted) = refract(ray.direction, outward_normal, ni_over_nt) {
+                    reflect(ray.direction, normal)
+                } else if let Some(refracted) = refract(ray.direction, normal, ni_over_nt) {
                     refracted
                 } else {
-                    reflect(ray.direction, outward_normal)
+                    reflect(ray.direction, normal)
                 };
 
                 let offset = if scattered_dir.dot(&normal) > 0.0 {

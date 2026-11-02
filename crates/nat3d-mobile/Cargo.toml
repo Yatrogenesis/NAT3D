@@ -1,17 +1,19 @@
 [package]
 name = "nat3d-mobile"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 authors = ["Francisco Molina-Burgos"]
-license = "AGPL-3.0-or-later"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
 description = "Android/iOS native wrapper for NAT3D - Pure and Secure Version"
 
 [dependencies]
 # Core types (StylusProvider trait, etc.)
-nat3d-core = { path = "../nat3d-core" }
+nat3d-core = { path = "../nat3d-core", version = "0.2.2" }
 
 # App core WITHOUT Python, WITHOUT iPad, WITHOUT File Dialogs
-nat3d-app = { path = "../nat3d-app", default-features = false }
+nat3d-app = { path = "../nat3d-app", version = "0.2.2", default-features = false }
 
 # GUI
 eframe = { workspace = true }

@@ -19,7 +19,7 @@
 //! Implements a BVH with SAH (Surface Area Heuristic) construction.
 
 use super::ray::{Aabb, Ray};
-use nalgebra::Point3;
+use nalgebra::{Point3, Vector3};
 
 /// A primitive that can be stored in the BVH.
 pub trait BvhPrimitive {
@@ -31,6 +31,10 @@ pub trait BvhPrimitive {
 
     /// Intersect ray with primitive. Returns hit distance if intersection exists.
     fn intersect(&self, ray: &Ray) -> Option<f64>;
+    /// A usable geometric normal at the hit point, if available.
+    fn surface_normal(&self, _point: &Point3<f64>) -> Option<Vector3<f64>> {
+        None
+    }
 }
 
 /// A triangle primitive for the BVH.
@@ -104,6 +108,15 @@ impl BvhPrimitive for Triangle {
             None
         }
     }
+    fn surface_normal(&self, _point: &Point3<f64>) -> Option<Vector3<f64>> {
+        let n = (self.v1 - self.v0).cross(&(self.v2 - self.v0));
+        let norm = n.norm();
+        if norm > 1e-12 {
+            Some(n / norm)
+        } else {
+            None
+        }
+    }
 }
 
 /// BVH node.
@@ -113,10 +126,8 @@ pub enum BvhNode {
     Leaf {
         /// Bounding box of the leaf.
         bounds: Aabb,
-        /// Index of the first primitive in the leaf.
-        first_prim: usize,
-        /// Number of primitives in the leaf.
-        prim_count: usize,
+        /// Explicit primitive indices, which need not be contiguous.
+        indices: Vec<usize>,
     },
     /// Interior node with two children.
     Interior {
@@ -221,11 +232,7 @@ impl<P: BvhPrimitive> Bvh<P> {
 
         // Create leaf if few primitives or max depth reached
         if n <= self.params.max_prims_per_leaf || depth >= self.params.max_depth {
-            return BvhNode::Leaf {
-                bounds,
-                first_prim: indices[0],
-                prim_count: n,
-            };
+            return BvhNode::Leaf { bounds, indices };
         }
 
         // Compute centroid bounds
@@ -239,11 +246,7 @@ impl<P: BvhPrimitive> Bvh<P> {
         // If centroids are coincident, create leaf
         let extent = centroid_bounds.extent();
         if extent[split_axis] < 1e-10 {
-            return BvhNode::Leaf {
-                bounds,
-                first_prim: indices[0],
-                prim_count: n,
-            };
+            return BvhNode::Leaf { bounds, indices };
         }
 
         // SAH binning
@@ -302,11 +305,7 @@ impl<P: BvhPrimitive> Bvh<P> {
         // Check if splitting is worth it
         let leaf_cost = self.params.intersection_cost * n as f64;
         if best_cost >= leaf_cost || best_split == 0 {
-            return BvhNode::Leaf {
-                bounds,
-                first_prim: indices[0],
-                prim_count: n,
-            };
+            return BvhNode::Leaf { bounds, indices };
         }
 
         // Partition primitives
@@ -321,12 +320,7 @@ impl<P: BvhPrimitive> Bvh<P> {
         if left_indices.is_empty() || right_indices.is_empty() {
             return BvhNode::Leaf {
                 bounds,
-                first_prim: if !left_indices.is_empty() {
-                    left_indices[0]
-                } else {
-                    right_indices[0]
-                },
-                prim_count: n,
+                indices: left_indices.into_iter().chain(right_indices).collect(),
             };
         }
 
@@ -362,14 +356,10 @@ impl<P: BvhPrimitive> Bvh<P> {
         }
 
         match node {
-            BvhNode::Leaf {
-                first_prim,
-                prim_count,
-                ..
-            } => {
+            BvhNode::Leaf { indices, .. } => {
                 let mut result = None;
 
-                for i in *first_prim..(*first_prim + *prim_count) {
+                for &i in indices {
                     if i < self.primitives.len() {
                         if let Some(t) = self.primitives[i].intersect(ray) {
                             if t < closest {
@@ -430,12 +420,8 @@ impl<P: BvhPrimitive> Bvh<P> {
         }
 
         match node {
-            BvhNode::Leaf {
-                first_prim,
-                prim_count,
-                ..
-            } => {
-                for i in *first_prim..(*first_prim + *prim_count) {
+            BvhNode::Leaf { indices, .. } => {
+                for &i in indices {
                     if i < self.primitives.len() && self.primitives[i].intersect(ray).is_some() {
                         return true;
                     }
@@ -500,6 +486,36 @@ mod tests {
 
         let bvh = Bvh::build(triangles, BvhParams::default());
         assert_eq!(bvh.len(), 2);
+    }
+
+    #[test]
+    fn sah_partition_keeps_noncontiguous_indices() {
+        let triangles: Vec<_> = (0..8)
+            .map(|i| {
+                let z = if i % 2 == 0 { 0.0 } else { 10.0 };
+                Triangle::new(
+                    Point3::new(-1.0, -1.0, z),
+                    Point3::new(1.0, -1.0, z),
+                    Point3::new(0.0, 1.0, z),
+                    i,
+                )
+            })
+            .collect();
+        let bvh = Bvh::build(
+            triangles,
+            BvhParams {
+                max_prims_per_leaf: 2,
+                ..BvhParams::default()
+            },
+        );
+        let ray = Ray::new(Point3::new(0.0, 0.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
+        let hit = bvh.intersect(&ray).expect("must find nearest triangle");
+        assert!((hit.1 - 5.0).abs() < 1e-10);
+        assert!(bvh.intersect_any(&ray));
+        let normal = bvh.primitives[hit.0]
+            .surface_normal(&ray.at(hit.1))
+            .unwrap();
+        assert!((normal.z - 1.0).abs() < 1e-10);
     }
 
     #[test]
