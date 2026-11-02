@@ -15,6 +15,7 @@ members = [
     "crates/nat3d-cli",
     "crates/nat3d-app",
     "crates/nat3d-mobile",
+    "crates/nat3d",
 ]
 
 # nat3d-tui is deliberately excluded rather than deleted. It compiles and its
