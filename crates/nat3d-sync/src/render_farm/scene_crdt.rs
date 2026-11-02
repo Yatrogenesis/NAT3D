@@ -31,44 +31,74 @@ use uuid::Uuid;
 /// CRDT operation for scene changes.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum CrdtOperation {
+    /// Adds an object. Ignored by `apply_operation` if an object with the same id already exists with a timestamp greater than or equal to this one; otherwise the object is created at the origin with identity rotation, unit scale and material name `"default"`.
     AddObject {
+        /// Identifier of the object.
         id: Uuid,
+        /// Display name of the object.
         name: String,
+        /// Object type as a free-form string.
         object_type: String,
+        /// Logical timestamp of the operation, compared for last-write-wins; its unit is not defined by the code.
         timestamp: u64,
     },
+    /// Removes an object. Applied only if the object exists and this timestamp is strictly greater than the object's timestamp.
     RemoveObject {
+        /// Identifier of the object to remove.
         id: Uuid,
+        /// Logical timestamp of the operation.
         timestamp: u64,
     },
+    /// Sets position, rotation and scale of an existing object. Applied only if the object exists and the timestamp is strictly greater than the object's timestamp.
     UpdateObjectTransform {
+        /// Identifier of the object to update.
         id: Uuid,
+        /// New position (three components).
         position: [f32; 3],
+        /// New rotation (four components; the initial value for new objects is `[0, 0, 0, 1]`).
         rotation: [f32; 4],
+        /// New scale (three components).
         scale: [f32; 3],
+        /// Logical timestamp of the operation.
         timestamp: u64,
     },
+    /// Sets the material name of an existing object. Applied only if the object exists and the timestamp is strictly greater than the object's timestamp.
     UpdateMaterial {
+        /// Identifier of the object to update.
         id: Uuid,
+        /// New material name.
         material_name: String,
+        /// Logical timestamp of the operation.
         timestamp: u64,
     },
+    /// Creates or replaces a light. Ignored if a light with the same id exists with a timestamp greater than or equal to this one.
     UpdateLight {
+        /// Identifier of the light.
         id: Uuid,
+        /// Light type as a free-form string.
         light_type: String,
+        /// Light intensity.
         intensity: f32,
+        /// Light color (three components).
         color: [f32; 3],
+        /// Logical timestamp of the operation.
         timestamp: u64,
     },
+    /// Sets the scene camera. Ignored if a camera exists with a timestamp greater than or equal to this one.
     SetCamera {
+        /// Camera position (three components).
         position: [f32; 3],
+        /// Camera target (three components).
         target: [f32; 3],
+        /// Camera field of view; the code does not define its unit.
         fov: f32,
+        /// Logical timestamp of the operation.
         timestamp: u64,
     },
 }
 
 impl CrdtOperation {
+    /// Returns the timestamp carried by the operation, whichever variant it is.
     pub fn timestamp(&self) -> u64 {
         match self {
             Self::AddObject { timestamp, .. } => *timestamp,
@@ -84,32 +114,49 @@ impl CrdtOperation {
 /// Scene object (simplified).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SceneObject {
+    /// Identifier of the object.
     pub id: Uuid,
+    /// Display name of the object.
     pub name: String,
+    /// Object type as a free-form string.
     pub object_type: String,
+    /// Position (three components).
     pub position: [f32; 3],
+    /// Rotation (four components).
     pub rotation: [f32; 4],
+    /// Scale (three components).
     pub scale: [f32; 3],
+    /// Name of the material assigned to the object.
     pub material_name: String,
+    /// Timestamp of the last operation applied to this object.
     pub timestamp: u64,
 }
 
 /// Scene light (simplified).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SceneLight {
+    /// Identifier of the light.
     pub id: Uuid,
+    /// Light type as a free-form string.
     pub light_type: String,
+    /// Light intensity.
     pub intensity: f32,
+    /// Light color (three components).
     pub color: [f32; 3],
+    /// Timestamp of the last operation applied to this light.
     pub timestamp: u64,
 }
 
 /// Scene camera (simplified).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SceneCamera {
+    /// Camera position (three components).
     pub position: [f32; 3],
+    /// Camera target (three components).
     pub target: [f32; 3],
+    /// Camera field of view; the code does not define its unit.
     pub fov: f32,
+    /// Timestamp of the last operation applied to the camera.
     pub timestamp: u64,
 }
 
@@ -123,6 +170,7 @@ pub struct SceneCRDT {
 }
 
 impl SceneCRDT {
+    /// Creates an empty scene state for the given node id, with no objects, lights or camera and version 0.
     pub fn new(node_id: Uuid) -> Self {
         Self {
             node_id,
@@ -324,18 +372,22 @@ impl SceneCRDT {
         }
     }
 
+    /// Returns the version counter, which `apply_operation` increments by one each time an operation is not ignored.
     pub fn get_version(&self) -> u64 {
         self.version
     }
 
+    /// Returns the objects keyed by id.
     pub fn get_objects(&self) -> &HashMap<Uuid, SceneObject> {
         &self.objects
     }
 
+    /// Returns the lights keyed by id.
     pub fn get_lights(&self) -> &HashMap<Uuid, SceneLight> {
         &self.lights
     }
 
+    /// Returns the camera, if one has been set.
     pub fn get_camera(&self) -> Option<&SceneCamera> {
         self.camera.as_ref()
     }

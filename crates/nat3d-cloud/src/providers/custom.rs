@@ -132,35 +132,50 @@ impl CustomProvider {
 /// Job submission data.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JobSubmission {
+    /// URL of the scene to render.
     pub scene_url: String,
+    /// Output format as a free-form string.
     pub output_format: String,
+    /// Output resolution as a `(width, height)` pair.
     pub resolution: (u32, u32),
+    /// Sample count.
     pub samples: u32,
 }
 
 /// Job response from server.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JobResponse {
+    /// Identifier of the job, as returned by the server.
     pub job_id: String,
+    /// Status reported by the server for the job.
     pub status: JobStatus,
 }
 
 /// Job status response.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JobStatusResponse {
+    /// Identifier of the job.
     pub job_id: String,
+    /// Status reported by the server.
     pub status: JobStatus,
+    /// Progress value as a floating-point number; the code does not define its scale.
     pub progress: f32,
+    /// URL of the result, if the server reports one.
     pub result_url: Option<String>,
 }
 
 /// Job status.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum JobStatus {
+    /// Job is queued.
     Queued,
+    /// Job is running.
     Running,
+    /// Job completed.
     Completed,
+    /// Job failed.
     Failed,
+    /// Job was cancelled.
     Cancelled,
 }
 

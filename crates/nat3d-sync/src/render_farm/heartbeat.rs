@@ -34,6 +34,7 @@ pub struct HeartbeatMonitor {
 }
 
 impl HeartbeatMonitor {
+    /// Creates a monitor with no recorded workers and a timeout of `WORKER_TIMEOUT_SECS` seconds.
     pub fn new() -> Self {
         Self {
             last_seen: HashMap::new(),
@@ -41,14 +42,17 @@ impl HeartbeatMonitor {
         }
     }
 
+    /// Records the current instant as the last heartbeat of the worker.
     pub fn record_heartbeat(&mut self, worker_id: Uuid) {
         self.last_seen.insert(worker_id, Instant::now());
     }
 
+    /// Returns the workers whose last heartbeat is older than the monitor's timeout.
     pub fn check_timeouts(&self) -> Vec<Uuid> {
         self.check_timeouts_with_duration(self.timeout)
     }
 
+    /// Returns the workers whose last heartbeat is older than the given timeout.
     pub fn check_timeouts_with_duration(&self, timeout: Duration) -> Vec<Uuid> {
         self.last_seen
             .iter()

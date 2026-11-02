@@ -41,18 +41,29 @@ pub enum RenderMessage {
     // ══════════════════════════════════════════════════════════════════════
     /// Assign a render job to worker
     JobAssign {
+        /// Identifier of the job.
         job_id: Uuid,
+        /// Frame number to render.
         frame: u32,
+        /// Tile of the frame to render.
         tile: TileSpec,
+        /// Scene operations to apply before rendering.
         scene_diff: Vec<CrdtOperation>,
+        /// Job priority; the master fills it with the scheduler's `JobPriority` value cast to `u8`.
         priority: u8,
     },
 
     /// Heartbeat ping
-    Heartbeat { timestamp: u64 },
+    Heartbeat {
+        /// Timestamp supplied by the sender; its unit is not defined in this module.
+        timestamp: u64,
+    },
 
     /// Cancel a pending job
-    CancelJob { job_id: Uuid },
+    CancelJob {
+        /// Identifier of the job to cancel.
+        job_id: Uuid,
+    },
 
     /// Request worker capabilities
     RequestCapabilities,
@@ -65,22 +76,39 @@ pub enum RenderMessage {
     // ══════════════════════════════════════════════════════════════════════
     /// Register worker with master
     RegisterWorker {
+        /// Identifier of the registering worker.
         worker_id: Uuid,
+        /// Capabilities the worker reports about itself.
         capabilities: WorkerCapabilities,
     },
 
     /// Job completed successfully
-    JobComplete { job_id: Uuid, result: JobResult },
+    JobComplete {
+        /// Identifier of the completed job.
+        job_id: Uuid,
+        /// Rendered tile result.
+        result: JobResult,
+    },
 
     /// Job failed with error
-    JobError { job_id: Uuid, error: String },
+    JobError {
+        /// Identifier of the failed job.
+        job_id: Uuid,
+        /// Error description.
+        error: String,
+    },
 
     /// Heartbeat acknowledgment
-    HeartbeatAck { timestamp: u64 },
+    HeartbeatAck {
+        /// Timestamp value carried by the acknowledgment; its unit is not defined in this module.
+        timestamp: u64,
+    },
 
     /// Report worker capabilities
     ReportCapabilities {
+        /// Identifier of the reporting worker.
         worker_id: Uuid,
+        /// Capabilities the worker reports.
         capabilities: WorkerCapabilities,
     },
 }
@@ -101,6 +129,7 @@ pub struct WorkerCapabilities {
 }
 
 impl WorkerCapabilities {
+    /// Creates capabilities from the given values; `version` is set to the crate version (`CARGO_PKG_VERSION`).
     pub fn new(gpu_name: String, vram_mb: u32, cpu_cores: u8, max_tile_size: u32) -> Self {
         Self {
             gpu_name,
@@ -126,6 +155,7 @@ pub struct TileSpec {
 }
 
 impl TileSpec {
+    /// Creates a tile from offset and size.
     pub fn new(x: u32, y: u32, width: u32, height: u32) -> Self {
         Self {
             x,
@@ -160,6 +190,7 @@ pub struct JobResult {
 }
 
 impl JobResult {
+    /// Creates a job result from its parts.
     pub fn new(frame: u32, tile: TileSpec, pixels: Vec<u8>, render_time_ms: u64) -> Self {
         Self {
             frame,

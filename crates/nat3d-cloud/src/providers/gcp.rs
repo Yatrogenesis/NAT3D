@@ -159,10 +159,15 @@ impl GcpProvider {
 /// Compute Engine instance status.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum InstanceStatus {
+    /// Instance is being provisioned.
     Provisioning,
+    /// Instance is running.
     Running,
+    /// Instance is stopping.
     Stopping,
+    /// Instance is stopped.
     Stopped,
+    /// Instance is terminated.
     Terminated,
 }
 

@@ -389,13 +389,18 @@ impl RenderNodeDiscovery {
 /// Node capabilities for service registration.
 #[derive(Debug, Clone)]
 pub struct NodeCapabilities {
+    /// GPU name, if known.
     pub gpu_name: Option<String>,
+    /// GPU memory in megabytes, if known.
     pub vram_mb: Option<u32>,
+    /// CPU core count, if known.
     pub cpu_cores: Option<u8>,
+    /// Maximum tile size, if known.
     pub max_tile_size: Option<u32>,
 }
 
 impl NodeCapabilities {
+    /// Creates a capabilities record with every field set to `None`.
     pub fn new() -> Self {
         Self {
             gpu_name: None,
@@ -405,17 +410,20 @@ impl NodeCapabilities {
         }
     }
 
+    /// Sets the GPU name and VRAM (megabytes) and returns the record.
     pub fn with_gpu(mut self, gpu_name: String, vram_mb: u32) -> Self {
         self.gpu_name = Some(gpu_name);
         self.vram_mb = Some(vram_mb);
         self
     }
 
+    /// Sets the CPU core count and returns the record.
     pub fn with_cpu(mut self, cpu_cores: u8) -> Self {
         self.cpu_cores = Some(cpu_cores);
         self
     }
 
+    /// Sets the maximum tile size and returns the record.
     pub fn with_max_tile_size(mut self, max_tile_size: u32) -> Self {
         self.max_tile_size = Some(max_tile_size);
         self

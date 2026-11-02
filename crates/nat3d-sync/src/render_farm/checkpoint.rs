@@ -31,6 +31,7 @@ pub struct CheckpointManager {
 }
 
 impl CheckpointManager {
+    /// Creates a manager for the given directory, attempting to create the directory (errors are ignored), with no checkpoints loaded.
     pub fn new(checkpoint_dir: PathBuf) -> Self {
         // Create checkpoint directory if it doesn't exist
         std::fs::create_dir_all(&checkpoint_dir).ok();

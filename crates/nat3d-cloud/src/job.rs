@@ -56,10 +56,15 @@ impl std::fmt::Display for JobStatus {
 /// Render output format.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OutputFormat {
+    /// PNG output (extension `png`).
     Png,
+    /// JPEG output (extension `jpg`).
     Jpg,
+    /// EXR output (extension `exr`).
     Exr,
+    /// TIFF output (extension `tiff`).
     Tiff,
+    /// BMP output (extension `bmp`).
     Bmp,
 }
 

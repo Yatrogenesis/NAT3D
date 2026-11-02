@@ -29,14 +29,20 @@ use std::path::Path;
 /// Provider credentials.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProviderCredentials {
+    /// API key, if set.
     pub api_key: Option<String>,
+    /// Secret, if set; serialized together with the other fields when a `ConfigFile` is saved.
     pub secret: Option<String>,
+    /// Region, if set.
     pub region: Option<String>,
+    /// Endpoint, if set.
     pub endpoint: Option<String>,
+    /// Additional named values, keyed by name.
     pub additional: HashMap<String, String>,
 }
 
 impl ProviderCredentials {
+    /// Creates credentials with every optional field `None` and an empty additional map.
     pub fn new() -> Self {
         Self {
             api_key: None,
@@ -47,26 +53,31 @@ impl ProviderCredentials {
         }
     }
 
+    /// Sets the API key and returns the credentials.
     pub fn with_api_key(mut self, key: String) -> Self {
         self.api_key = Some(key);
         self
     }
 
+    /// Sets the secret and returns the credentials.
     pub fn with_secret(mut self, secret: String) -> Self {
         self.secret = Some(secret);
         self
     }
 
+    /// Sets the region and returns the credentials.
     pub fn with_region(mut self, region: String) -> Self {
         self.region = Some(region);
         self
     }
 
+    /// Sets the endpoint and returns the credentials.
     pub fn with_endpoint(mut self, endpoint: String) -> Self {
         self.endpoint = Some(endpoint);
         self
     }
 
+    /// Inserts or replaces a named entry in `additional`.
     pub fn add_field(&mut self, key: String, value: String) {
         self.additional.insert(key, value);
     }
@@ -93,11 +104,14 @@ pub trait ProviderConfig {
 /// Configuration file for persistent storage.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConfigFile {
+    /// Version string of the file; `ConfigFile::new` sets it to `"1.0"`.
     pub version: String,
+    /// Credentials per provider, keyed by the provider name used by `set_provider` (`aws`, `gcp`, `azure`, `custom`).
     pub providers: HashMap<String, ProviderCredentials>,
 }
 
 impl ConfigFile {
+    /// Creates a file structure with version `"1.0"` and no providers.
     pub fn new() -> Self {
         Self {
             version: "1.0".to_string(),

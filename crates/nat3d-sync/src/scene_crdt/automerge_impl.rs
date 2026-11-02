@@ -1,3 +1,4 @@
+//! Scene document backed by an Automerge `AutoCommit` document.
 // SOTA 10: Multi-User CRDT Synchronization using Automerge
 use automerge::{transaction::Transactable, AutoCommit, ObjType, ReadDoc, ROOT};
 
