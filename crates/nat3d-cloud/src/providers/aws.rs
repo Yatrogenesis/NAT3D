@@ -147,10 +147,15 @@ impl AwsProvider {
 /// EC2 instance status.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum InstanceStatus {
+    /// Instance is pending.
     Pending,
+    /// Instance is running.
     Running,
+    /// Instance is stopping.
     Stopping,
+    /// Instance is stopped.
     Stopped,
+    /// Instance is terminated.
     Terminated,
 }
 

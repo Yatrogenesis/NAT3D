@@ -30,10 +30,15 @@ use tokio::sync::mpsc;
 /// Type of discovered device.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DeviceType {
+    /// iPad; chosen when the service name contains "ipad" (case-insensitive).
     IPad,
+    /// iPhone; chosen when the service name contains "iphone" (case-insensitive).
     IPhone,
+    /// Apple Pencil; chosen when the service name contains "pencil" (case-insensitive).
     ApplePencil,
+    /// Drawing tablet; chosen when the service name contains "tablet" (case-insensitive).
     DrawingTablet,
+    /// Any other device; chosen when the service name matches none of the other patterns.
     Custom,
 }
 
@@ -52,14 +57,20 @@ impl std::fmt::Display for DeviceType {
 /// Discovered device information.
 #[derive(Debug, Clone)]
 pub struct DiscoveredDevice {
+    /// Full service name as reported by mDNS; also the key used in the discovered-device map.
     pub name: String,
+    /// IP address of the device (the first address reported for the service).
     pub address: IpAddr,
+    /// Port of the service.
     pub port: u16,
+    /// Device type inferred from the service name.
     pub device_type: DeviceType,
+    /// Service TXT properties, each stored as a `key=value` string.
     pub capabilities: Vec<String>,
 }
 
 impl DiscoveredDevice {
+    /// Creates a device record with the given values and an empty capability list.
     pub fn new(name: String, address: IpAddr, port: u16, device_type: DeviceType) -> Self {
         Self {
             name,
@@ -70,6 +81,7 @@ impl DiscoveredDevice {
         }
     }
 
+    /// Appends a capability string and returns the device.
     pub fn with_capability(mut self, capability: String) -> Self {
         self.capabilities.push(capability);
         self
@@ -79,7 +91,9 @@ impl DiscoveredDevice {
 /// Device discovery events.
 #[derive(Debug, Clone)]
 pub enum DiscoveryEvent {
+    /// A service was resolved and a device record was built from it.
     DeviceFound(DiscoveredDevice),
+    /// A service was removed; carries the service full name.
     DeviceLost(String),
 }
 

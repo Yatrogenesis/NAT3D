@@ -29,6 +29,7 @@ pub struct SyncManager {
 }
 
 impl SyncManager {
+    /// Creates a manager with an empty scene state for the given node id and no pending operations.
     pub fn new(node_id: Uuid) -> Self {
         Self {
             local_scene: SceneCRDT::new(node_id),

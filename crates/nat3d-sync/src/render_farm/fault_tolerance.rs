@@ -27,11 +27,14 @@ use super::scheduler::JobScheduler;
 
 /// Fault handler integrating heartbeat monitoring and job reassignment.
 pub struct FaultHandler {
+    /// Job scheduler whose jobs are reassigned when a worker fails.
     pub scheduler: JobScheduler,
+    /// Heartbeat monitor used to detect timed-out workers.
     pub heartbeat: HeartbeatMonitor,
 }
 
 impl FaultHandler {
+    /// Creates a handler with a new scheduler and a new heartbeat monitor.
     pub fn new() -> Self {
         Self {
             scheduler: JobScheduler::new(),

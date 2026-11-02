@@ -84,9 +84,13 @@ impl Default for CloudConfig {
 /// Connection status.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ConnectionStatus {
+    /// No connection (initial state; also set by `disconnect`).
     Disconnected,
+    /// A connection attempt is in progress (set at the start of `connect`).
     Connecting,
+    /// Connected (set by a successful `connect`).
     Connected,
+    /// The last connection attempt failed (set by `connect` when the API key is empty).
     Error,
 }
 
@@ -281,42 +285,64 @@ impl CloudClient {
 /// Instance type specification.
 #[derive(Debug, Clone)]
 pub struct InstanceType {
+    /// Identifier of the instance type.
     pub id: String,
+    /// Display name of the instance type.
     pub name: String,
+    /// Number of CPU cores.
     pub cores: u32,
+    /// Memory size in gigabytes.
     pub memory_gb: u32,
+    /// GPU description, or `None` for CPU-only instance types.
     pub gpu: Option<GpuInfo>,
+    /// Cost per hour as a floating-point value; the code attaches no currency.
     pub cost_per_hour: f64,
 }
 
 /// GPU information.
 #[derive(Debug, Clone)]
 pub struct GpuInfo {
+    /// GPU model name.
     pub name: String,
+    /// Video memory in gigabytes.
     pub vram_gb: u32,
+    /// Compute unit count as stored in the field.
     pub compute_units: u32,
 }
 
 /// Usage statistics.
 #[derive(Debug, Clone)]
 pub struct UsageStats {
+    /// Total number of jobs held by the client.
     pub total_jobs: u64,
+    /// Number of those jobs whose status is `Completed`.
     pub completed_jobs: u64,
+    /// Total render time. `CloudClient::get_usage` currently sets this to a fixed 3600 seconds.
     pub total_render_time: Duration,
+    /// Total cost; `CloudClient::get_usage` currently sets this to a fixed 12.50.
     pub total_cost: f64,
+    /// Storage used in gigabytes; `CloudClient::get_usage` currently sets this to a fixed 5.2.
     pub storage_used_gb: f64,
 }
 
 /// Cloud client errors.
 #[derive(Debug, Clone)]
 pub enum CloudError {
+    /// The client is not connected; returned by operations that require a connection.
     NotConnected,
+    /// A connection failed, with a message.
     ConnectionFailed(String),
+    /// Authentication failed, with a message (`connect` uses it when the API key is empty).
     AuthenticationFailed(String),
+    /// No job with the given id exists (`cancel_job` uses it).
     JobNotFound(String),
+    /// A quota was exceeded.
     QuotaExceeded,
+    /// A network error, with a message.
     NetworkError(String),
+    /// The configuration is invalid, with a message.
     InvalidConfiguration(String),
+    /// The server reported an error, with a message.
     ServerError(String),
 }
 

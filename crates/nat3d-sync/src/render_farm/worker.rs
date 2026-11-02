@@ -26,15 +26,19 @@ use std::net::SocketAddr;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 
+/// Render-farm worker that connects to a master over TCP and renders assigned tiles.
 pub struct RenderFarmWorker {
+    /// Name of the worker, used in log messages.
     pub name: String,
 }
 
 impl RenderFarmWorker {
+    /// Creates a worker with the given name.
     pub fn new(name: String) -> Self {
         Self { name }
     }
 
+    /// Connects to `master_addr` and loops reading up to 4096 bytes per read, parsing each read as a JSON `SyncMessage`. For `AssignTile` it renders the tile and writes back a JSON `SubmitResult` (with `tile_id` 0); other messages are ignored. Returns `Ok` when the master closes the connection.
     pub async fn run(&mut self, master_addr: SocketAddr) -> anyhow::Result<()> {
         let mut stream = TcpStream::connect(master_addr).await?;
         tracing::info!("Worker {} connected to master", self.name);
@@ -65,6 +69,7 @@ impl RenderFarmWorker {
         Ok(())
     }
 
+    /// Renders the tile with the CPU renderer: a procedural pyramid rotated by `frame * 0.05` radians on a cleared background, returning the color buffer bytes.
     pub async fn render_tile(&self, tile: &TileSpec, frame: u32) -> anyhow::Result<Vec<u8>> {
         tracing::debug!(
             "REAL Rendering tile {}x{} for frame {}",

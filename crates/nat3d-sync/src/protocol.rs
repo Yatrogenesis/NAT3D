@@ -21,69 +21,114 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Rectangular tile of the output image, given as an origin and a size.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TileSpec {
+    /// X coordinate of the tile origin, as stored in the field (the code attaches no unit).
     pub x: u32,
+    /// Y coordinate of the tile origin, as stored in the field (the code attaches no unit).
     pub y: u32,
+    /// Tile width.
     pub width: u32,
+    /// Tile height.
     pub height: u32,
 }
 
+/// Result of rendering one tile, as carried by [`SyncMessage::SubmitResult`].
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RenderResult {
+    /// Identifier of the tile this result belongs to.
     pub tile_id: u32,
+    /// Frame number the result belongs to.
     pub frame: u32,
+    /// Raw result bytes; the code in this module does not interpret their layout.
     pub data: Vec<u8>,
 }
 
+/// Messages exchanged between devices by the sync protocol.
+///
+/// The type derives serde `Serialize`/`Deserialize` and is encoded with [`SyncProtocol::encode`] as JSON.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SyncMessage {
+    /// Greeting message carrying the sender's identity.
     Hello {
+        /// Protocol/application version string reported by the sender.
         version: String,
+        /// Human-readable name of the sending device.
         device_name: String,
     },
+    /// Latency probe request.
     Ping {
+        /// Sender timestamp carried by the probe; this module does not define its unit.
         timestamp: u64,
     },
+    /// Reply to a [`SyncMessage::Ping`].
     Pong {
+        /// Timestamp carried by the reply; this module does not define its unit.
         timestamp: u64,
     },
+    /// Single input event (touch/pointer) from a remote device.
     InputEvent {
+        /// Event kind as a free-form string. The application treats `"up"`, `"end"` and `"cancel"` as the end of a contact and handles any other value as a continuing contact.
         event_type: String,
+        /// X position of the event, as sent by the device.
         x: f32,
+        /// Y position of the event, as sent by the device.
         y: f32,
+        /// Optional pressure value; `None` when the sender did not provide one.
         pressure: Option<f32>,
+        /// Optional tilt value; `None` when the sender did not provide one.
         tilt: Option<f32>,
+        /// Optional azimuth value; `None` when the sender did not provide one.
         azimuth: Option<f32>,
+        /// Timestamp carried by the event; this module does not define its unit.
         timestamp: u64,
         /// Independent contact ID; omitted by legacy single-touch senders.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         touch_id: Option<u32>,
     },
+    /// Stylus (pencil) state update from a remote device.
     PencilUpdate {
+        /// X position of the stylus, as sent by the device.
         x: f32,
+        /// Y position of the stylus, as sent by the device.
         y: f32,
+        /// Stylus force. The application passes it to the pencil handler as the pressure value.
         force: f32,
+        /// Stylus tilt along the X axis. The application combines `tilt_x` and `tilt_y` into an altitude angle as `max(PI/2 - hypot(tilt_x, tilt_y), 0)`.
         tilt_x: f32,
+        /// Stylus tilt along the Y axis; see `tilt_x`.
         tilt_y: f32,
+        /// Stylus azimuth angle. The application passes it to the pencil handler as the azimuth angle.
         azimuth: f32,
+        /// Stylus altitude as sent by the device; the application's pencil handling shown in this repository derives altitude from `tilt_x`/`tilt_y` instead of reading this field.
         altitude: f32,
+        /// Whether the stylus is in contact with the surface; the application only processes the update when this is `true`.
         in_contact: bool,
+        /// Double-tap flag as sent by the device.
         double_tap: bool,
+        /// Timestamp carried by the update; this module does not define its unit.
         timestamp: u64,
     },
+    /// Assigns a tile to render (first field) for a frame (second field); the worker uses the second value as the frame number.
     AssignTile(TileSpec, u32),
+    /// Submits the result of rendering a tile.
     SubmitResult(RenderResult),
+    /// Announces that the sender is disconnecting.
     Disconnect {
+        /// Free-form reason string for the disconnect.
         reason: String,
     },
 }
 
+/// Namespace type for encoding and decoding [`SyncMessage`] values; it has no fields.
 pub struct SyncProtocol;
 impl SyncProtocol {
+    /// Decodes a [`SyncMessage`] from JSON bytes using `serde_json::from_slice`.
     pub fn decode(data: &[u8]) -> Result<SyncMessage, serde_json::Error> {
         serde_json::from_slice(data)
     }
+    /// Encodes a [`SyncMessage`] as JSON bytes using `serde_json::to_vec`.
     pub fn encode(msg: &SyncMessage) -> Result<Vec<u8>, serde_json::Error> {
         serde_json::to_vec(msg)
     }
