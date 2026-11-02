@@ -274,11 +274,11 @@ pub enum CompositorNodeKind {
     /// Adjust hue, saturation, value.
     HueSaturation {
         /// Hue offset, in the 0.0 to 1.0 range.
-        hue: f32,        // offset in 0.0–1.0 range
+        hue: f32, // offset in 0.0–1.0 range
         /// Saturation multiplier; 1.0 leaves saturation unchanged.
         saturation: f32, // multiplier, 1.0 = no change
         /// Value multiplier; 1.0 leaves value unchanged.
-        value: f32,      // multiplier, 1.0 = no change
+        value: f32, // multiplier, 1.0 = no change
     },
 
     // ── Mix node ──────────────────────────────────────────────────────────

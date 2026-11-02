@@ -18,7 +18,6 @@
 //! Modeling tools for NAT3D.
 
 #![warn(missing_docs)]
-
 // Clippy allows justified for 3D modeling context:
 //
 // cast_precision_loss: Mesh indices and segment counts are cast to f32/f64 for

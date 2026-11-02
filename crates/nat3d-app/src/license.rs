@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+//! License serial validation (Ed25519 signature check against an embedded public key), machine identifier derivation, and the license status and edu-flow event types used by the application.
 // NAT3D license validation — Ed25519 asymmetric signature verification.
 //
 // Security model:
@@ -17,7 +18,6 @@
 /// LemonSqueezy product page — replace before launch.
 pub const STORE_URL: &str = "https://nat3d.lemonsqueezy.com";
 
-//! License serial validation (Ed25519 signature check against an embedded public key), machine identifier derivation, and the license status and edu-flow event types used by the application.
 use base32::Alphabet;
 use ed25519_dalek::{Signature, Verifier, VerifyingKey};
 
@@ -101,7 +101,10 @@ pub enum LicenseStatus {
     /// No license has been applied; the application runs in trial mode.
     Trial,
     /// A valid serial was verified for the given tier.
-    Licensed { tier: Tier },
+    Licensed {
+        /// Tier encoded in the verified serial.
+        tier: Tier,
+    },
     /// The serial failed validation.
     Invalid,
 }
