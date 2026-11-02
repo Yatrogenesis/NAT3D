@@ -23,8 +23,11 @@ use std::any::Any;
 /// Subdivision modifier.
 #[derive(Debug, Clone)]
 pub struct SubdivisionModifier {
+    /// Modifier name returned by `Modifier::name`.
     pub name: String,
+    /// When `false`, `apply` returns a clone of the input mesh unchanged.
     pub enabled: bool,
+    /// Number of subdivision levels to apply; `0` makes `apply` return a clone of the input mesh.
     pub levels: u32,
 }
 

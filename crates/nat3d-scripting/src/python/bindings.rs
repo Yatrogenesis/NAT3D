@@ -19,10 +19,6 @@
 
 //! PyO3 bindings for NAT3D.
 
-// PyO3 structs expose fields to Python via #[pyo3(get, set)] attributes.
-// Documentation is provided via Python docstrings, not Rust doc comments.
-#![allow(missing_docs)]
-
 use nat3d_core::material::Color;
 use nat3d_core::{Material, Mesh};
 use nat3d_math::glam::{Quat, Vec3};
@@ -33,12 +29,16 @@ use std::collections::HashMap;
 
 #[pyclass]
 #[derive(Debug, Clone)]
+/// Python class holding three `f32` components, exposed to Python as get/set attributes `x`, `y` and `z`.
 pub struct PyVector3 {
     #[pyo3(get, set)]
+    /// X component, readable and writable from Python.
     pub x: f32,
     #[pyo3(get, set)]
+    /// Y component, readable and writable from Python.
     pub y: f32,
     #[pyo3(get, set)]
+    /// Z component, readable and writable from Python.
     pub z: f32,
 }
 
@@ -55,6 +55,7 @@ impl PyVector3 {
 
 #[pyclass]
 #[derive(Clone)]
+/// Python class wrapping a `nat3d_core::Mesh`; exposes `vertex_count` and `face_count`.
 pub struct PyMesh {
     inner: Mesh,
 }
@@ -83,6 +84,7 @@ impl PyMesh {
 }
 
 #[pyclass]
+/// Python class holding a map of named `PyMesh` objects and an optional selected name; exposes `list_objects`.
 pub struct PyScene {
     objects: HashMap<String, PyMesh>,
     selected: Option<String>,
@@ -103,6 +105,7 @@ impl PyScene {
 }
 
 #[pyclass]
+/// Python class wrapping a `nat3d_core::Material`, constructed from a name.
 pub struct PyMaterial {
     inner: Material,
 }
@@ -118,6 +121,7 @@ impl PyMaterial {
 }
 
 #[pyclass]
+/// Python class holding a modifier name, constructed from a name.
 pub struct PyModifier {
     name: String,
 }

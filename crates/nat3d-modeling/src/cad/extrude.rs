@@ -30,15 +30,28 @@ pub enum ExtrudeType {
     /// Extrude in both directions.
     Symmetric(f64),
     /// Extrude up to a plane.
-    UpToPlane { normal: Vector3<f64>, distance: f64 },
+    UpToPlane {
+        /// Plane normal; stored, but not read by `extrude_profile_3d`.
+        normal: Vector3<f64>,
+        /// Distance used as the end offset along the extrusion direction.
+        distance: f64,
+    },
     /// Extrude through all geometry.
     ThroughAll,
     /// Extrude with a taper angle.
-    Tapered { depth: f64, angle: f64 },
+    Tapered {
+        /// Extrusion depth, used as the end offset along the extrusion direction.
+        depth: f64,
+        /// Taper angle; `extrude_profile_3d` passes it directly to `tan()`, so it is treated as radians.
+        angle: f64,
+    },
     /// Extrude with draft on both sides.
     Draft {
+        /// Extrusion depth, used as the end offset along the extrusion direction.
         depth: f64,
+        /// Inner draft angle; stored, but not read by `extrude_profile_3d`.
         inner_angle: f64,
+        /// Outer draft angle; stored, but not read by `extrude_profile_3d`.
         outer_angle: f64,
     },
 }

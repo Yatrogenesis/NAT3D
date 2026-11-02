@@ -362,8 +362,11 @@ fn extract_attr(element: &str, attr_name: &str) -> Option<f32> {
 /// SVG parsing errors.
 #[derive(Debug, Clone)]
 pub enum SvgError {
+    /// File could not be read; holds the I/O error text.
     IoError(String),
+    /// A number in the SVG data could not be parsed; holds a message.
     ParseError(String),
+    /// Message describing an invalid SVG format.
     InvalidFormat(String),
 }
 

@@ -155,11 +155,17 @@ pub fn extrude_along_path(
 
 /// Extrude mesh generator.
 pub struct ExtrudeMesh {
+    /// Extrusion depth.
     pub depth: f32,
+    /// Curve tessellation resolution passed to the path tessellation.
     pub resolution: u32,
+    /// Whether to cap the start of a closed path.
     pub cap_start: bool,
+    /// Whether to cap the end of a closed path.
     pub cap_end: bool,
+    /// Taper amount; `with_taper` clamps it to 0..=1 and the scale along the extrusion is `1 - taper * t`.
     pub taper: f32,
+    /// Total twist in degrees, applied progressively along the extrusion.
     pub twist: f32,
 }
 

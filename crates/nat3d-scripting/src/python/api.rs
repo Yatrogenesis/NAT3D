@@ -19,20 +19,20 @@
 //! This module provides the Python scripting API that exposes NAT3D
 //! functionality to Python scripts.
 
-// Script context fields and ScriptValue variants are self-documenting.
-// ScriptValue is a simple wrapper enum where variant names (Bool, Int, Float, etc.)
-// clearly indicate their purpose. Ref types have obvious field semantics (id, name).
-#![allow(missing_docs)]
-
 use std::collections::HashMap;
 
 /// Script execution context.
 #[derive(Debug, Clone)]
 pub struct ScriptContext {
+    /// Variables by name, set with `set_var` and read with `get_var`.
     pub variables: HashMap<String, ScriptValue>,
+    /// List of function names; empty on creation and not otherwise used in this module.
     pub functions: Vec<String>,
+    /// Optional last result value; `None` on creation and not otherwise used in this module.
     pub last_result: Option<ScriptValue>,
+    /// Messages appended by `log`.
     pub output: Vec<String>,
+    /// Messages appended by `error`.
     pub errors: Vec<String>,
 }
 
@@ -84,19 +84,33 @@ impl Default for ScriptContext {
 /// Script value types.
 #[derive(Debug, Clone)]
 pub enum ScriptValue {
+    /// No value.
     None,
+    /// Boolean value.
     Bool(bool),
+    /// Signed 64-bit integer value.
     Int(i64),
+    /// 64-bit floating-point value.
     Float(f64),
+    /// String value.
     String(String),
+    /// Two-component vector.
     Vector2([f64; 2]),
+    /// Three-component vector.
     Vector3([f64; 3]),
+    /// Four-component vector.
     Vector4([f64; 4]),
+    /// Color stored as four components.
     Color([f64; 4]),
+    /// List of values.
     List(Vec<ScriptValue>),
+    /// Map from string keys to values.
     Dict(HashMap<String, ScriptValue>),
+    /// Reference to a scene object.
     Object(ObjectRef),
+    /// Reference to a mesh.
     Mesh(MeshRef),
+    /// Reference to a material.
     Material(MaterialRef),
 }
 
@@ -176,22 +190,29 @@ impl ScriptValue {
 /// Reference to a scene object.
 #[derive(Debug, Clone)]
 pub struct ObjectRef {
+    /// Object identifier.
     pub id: u64,
+    /// Object name.
     pub name: String,
 }
 
 /// Reference to a mesh.
 #[derive(Debug, Clone)]
 pub struct MeshRef {
+    /// Mesh identifier.
     pub id: u64,
+    /// Number of vertices recorded for the mesh.
     pub vertex_count: usize,
+    /// Number of faces recorded for the mesh.
     pub face_count: usize,
 }
 
 /// Reference to a material.
 #[derive(Debug, Clone)]
 pub struct MaterialRef {
+    /// Material identifier.
     pub id: u64,
+    /// Material name.
     pub name: String,
 }
 

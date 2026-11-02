@@ -1,8 +1,8 @@
+#![warn(missing_docs)]
 #![allow(
     clippy::all,
     clippy::pedantic,
     clippy::nursery,
-    missing_docs,
     unused_imports,
     dead_code,
     clippy::duplicated_attributes
@@ -14,6 +14,7 @@ use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use std::sync::Arc;
 
+/// Keyword-based command parser that drives a `ScriptingHost`.
 pub mod ai;
 pub mod macros;
 // The whole module is PyO3 code, so it only exists when the feature that

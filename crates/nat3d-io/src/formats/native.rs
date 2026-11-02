@@ -34,12 +34,16 @@ const NATIVE_VERSION: u32 = 1;
 #[derive(Debug, thiserror::Error)]
 pub enum NativeError {
     #[error("I/O error: {0}")]
+    /// I/O error from reading or writing the file.
     Io(#[from] std::io::Error),
     #[error("Serialization error: {0}")]
+    /// Serialization error; carries the error text.
     Serialization(String),
     #[error("Invalid magic number")]
+    /// The first four bytes of the file are not the NAT magic bytes.
     InvalidMagic,
     #[error("Unsupported version: {0}")]
+    /// The file's version number is greater than the version this code supports; carries that number.
     UnsupportedVersion(u32),
 }
 
@@ -49,46 +53,75 @@ pub type NativeResult<T> = Result<T, NativeError>;
 /// Native scene data structure for serialization.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NativeScene {
+    /// Format version number stored in the scene.
     pub version: u32,
+    /// Scene metadata.
     pub metadata: SceneMetadata,
+    /// Top-level scene objects.
     pub objects: Vec<NativeObject>,
+    /// Optional camera state.
     pub camera: Option<NativeCamera>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Descriptive metadata stored with a native scene.
 pub struct SceneMetadata {
+    /// Scene name.
     pub name: String,
+    /// Author name.
     pub author: String,
+    /// Creation timestamp as a `u64` (unit not specified in this module).
     pub created_at: u64,
+    /// Modification timestamp as a `u64` (unit not specified in this module).
     pub modified_at: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// An object in a native scene, with transform, optional material and child objects.
 pub struct NativeObject {
+    /// Object name.
     pub name: String,
+    /// Object type as a string.
     pub object_type: String,
+    /// Position as three `f32` values.
     pub position: [f32; 3],
+    /// Rotation as three `f32` values (unit not specified in this module).
     pub rotation: [f32; 3],
+    /// Scale as three `f32` values.
     pub scale: [f32; 3],
+    /// Optional material.
     pub material: Option<NativeMaterial>,
+    /// Modifier names.
     pub modifiers: Vec<String>,
+    /// Visibility flag.
     pub visible: bool,
+    /// Child objects.
     pub children: Vec<NativeObject>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Material values stored with a native object.
 pub struct NativeMaterial {
+    /// Base color as four `f32` components.
     pub base_color: [f32; 4],
+    /// Metallic value.
     pub metallic: f32,
+    /// Roughness value.
     pub roughness: f32,
+    /// Emissive value.
     pub emissive: f32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Camera state stored with a native scene.
 pub struct NativeCamera {
+    /// Camera position as three `f32` values.
     pub position: [f32; 3],
+    /// Camera target as three `f32` values.
     pub target: [f32; 3],
+    /// Orbit angles as two `f32` values (unit not specified in this module).
     pub orbit_angles: [f32; 2],
+    /// Distance value.
     pub distance: f32,
 }
 

@@ -30,13 +30,16 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
+/// Importer that reads mesh geometry from binary FBX 7.4 files using `fbxcel_dom`.
 pub struct FbxImporter;
 
 impl FbxImporter {
+    /// Create a new importer (the type carries no state).
     pub fn new() -> Self {
         Self
     }
 
+    /// Open the file at `path` and return the first mesh model whose `Vertices` array yields at least one position, with faces built from the `PolygonVertexIndex` array (negative values end a face). Returns an error if the file cannot be opened or parsed, if the document is not version 7.4, or if no such mesh is found.
     pub fn import<P: AsRef<Path>>(&self, path: P) -> Result<MeshData> {
         let file = File::open(path)?;
         let reader = BufReader::new(file);

@@ -8,6 +8,7 @@ pub struct SceneAgent {
 }
 
 impl SceneAgent {
+    /// Create an agent that sends scene actions to the given host.
     pub fn new(host: Arc<dyn ScriptingHost>) -> Self {
         Self { host }
     }

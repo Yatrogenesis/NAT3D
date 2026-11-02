@@ -21,7 +21,9 @@ use std::f32::consts::PI;
 /// 2D point.
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct Point2D {
+    /// X coordinate.
     pub x: f32,
+    /// Y coordinate.
     pub y: f32,
 }
 
@@ -99,19 +101,32 @@ pub enum PathCommand {
     /// Line to position
     LineTo(Point2D),
     /// Quadratic bezier curve
-    QuadraticTo { control: Point2D, end: Point2D },
+    QuadraticTo {
+        /// Control point.
+        control: Point2D,
+        /// End point.
+        end: Point2D,
+    },
     /// Cubic bezier curve
     CubicTo {
+        /// First control point.
         control1: Point2D,
+        /// Second control point.
         control2: Point2D,
+        /// End point.
         end: Point2D,
     },
     /// Arc
     ArcTo {
+        /// Ellipse radii (x and y).
         radius: Point2D,
+        /// Rotation of the ellipse x-axis; ignored by the current arc tessellation.
         x_rotation: f32,
+        /// SVG large-arc flag; ignored by the current arc tessellation.
         large_arc: bool,
+        /// SVG sweep flag; ignored by the current arc tessellation.
         sweep: bool,
+        /// End point of the arc.
         end: Point2D,
     },
     /// Close path (line back to start)
