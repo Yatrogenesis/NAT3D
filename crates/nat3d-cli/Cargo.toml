@@ -49,6 +49,7 @@ rand = { workspace = true }
 [[bin]]
 name = "nat3d"
 path = "src/main.rs"
+doc = false
 
 [lints]
 workspace = true
