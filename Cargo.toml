@@ -49,22 +49,22 @@ categories = ["graphics", "rendering", "simulation", "game-development"]
 # ══════════════════════════════════════════════════════════════════════════════
 # INTERNAL CRATES
 # ══════════════════════════════════════════════════════════════════════════════
-nat3d-core = { path = "crates/nat3d-core" }
-nat3d-math = { path = "crates/nat3d-math" }
-nat3d-physics = { path = "crates/nat3d-physics" }
-nat3d-render = { path = "crates/nat3d-render" }
-nat3d-ui = { path = "crates/nat3d-ui" }
-nat3d-modeling = { path = "crates/nat3d-modeling" }
-nat3d-animation = { path = "crates/nat3d-animation" }
-nat3d-io = { path = "crates/nat3d-io" }
+nat3d-core = { path = "crates/nat3d-core", version = "0.2.1" }
+nat3d-math = { path = "crates/nat3d-math", version = "0.2.1" }
+nat3d-physics = { path = "crates/nat3d-physics", version = "0.2.1" }
+nat3d-render = { path = "crates/nat3d-render", version = "0.2.1" }
+nat3d-ui = { path = "crates/nat3d-ui", version = "0.2.1" }
+nat3d-modeling = { path = "crates/nat3d-modeling", version = "0.2.1" }
+nat3d-animation = { path = "crates/nat3d-animation", version = "0.2.1" }
+nat3d-io = { path = "crates/nat3d-io", version = "0.2.1" }
 # default-features = false here, not in the consuming crate: cargo ignores
 # the setting downstream unless the workspace dependency declares it too.
 # nat3d-scripting turns on its python feature by default, which pulls in
 # PyO3 and makes linking require libpython for the target architecture.
-nat3d-scripting = { path = "crates/nat3d-scripting", default-features = false }
-nat3d-cloud = { path = "crates/nat3d-cloud" }
-nat3d-sync = { path = "crates/nat3d-sync" }
-nat3d-cli = { path = "crates/nat3d-cli" }
+nat3d-scripting = { path = "crates/nat3d-scripting", version = "0.2.1", default-features = false }
+nat3d-cloud = { path = "crates/nat3d-cloud", version = "0.2.1" }
+nat3d-sync = { path = "crates/nat3d-sync", version = "0.2.1" }
+nat3d-cli = { path = "crates/nat3d-cli", version = "0.2.1" }
 
 # ══════════════════════════════════════════════════════════════════════════════
 # YATROSCI - Scientific Rust Stack (from crates.io: yatrosci-*)
