@@ -23,9 +23,13 @@ use std::time::{Instant, SystemTime, UNIX_EPOCH};
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum LogLevel {
+    /// Detailed diagnostic output; rendered in grey by `LogLevel::color`.
     Debug,
+    /// Informational message.
     Info,
+    /// Warning message.
     Warning,
+    /// Error message.
     Error,
 }
 
@@ -56,10 +60,15 @@ impl LogLevel {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct LogEntry {
+    /// Severity of the entry.
     pub level: LogLevel,
+    /// Message text of the entry.
     pub message: String,
+    /// Optional name of the component that produced the entry (set by `with_source`).
     pub source: Option<String>,
+    /// Creation time as seconds since the Unix epoch (0.0 if the system clock is before it).
     pub timestamp: f64,
+    /// Number of times this message has been logged in a row; starts at 1 and is incremented when duplicates are collapsed.
     pub count: u32,
 }
 
@@ -103,11 +112,14 @@ pub struct Console {
     entries: VecDeque<LogEntry>,
     max_entries: usize,
     min_level: LogLevel,
+    /// Whether the console panel is open; flipped by `toggle`.
     pub is_open: bool,
     command_history: Vec<String>,
     history_index: usize,
     current_input: String,
+    /// Auto-scroll flag; stored with default `true` in `Console::new` and not read anywhere else in this crate.
     pub auto_scroll: bool,
+    /// When `true`, a message with the same text and level as the newest entry increments that entry's `count` instead of adding a new entry; `true` in `Console::new`.
     pub collapse_duplicates: bool,
     filter_text: String,
     start_time: Instant,
@@ -323,6 +335,7 @@ impl Console {
         &self.current_input
     }
 
+    /// Replace the current command-line input text with `input`.
     pub fn set_input(&mut self, input: &str) {
         self.current_input = input.to_string();
     }
