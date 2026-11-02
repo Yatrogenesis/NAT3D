@@ -486,7 +486,8 @@ impl ConstraintSolver {
 
                 (error, vec![(*p, delta)])
             }
-            _ => (0.0, vec![]),
+            // An unsupported geometric pairing must not appear satisfied.
+            _ => (f64::INFINITY, vec![]),
         }
     }
 
@@ -593,17 +594,13 @@ impl ConstraintSolver {
 
                 (error, vec![(*b1, new_b1 - pb1), (*b2, new_b2 - pb2)])
             }
-            DimensionalConstraint::Radius(EntityRef::Circle(center), target) => {
-                // For simplicity, we store radius in a separate data structure
-                // This is a placeholder
-                let _ = (center, target);
-                (0.0, vec![])
-            }
-            DimensionalConstraint::Diameter(EntityRef::Circle(center), target) => {
-                let _ = (center, target);
-                (0.0, vec![])
-            }
-            _ => (0.0, vec![]),
+            // Radius/diameter are not represented by a circle radius variable in
+            // this solver. Until that variable is modeled, do not report a
+            // falsely satisfied constraint (zero error).
+            DimensionalConstraint::Radius(EntityRef::Circle(_), _)
+            | DimensionalConstraint::Diameter(EntityRef::Circle(_), _) => (f64::INFINITY, vec![]),
+            // Any unsupported entity/constraint pairing must fail closed.
+            _ => (f64::INFINITY, vec![]),
         }
     }
 
@@ -754,5 +751,59 @@ mod tests {
         ));
         assert_eq!(solver.degrees_of_freedom(), 0);
         assert!(solver.is_fully_constrained());
+    }
+}
+
+#[cfg(test)]
+mod fail_closed_constraint_tests {
+    use super::*;
+
+    #[test]
+    fn unimplemented_circle_radius_is_not_satisfied() {
+        let mut solver = ConstraintSolver::new();
+        solver.add_dimensional(DimensionalConstraint::Radius(EntityRef::Circle(0), 5.0));
+        let result = solver.solve();
+        assert!(!result.success);
+        assert!(!solver.constraints[0].is_satisfied);
+    }
+
+    #[test]
+    fn unsupported_constraint_pairing_is_not_satisfied() {
+        let mut solver = ConstraintSolver::new();
+        solver.add_geometric(GeometricConstraint::Horizontal(EntityRef::Point(0)));
+        let result = solver.solve();
+        assert!(!result.success);
+    }
+
+    #[test]
+    fn unsupported_geometric_pairings_leave_points_unchanged() {
+        let unsupported = [
+            GeometricConstraint::Horizontal(EntityRef::Point(0)),
+            GeometricConstraint::Vertical(EntityRef::Point(0)),
+            GeometricConstraint::Parallel(EntityRef::Point(0), EntityRef::Point(1)),
+            GeometricConstraint::Perpendicular(EntityRef::Circle(0), EntityRef::Circle(1)),
+        ];
+        for constraint in unsupported {
+            let mut solver = ConstraintSolver::new();
+            solver.add_point(Point2::new(1.0, 2.0));
+            solver.add_point(Point2::new(3.0, 4.0));
+            let before = solver.points.clone();
+            solver.add_geometric(constraint);
+            let result = solver.solve();
+            assert!(!result.success);
+            assert!(result.error.is_infinite());
+            assert!(!solver.constraints[0].is_satisfied);
+            assert_eq!(solver.points, before);
+        }
+    }
+
+    #[test]
+    fn unimplemented_circle_diameter_is_not_satisfied() {
+        let mut solver = ConstraintSolver::new();
+        solver.add_dimensional(DimensionalConstraint::Diameter(EntityRef::Circle(0), 10.0));
+        let result = solver.solve();
+        assert!(!result.success);
+        assert!(result.error.is_infinite());
+        assert!(!solver.constraints[0].is_satisfied);
     }
 }
