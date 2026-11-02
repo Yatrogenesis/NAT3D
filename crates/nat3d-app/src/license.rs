@@ -17,6 +17,7 @@
 /// LemonSqueezy product page — replace before launch.
 pub const STORE_URL: &str = "https://nat3d.lemonsqueezy.com";
 
+//! License serial validation (Ed25519 signature check against an embedded public key), machine identifier derivation, and the license status and edu-flow event types used by the application.
 use base32::Alphabet;
 use ed25519_dalek::{Signature, Verifier, VerifyingKey};
 
@@ -36,6 +37,7 @@ fn get_verifying_key() -> VerifyingKey {
     VerifyingKey::from_bytes(LICENSE_PUBLIC_KEY).expect("Invalid public key")
 }
 
+/// Check `serial` against `machine_id` using the embedded public key. Returns `LicenseStatus::Licensed` with `Tier::Pro` or `Tier::Edu` if the serial is a valid signature for that machine and tier, otherwise `LicenseStatus::Invalid`.
 pub fn validate_license(serial: &str, machine_id: &str) -> LicenseStatus {
     validate_license_with_key(serial, machine_id, &get_verifying_key())
 }
@@ -77,6 +79,7 @@ fn validate_license_with_key(
     LicenseStatus::Invalid
 }
 
+/// Derive a short machine identifier: the first 6 bytes of the SHA-256 of `"{hostname}:{username}"` (from the `COMPUTERNAME`/`HOSTNAME` and `USERNAME`/`USER` environment variables), encoded as unpadded RFC 4648 base32.
 pub fn get_machine_id() -> String {
     use sha2::{Digest, Sha256};
     let hostname = std::env::var("COMPUTERNAME")
@@ -93,27 +96,37 @@ pub fn get_machine_id() -> String {
 // ── License status types ──────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, PartialEq)]
+/// Result of license validation.
 pub enum LicenseStatus {
+    /// No license has been applied; the application runs in trial mode.
     Trial,
+    /// A valid serial was verified for the given tier.
     Licensed { tier: Tier },
+    /// The serial failed validation.
     Invalid,
 }
 
 #[derive(Debug, Clone, PartialEq)]
+/// License tier a serial can be issued for.
 pub enum Tier {
+    /// Pro tier.
     Pro,
+    /// Edu tier.
     Edu,
 }
 
 impl LicenseStatus {
+    /// Returns `true` for `Licensed` and `Trial`, `false` for `Invalid`.
     pub fn allows_export(&self) -> bool {
         matches!(self, Self::Licensed { .. } | Self::Trial)
     }
 
+    /// Returns `true` only for `Trial`.
     pub fn watermark_renders(&self) -> bool {
         matches!(self, Self::Trial)
     }
 
+    /// Short text for the status, e.g. "NAT3D Pro", "NAT3D Edu", "Trial (30 days)" or "Unlicensed".
     pub fn display_label(&self) -> &str {
         match self {
             Self::Trial => "Trial (30 days)",
@@ -127,23 +140,36 @@ impl LicenseStatus {
 // ── Edu flow (GitHub OAuth RETIRED 2026-07-30) ────────────────────────────────
 
 #[derive(Debug)]
+/// Event sent over a channel by `start_edu_oauth_flow` and consumed by the application's edu-verification UI.
 pub enum EduFlowEvent {
+    /// A device code was obtained and the user must visit the verification address.
     DeviceCodeReady {
+        /// Code the user has to enter.
         user_code: String,
+        /// Address where the code is entered; the UI opens it when the `file-dialog` feature is enabled.
         verification_uri: String,
+        /// Lifetime value reported with the device code (not read by the UI in this crate).
         expires_in: u64,
     },
+    /// The account was confirmed as an edu account; the event carries a serial.
     EduConfirmed {
+        /// Serial for the confirmed account; the UI validates it with `validate_license`.
         serial: String,
+        /// Handle of the confirmed account.
         github_handle: String,
     },
+    /// The account was checked and is not an edu account.
     NotEduAccount {
+        /// Handle of the account that was rejected.
         github_handle: String,
     },
+    /// Edu verification is not configured; the UI reports that verification via GitHub was retired.
     NotConfigured,
+    /// The flow failed with the contained message.
     Error(String),
 }
 
+/// Start the edu verification flow. In this version it only sends `EduFlowEvent::NotConfigured` on `tx`; `_machine_id` is unused.
 pub fn start_edu_oauth_flow(tx: std::sync::mpsc::Sender<EduFlowEvent>, _machine_id: String) {
     let _ = tx.send(EduFlowEvent::NotConfigured);
 }

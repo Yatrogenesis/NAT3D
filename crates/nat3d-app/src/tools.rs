@@ -20,13 +20,21 @@
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct SnapSettings {
+    /// Master switch; when `false`, `snap_value`, `snap_rotation` and `snap_scale` return their input unchanged. Default `true`.
     pub enabled: bool,
+    /// Whether values are snapped to the grid increment (used by `snap_value`). Default `true`.
     pub grid: bool,
+    /// Vertex snapping flag. Default `false`; not read within this file.
     pub vertex: bool,
+    /// Edge snapping flag. Default `false`; not read within this file.
     pub edge: bool,
+    /// Face snapping flag. Default `false`; not read within this file.
     pub face: bool,
+    /// Grid snap step used by `snap_value`; snapping is skipped if it is not positive. Default `1.0`.
     pub increment: f32,
+    /// Step used by `snap_rotation`; snapping is skipped if it is not positive. Default `15.0`.
     pub rotation_increment: f32,
+    /// Step used by `snap_scale`; snapping is skipped if it is not positive. Default `0.1`.
     pub scale_increment: f32,
 }
 
@@ -89,10 +97,15 @@ impl SnapSettings {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum PivotPoint {
     #[default]
+    /// Median of the selected elements (default).
     MedianPoint,
+    /// Each selected element rotates or scales about its own origin.
     IndividualOrigins,
+    /// The active element.
     ActiveElement,
+    /// The 3D cursor.
     Cursor3D,
+    /// Center of the bounding box of the selection.
     BoundingBoxCenter,
 }
 
@@ -101,10 +114,15 @@ pub enum PivotPoint {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TransformOrientation {
     #[default]
+    /// World axes (default).
     Global,
+    /// Local axes of the object.
     Local,
+    /// Normal direction of the selection.
     Normal,
+    /// View-aligned axes.
     View,
+    /// Axes of the 3D cursor.
     Cursor,
 }
 
@@ -113,8 +131,11 @@ pub enum TransformOrientation {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SelectionMode {
     #[default]
+    /// Select vertices (default).
     Vertex,
+    /// Select edges.
     Edge,
+    /// Select faces.
     Face,
 }
 
@@ -122,10 +143,15 @@ pub enum SelectionMode {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct SelectionSettings {
+    /// Current element selection mode. Default `SelectionMode::Vertex`.
     pub mode: SelectionMode,
+    /// X-ray selection flag. Default `false`.
     pub x_ray: bool,
+    /// Limit-selection-to-visible flag. Default `true`.
     pub limit_to_visible: bool,
+    /// Box-select flag. Default `false`.
     pub box_select: bool,
+    /// Radius used for circle select. Default `25.0`.
     pub circle_select_radius: f32,
 }
 
@@ -145,9 +171,13 @@ impl Default for SelectionSettings {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct ProportionalEdit {
+    /// Whether proportional editing is on. Default `false`.
     pub enabled: bool,
+    /// Connected-only flag. Default `false`.
     pub connected: bool,
+    /// Falloff curve used by proportional editing. Default `ProportionalFalloff::Smooth`.
     pub falloff: ProportionalFalloff,
+    /// Radius of the proportional influence. Default `1.0`.
     pub size: f32,
 }
 
@@ -166,13 +196,21 @@ impl Default for ProportionalEdit {
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProportionalFalloff {
+    /// `1 - 3t^2 + 2t^3`, where `t = distance / radius`.
     Smooth,
+    /// `sqrt(1 - t^2)`, where `t = distance / radius`.
     Sphere,
+    /// `sqrt(1 - t)`, where `t = distance / radius`.
     Root,
+    /// `1 / (1 + t^2) - 0.5`, where `t = distance / radius`.
     InverseSquare,
+    /// `(1 - t)^2`, where `t = distance / radius`.
     Sharp,
+    /// `1 - t`, where `t = distance / radius`.
     Linear,
+    /// Always `1.0` inside the radius.
     Constant,
+    /// `1 - t` times a pseudo-random value derived from the distance.
     Random,
 }
 
@@ -211,7 +249,9 @@ fn rand_simple(seed: u32) -> f32 {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Cursor3D {
+    /// Cursor position in world space as `[x, y, z]`. Default `[0.0, 0.0, 0.0]`.
     pub position: [f32; 3],
+    /// Cursor rotation as a four-component quaternion (the default is `[0.0, 0.0, 0.0, 1.0]`).
     pub rotation: [f32; 4], // quaternion
 }
 
@@ -242,16 +282,27 @@ impl Cursor3D {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct TransformState {
+    /// Whether a transform is in progress; set by `begin`, cleared by `end` and `cancel`.
     pub active: bool,
+    /// Axis the movement is restricted to, if any; see `constrain_delta`.
     pub axis_constraint: Option<Axis>,
+    /// Axis normal to the plane the movement is restricted to, if any; see `constrain_delta`.
     pub plane_constraint: Option<Axis>,
+    /// Position stored by `begin` and returned by `cancel`.
     pub start_position: [f32; 3],
+    /// Rotation stored by `begin` and returned by `cancel`.
     pub start_rotation: [f32; 3],
+    /// Scale stored by `begin` and returned by `cancel`; default `[1.0, 1.0, 1.0]`.
     pub start_scale: [f32; 3],
+    /// Accumulated delta; reset to zero by `begin`.
     pub accumulated_delta: [f32; 3],
+    /// Pivot point used for the transform. Default `PivotPoint::MedianPoint`.
     pub pivot: PivotPoint,
+    /// Orientation used for the transform. Default `TransformOrientation::Global`.
     pub orientation: TransformOrientation,
+    /// Snap settings for the transform.
     pub snap: SnapSettings,
+    /// Proportional-editing settings for the transform.
     pub proportional: ProportionalEdit,
 }
 
@@ -341,8 +392,11 @@ impl TransformState {
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Axis {
+    /// The X axis.
     X,
+    /// The Y axis.
     Y,
+    /// The Z axis.
     Z,
 }
 
@@ -350,12 +404,19 @@ pub enum Axis {
 #[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
 pub struct ToolSettings {
+    /// Snap settings.
     pub snap: SnapSettings,
+    /// Selection settings.
     pub selection: SelectionSettings,
+    /// Proportional-editing settings.
     pub proportional: ProportionalEdit,
+    /// Current pivot point; advanced by `cycle_pivot`.
     pub pivot: PivotPoint,
+    /// Current transform orientation; advanced by `cycle_orientation`.
     pub orientation: TransformOrientation,
+    /// The 3D cursor.
     pub cursor: Cursor3D,
+    /// State of the transform tool.
     pub transform: TransformState,
 }
 
@@ -412,11 +473,17 @@ impl ToolSettings {
 #[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
 pub struct MeasureResult {
+    /// Measured distance.
     pub distance: f32,
+    /// Measured angle (`MeasureResult::angle` returns degrees).
     pub angle: f32,
+    /// Measured area.
     pub area: f32,
+    /// Measured volume.
     pub volume: f32,
+    /// Measured edge length.
     pub edge_length: f32,
+    /// Measured face area.
     pub face_area: f32,
 }
 

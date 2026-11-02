@@ -39,7 +39,9 @@ use std::collections::HashMap;
 /// RGBA floating-point image used throughout the compositor.
 #[derive(Debug, Clone)]
 pub struct CompositorImage {
+    /// Image width in pixels.
     pub width: u32,
+    /// Image height in pixels.
     pub height: u32,
     /// Pixel data in row-major RGBA f32 format.
     pub pixels: Vec<[f32; 4]>,
@@ -103,18 +105,28 @@ pub type NodeId = u32;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum MixBlendMode {
     #[default]
+    /// Linear interpolation between the two inputs by the factor (label "Mix").
     Mix,
+    /// Additive blend (label "Add").
     Add,
+    /// Subtractive blend (label "Subtract").
     Subtract,
+    /// Multiplicative blend (label "Multiply").
     Multiply,
+    /// Screen blend (label "Screen").
     Screen,
+    /// Overlay blend (label "Overlay").
     Overlay,
+    /// Darken blend (label "Darken").
     Darken,
+    /// Lighten blend (label "Lighten").
     Lighten,
+    /// Difference blend (label "Difference").
     Difference,
 }
 
 impl MixBlendMode {
+    /// Display name of the blend mode, e.g. "Mix" or "Difference".
     pub fn label(&self) -> &'static str {
         match self {
             Self::Mix => "Mix",
@@ -129,6 +141,7 @@ impl MixBlendMode {
         }
     }
 
+    /// All blend modes, in declaration order.
     pub fn all() -> &'static [MixBlendMode] {
         &[
             Self::Mix,
@@ -147,7 +160,9 @@ impl MixBlendMode {
 /// RGB Curves control point.
 #[derive(Debug, Clone)]
 pub struct CurvePoint {
+    /// Horizontal position of the control point (input value of the curve).
     pub x: f32,
+    /// Vertical position of the control point (output value of the curve).
     pub y: f32,
 }
 
@@ -224,6 +239,7 @@ pub enum CompositorNodeKind {
     },
     /// Loads a static image from disk.
     Image {
+        /// Path of the image file to load.
         path: String,
         /// Cached image data (loaded on first execute).
         data: Option<CompositorImage>,
@@ -236,25 +252,43 @@ pub enum CompositorNodeKind {
     Viewer,
     /// Save to file.
     FileOutput {
+        /// Output file path.
         path: String,
+        /// Output format name; the in-code comment lists "png", "exr", "jpg".
         format: String, // "png", "exr", "jpg"
     },
 
     // ── Color nodes ───────────────────────────────────────────────────────
     /// Adjust brightness and contrast.
-    BrightnessContrast { brightness: f32, contrast: f32 },
+    BrightnessContrast {
+        /// Value added to every colour channel after the contrast step.
+        brightness: f32,
+        /// Contrast amount; the channel is scaled around 0.5 by `1.0 + contrast`.
+        contrast: f32,
+    },
     /// Full RGB curves control.
-    RgbCurves { curves: RgbCurves },
+    RgbCurves {
+        /// Per-channel and master curves applied to the image.
+        curves: RgbCurves,
+    },
     /// Adjust hue, saturation, value.
     HueSaturation {
+        /// Hue offset, in the 0.0 to 1.0 range.
         hue: f32,        // offset in 0.0–1.0 range
+        /// Saturation multiplier; 1.0 leaves saturation unchanged.
         saturation: f32, // multiplier, 1.0 = no change
+        /// Value multiplier; 1.0 leaves value unchanged.
         value: f32,      // multiplier, 1.0 = no change
     },
 
     // ── Mix node ──────────────────────────────────────────────────────────
     /// Blend two images together.
-    Mix { mode: MixBlendMode, factor: f32 },
+    Mix {
+        /// Blend mode used to combine the two inputs.
+        mode: MixBlendMode,
+        /// Blend factor passed to the blend function.
+        factor: f32,
+    },
 }
 
 /// Input socket connection (source_node_id, output_slot_index).
@@ -263,20 +297,26 @@ pub type SocketConnection = (NodeId, usize);
 /// A single compositor node with position and connections.
 #[derive(Debug, Clone)]
 pub struct CompositorNode {
+    /// Identifier of this node within its `Compositor`.
     pub id: NodeId,
+    /// Display name of the node.
     pub name: String,
+    /// Node type and its parameters.
     pub kind: CompositorNodeKind,
     /// Screen position for the node editor UI.
     pub position: [f32; 2],
+    /// Size of the node box in the node editor; initialised to `[180.0, 100.0]` by `CompositorNode::new`.
     pub size: [f32; 2],
     /// Input connections: input_slot → (source_node_id, output_slot).
     pub inputs: HashMap<usize, SocketConnection>,
     /// Cached output images from last execution.
     pub output_cache: Vec<Option<CompositorImage>>,
+    /// Whether the node is selected in the editor; initialised to `false`.
     pub selected: bool,
 }
 
 impl CompositorNode {
+    /// Create a node with the given id, name, kind and editor position; the output cache is sized from the node kind (at least one slot).
     pub fn new(
         id: NodeId,
         name: impl Into<String>,
@@ -356,6 +396,7 @@ impl CompositorNode {
 /// The full compositor node graph.
 #[derive(Debug, Clone, Default)]
 pub struct Compositor {
+    /// All nodes of the graph, keyed by `NodeId`.
     pub nodes: HashMap<NodeId, CompositorNode>,
     next_id: NodeId,
     /// The final composite output, produced by execute().
@@ -365,6 +406,7 @@ pub struct Compositor {
 }
 
 impl Compositor {
+    /// Create a compositor containing a default graph: a Render Layer node, a Composite node and a Viewer node.
     pub fn new() -> Self {
         let mut c = Self::default();
         // Default graph: RenderLayer → Composite

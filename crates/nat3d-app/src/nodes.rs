@@ -30,7 +30,9 @@ pub type SocketId = u64;
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SocketDirection {
+    /// Socket receives a value.
     Input,
+    /// Socket provides a value.
     Output,
 }
 
@@ -38,16 +40,27 @@ pub enum SocketDirection {
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SocketType {
+    /// Single `f32` value (`SocketValue::Float`).
     Float,
+    /// Two-component `f32` vector.
     Vector2,
+    /// Three-component `f32` vector.
     Vector3,
+    /// Four-component `f32` vector.
     Vector4,
+    /// RGBA color stored as four `f32` values.
     Color,
+    /// Shader value; has no `SocketValue` default (`SocketValue::None`).
     Shader,
+    /// Geometry value; has no `SocketValue` default (`SocketValue::None`).
     Geometry,
+    /// Image value; has no `SocketValue` default (`SocketValue::None`).
     Image,
+    /// Boolean value.
     Bool,
+    /// `i32` integer value.
     Int,
+    /// Text value.
     String,
 }
 
@@ -92,10 +105,15 @@ impl SocketType {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct NodeSocket {
+    /// Identifier of the socket, used by `NodeConnection` and `Node::get_socket`.
     pub id: SocketId,
+    /// Display name of the socket.
     pub name: String,
+    /// Data type of the socket.
     pub socket_type: SocketType,
+    /// Whether this is an input or an output socket.
     pub direction: SocketDirection,
+    /// Value used when nothing is connected; `SocketValue::None` for output sockets.
     pub default_value: SocketValue,
 }
 
@@ -103,15 +121,24 @@ pub struct NodeSocket {
 #[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
 pub enum SocketValue {
+    /// `f32` value.
     Float(f32),
+    /// Two-component `f32` vector.
     Vector2([f32; 2]),
+    /// Three-component `f32` vector.
     Vector3([f32; 3]),
+    /// Four-component `f32` vector.
     Vector4([f32; 4]),
+    /// RGBA color as four `f32` values.
     Color([f32; 4]),
+    /// Boolean value.
     Bool(bool),
+    /// `i32` value.
     Int(i32),
+    /// Text value.
     String(String),
     #[default]
+    /// No value (the `Default`).
     None,
 }
 
@@ -137,15 +164,25 @@ impl SocketValue {
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NodeCategory {
+    /// Input node.
     Input,
+    /// Output node.
     Output,
+    /// Shader node.
     Shader,
+    /// Texture node.
     Texture,
+    /// Color node.
     Color,
+    /// Vector node.
     Vector,
+    /// Converter node.
     Converter,
+    /// Math node.
     Math,
+    /// Geometry node.
     Geometry,
+    /// Layout node.
     Layout,
 }
 
@@ -153,14 +190,23 @@ pub enum NodeCategory {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Node {
+    /// Identifier of the node, unique within its `NodeGraph`.
     pub id: NodeId,
+    /// Display name of the node.
     pub name: String,
+    /// Category of the node.
     pub category: NodeCategory,
+    /// Position in the editor as `[x, y]`; `[0.0, 0.0]` after `Node::new`.
     pub position: [f32; 2],
+    /// Width and height as `[w, h]`; `[200.0, 100.0]` after `Node::new`.
     pub size: [f32; 2],
+    /// Input sockets, in the order they were added.
     pub inputs: Vec<NodeSocket>,
+    /// Output sockets, in the order they were added.
     pub outputs: Vec<NodeSocket>,
+    /// Collapsed flag; `false` after `Node::new`. Not read within this crate's sources.
     pub collapsed: bool,
+    /// Optional RGB color override for the node; `None` after `Node::new`.
     pub color: Option<[u8; 3]>,
 }
 
@@ -242,9 +288,13 @@ impl Node {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct NodeConnection {
+    /// Node the connection starts at.
     pub from_node: NodeId,
+    /// Output socket of `from_node` the connection starts at.
     pub from_socket: SocketId,
+    /// Node the connection ends at.
     pub to_node: NodeId,
+    /// Input socket of `to_node` the connection ends at.
     pub to_socket: SocketId,
 }
 
@@ -255,8 +305,11 @@ pub struct NodeGraph {
     connections: Vec<NodeConnection>,
     next_node_id: NodeId,
     next_socket_id: SocketId,
+    /// Name of the graph, set by `NodeGraph::new`.
     pub name: String,
+    /// View offset as `[x, y]`; reset to `[0.0, 0.0]` by `new` and set by `frame_all`.
     pub offset: [f32; 2],
+    /// View zoom factor; `1.0` in `NodeGraph::new`.
     pub zoom: f32,
     selected_nodes: Vec<NodeId>,
 }
@@ -584,9 +637,13 @@ impl Default for NodeGraph {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct NodeTemplate {
+    /// Name of the node to create.
     pub name: String,
+    /// Category of the node to create.
     pub category: NodeCategory,
+    /// Input sockets as `(name, type)` pairs.
     pub inputs: Vec<(String, SocketType)>,
+    /// Output sockets as `(name, type)` pairs.
     pub outputs: Vec<(String, SocketType)>,
 }
 

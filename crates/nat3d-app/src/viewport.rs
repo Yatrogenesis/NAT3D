@@ -22,10 +22,14 @@ use std::collections::HashMap;
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum RenderMode {
+    /// Wireframe shading.
     Wireframe,
     #[default]
+    /// Solid shading (the default).
     Solid,
+    /// Textured shading.
     Textured,
+    /// Rendered shading.
     Rendered,
 }
 
@@ -34,7 +38,9 @@ pub enum RenderMode {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ProjectionType {
     #[default]
+    /// Perspective projection (the default); `projection_matrix` uses `fov`.
     Perspective,
+    /// Orthographic projection; `projection_matrix` uses `ortho_scale`.
     Orthographic,
 }
 
@@ -42,13 +48,21 @@ pub enum ProjectionType {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct OverlaySettings {
+    /// Show the grid. Default `true`.
     pub show_grid: bool,
+    /// Show the axes. Default `true`.
     pub show_axes: bool,
+    /// Show normals. Default `false`.
     pub show_normals: bool,
+    /// Show a wireframe overlay. Default `false`.
     pub show_wireframe_overlay: bool,
+    /// Show bounds. Default `false`.
     pub show_bounds: bool,
+    /// Show render statistics. Default `true`.
     pub show_stats: bool,
+    /// Grid size value. Default `10.0`.
     pub grid_size: f32,
+    /// Number of grid subdivisions. Default `10`.
     pub grid_subdivisions: i32,
 }
 
@@ -71,13 +85,21 @@ impl Default for OverlaySettings {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct ViewportCamera {
+    /// Camera position in world space as `[x, y, z]`. Default `[5.0, 5.0, 5.0]`.
     pub position: [f32; 3],
+    /// Point the camera looks at. Default `[0.0, 0.0, 0.0]`.
     pub target: [f32; 3],
+    /// Up direction. Default `[0.0, 1.0, 0.0]`.
     pub up: [f32; 3],
+    /// Field of view passed to `to_radians` in `projection_matrix`, so it is in degrees. Default `45.0`.
     pub fov: f32,
+    /// Near clipping distance. Default `0.1`.
     pub near: f32,
+    /// Far clipping distance. Default `1000.0`.
     pub far: f32,
+    /// Projection used by `projection_matrix` and `zoom`. Default `ProjectionType::Perspective`.
     pub projection: ProjectionType,
+    /// Scale used by the orthographic projection and changed by `zoom`. Default `5.0` (`1.0` when built by `from_state`).
     pub ortho_scale: f32,
 }
 
@@ -98,6 +120,7 @@ impl Default for ViewportCamera {
 
 #[allow(dead_code)]
 impl ViewportCamera {
+    /// Build a camera from a `CameraState`, copying its `position`, `target` and `fov`; the other fields are fixed (up `[0.0, 1.0, 0.0]`, near `0.1`, far `1000.0`, perspective, `ortho_scale` `1.0`).
     pub fn from_state(state: &crate::state::CameraState) -> Self {
         Self {
             position: state.position,
@@ -320,9 +343,13 @@ impl ViewportCamera {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct GpuMesh {
+    /// Number of vertices of the mesh.
     pub vertex_count: u32,
+    /// Number of indices of the mesh.
     pub index_count: u32,
+    /// Minimum corner of the bounding box; `register_mesh` sets `[-1.0, -1.0, -1.0]`.
     pub bounds_min: [f32; 3],
+    /// Maximum corner of the bounding box; `register_mesh` sets `[1.0, 1.0, 1.0]`.
     pub bounds_max: [f32; 3],
 }
 
@@ -330,24 +357,36 @@ pub struct GpuMesh {
 #[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
 pub struct RenderStats {
+    /// Frame time in milliseconds; `Viewport3D::fps` returns `1000.0 / frame_time_ms`.
     pub frame_time_ms: f32,
+    /// Draw call count passed to `update_stats`.
     pub draw_calls: u32,
+    /// Triangle count passed to `update_stats`.
     pub triangles: u32,
+    /// Vertex count passed to `update_stats`.
     pub vertices: u32,
+    /// GPU memory figure in megabytes (as the name states); not set by any method in this file.
     pub gpu_memory_mb: f32,
 }
 
 /// 3D Viewport with wgpu rendering support.
 #[allow(dead_code)]
 pub struct Viewport3D {
+    /// Camera of this viewport.
     pub camera: ViewportCamera,
+    /// Overlay settings of this viewport.
     pub overlay: OverlaySettings,
+    /// Shading mode of this viewport. Default `RenderMode::Solid`.
     pub render_mode: RenderMode,
+    /// Render statistics, updated by `update_stats`.
     pub stats: RenderStats,
     meshes: HashMap<u64, GpuMesh>,
     next_mesh_id: u64,
+    /// RGBA background color. Default `[0.1, 0.1, 0.12, 1.0]`.
     pub background_color: [f32; 4],
+    /// RGBA selection color. Default `[1.0, 0.5, 0.0, 1.0]`.
     pub selection_color: [f32; 4],
+    /// RGBA grid color. Default `[0.3, 0.3, 0.3, 0.5]`.
     pub grid_color: [f32; 4],
 }
 
@@ -495,19 +534,28 @@ impl Default for Viewport3D {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ViewportLayout {
     #[default]
+    /// One viewport (the default).
     Single,
+    /// Two viewports (`set_layout` ensures 2) laid out per the variant name.
     TwoHorizontal,
+    /// Two viewports (`set_layout` ensures 2) laid out per the variant name.
     TwoVertical,
+    /// Four viewports (`set_layout` ensures 4).
     Quad,
+    /// Three viewports (`set_layout` ensures 3).
     ThreeLeft,
+    /// Three viewports (`set_layout` ensures 3).
     ThreeRight,
 }
 
 /// Multi-viewport manager.
 #[allow(dead_code)]
 pub struct ViewportManager {
+    /// Current layout; `set_layout` adds viewports until there are enough for it.
     pub layout: ViewportLayout,
+    /// The viewports; the first one is created by `ViewportManager::new`.
     pub viewports: Vec<Viewport3D>,
+    /// Index into `viewports` of the active viewport, used by `active` and `active_mut`.
     pub active_viewport: usize,
 }
 
