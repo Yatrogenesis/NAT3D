@@ -7,6 +7,7 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Main application for NAT3D - desktop GUI application"
+readme = "README.md"
 keywords = ["application", "3d", "modeling", "cad"]
 categories = ["graphics", "gui"]
 

@@ -7,6 +7,7 @@ license.workspace = true
 repository.workspace = true
 homepage.workspace = true
 description = "Android/iOS native wrapper for NAT3D - Pure and Secure Version"
+readme = "README.md"
 
 [dependencies]
 # Core types (StylusProvider trait, etc.)

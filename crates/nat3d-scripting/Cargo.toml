@@ -7,6 +7,7 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Scripting interface for NAT3D - Python bindings via PyO3, Rust API"
+readme = "README.md"
 keywords = ["scripting", "python", "api", "automation"]
 categories = ["api-bindings"]
 

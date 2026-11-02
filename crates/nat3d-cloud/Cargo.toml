@@ -7,6 +7,7 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Cloud rendering integration for NAT3D - AWS, GCP, Azure, custom servers"
+readme = "README.md"
 keywords = ["cloud", "rendering", "distributed", "aws", "gcp"]
 categories = ["network-programming"]
 

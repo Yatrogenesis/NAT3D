@@ -7,6 +7,7 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Core data structures and types for NAT3D - documents, geometry, transforms, scene graph"
+readme = "README.md"
 keywords = ["3d", "geometry", "scene-graph", "mesh"]
 categories = ["graphics", "data-structures"]
 

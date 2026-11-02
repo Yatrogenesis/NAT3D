@@ -7,6 +7,7 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "User interface for NAT3D - egui-based panels, tools, viewport, input handling"
+readme = "README.md"
 keywords = ["ui", "gui", "egui", "viewport", "editor"]
 categories = ["gui", "graphics"]
 

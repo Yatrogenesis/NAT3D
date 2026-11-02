@@ -7,6 +7,7 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Rendering engine for NAT3D - wgpu backend, PBR, raytracing, post-processing"
+readme = "README.md"
 keywords = ["rendering", "wgpu", "graphics", "pbr", "raytracing"]
 categories = ["rendering", "graphics"]
 
