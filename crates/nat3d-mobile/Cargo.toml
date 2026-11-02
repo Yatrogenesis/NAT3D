@@ -3,7 +3,9 @@ name = "nat3d-mobile"
 version = "0.2.2"
 edition = "2021"
 authors = ["Francisco Molina-Burgos"]
-license = "AGPL-3.0-or-later"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
 description = "Android/iOS native wrapper for NAT3D - Pure and Secure Version"
 
 [dependencies]
