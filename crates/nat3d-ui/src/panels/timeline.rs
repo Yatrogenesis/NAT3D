@@ -22,23 +22,31 @@
 /// Keyframe data.
 #[derive(Debug, Clone, Copy)]
 pub struct Keyframe {
+    /// Frame number of the keyframe.
     pub frame: i32,
+    /// Value stored at the keyframe.
     pub value: f64,
+    /// Interpolation mode of the keyframe.
     pub interpolation: Interpolation,
 }
 
 /// Interpolation mode.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Interpolation {
+    /// Constant interpolation.
     Constant,
+    /// Linear interpolation.
     Linear,
+    /// Bezier interpolation.
     Bezier,
 }
 
 /// Animation channel (e.g., position.x, rotation.y).
 #[derive(Debug, Clone)]
 pub struct AnimationChannel {
+    /// Channel name (e.g. `position.x`).
     pub name: String,
+    /// Keyframes of the channel.
     pub keyframes: Vec<Keyframe>,
 }
 

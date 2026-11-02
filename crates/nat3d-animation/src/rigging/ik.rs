@@ -471,11 +471,17 @@ pub struct IkConstraint {
 /// Angle limits for a joint.
 #[derive(Debug, Clone, Copy)]
 pub struct AngleLimits {
+    /// Lower limit on the X axis (the default is -PI, so presumably radians).
     pub min_x: f64,
+    /// Upper limit on the X axis (the default is PI, so presumably radians).
     pub max_x: f64,
+    /// Lower limit on the Y axis (the default is -PI, so presumably radians).
     pub min_y: f64,
+    /// Upper limit on the Y axis (the default is PI, so presumably radians).
     pub max_y: f64,
+    /// Lower limit on the Z axis (the default is -PI, so presumably radians).
     pub min_z: f64,
+    /// Upper limit on the Z axis (the default is PI, so presumably radians).
     pub max_z: f64,
 }
 

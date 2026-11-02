@@ -172,24 +172,34 @@ pub enum BlendNode {
     Clip(AnimClipRef),
     /// 1D blend between children based on parameter.
     Blend1D {
+        /// Child nodes paired with their threshold value (`f64`) on the blend parameter.
         children: Vec<(f64, Box<BlendNode>)>,
+        /// Name of the blend-tree parameter that drives this blend.
         parameter: String,
     },
     /// 2D blend between children based on two parameters.
     Blend2D {
+        /// Child nodes paired with their `(x, y)` position (`(f64, f64)`) in parameter space.
         children: Vec<((f64, f64), Box<BlendNode>)>,
+        /// Name of the parameter read for the X axis.
         param_x: String,
+        /// Name of the parameter read for the Y axis.
         param_y: String,
     },
     /// Additive blend (base + overlay * weight).
     Additive {
+        /// Base node of the additive blend.
         base: Box<BlendNode>,
+        /// Overlay node, combined with the base using `weight`.
         overlay: Box<BlendNode>,
+        /// Weight applied to the overlay.
         weight: f64,
     },
     /// Override blend with mask.
     Override {
+        /// Node whose pose is evaluated and then masked.
         clip: Box<BlendNode>,
+        /// Per-bone mask applied to the evaluated pose.
         mask: BlendMask,
     },
 }

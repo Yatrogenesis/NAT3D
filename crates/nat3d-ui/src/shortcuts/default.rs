@@ -95,82 +95,135 @@ impl Shortcut {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Action {
     // Selection modes
+    /// Select mode.
     SelectMode,
+    /// Move mode.
     MoveMode,
+    /// Rotate mode.
     RotateMode,
+    /// Scale mode.
     ScaleMode,
 
     // Selection operations
+    /// Select all.
     SelectAll,
+    /// Deselect all.
     DeselectAll,
+    /// Invert selection.
     InvertSelection,
+    /// Hide selected.
     HideSelected,
+    /// Unhide all.
     UnhideAll,
 
     // Object operations
+    /// Delete.
     Delete,
+    /// Duplicate.
     Duplicate,
+    /// Focus selected.
     FocusSelected,
 
     // Edit modes
+    /// Toggle edit mode.
     ToggleEditMode,
+    /// Toggle object mode.
     ToggleObjectMode,
 
     // View controls
+    /// Switch to the front view.
     FrontView,
+    /// Switch to the right view.
     RightView,
+    /// Switch to the top view.
     TopView,
+    /// Switch to the camera view.
     CameraView,
+    /// Reset view.
     ResetView,
+    /// Frame all.
     FrameAll,
 
     // Shading modes
+    /// Shading mode: wireframe.
     ShadingWireframe,
+    /// Shading mode: solid.
     ShadingSolid,
+    /// Shading mode: material.
     ShadingMaterial,
+    /// Shading mode: rendered.
     ShadingRendered,
 
     // Transform constraints
+    /// Constrain the transform to the X axis.
     ConstrainX,
+    /// Constrain the transform to the Y axis.
     ConstrainY,
+    /// Constrain the transform to the Z axis.
     ConstrainZ,
 
     // Timeline
+    /// Play/pause.
     PlayPause,
+    /// Step forward.
     StepForward,
+    /// Step backward.
     StepBackward,
+    /// Jump to the start.
     JumpStart,
+    /// Jump to the end.
     JumpEnd,
 
     // Panels
+    /// Toggle properties.
     ToggleProperties,
+    /// Toggle toolbar.
     ToggleToolbar,
+    /// Toggle console.
     ToggleConsole,
+    /// Toggle timeline.
     ToggleTimeline,
 
     // File operations
+    /// New scene.
     NewScene,
+    /// Open file.
     OpenFile,
+    /// Save file.
     SaveFile,
+    /// Save as.
     SaveAs,
+    /// Import.
     Import,
+    /// Export.
     Export,
 
     // Edit operations
+    /// Undo.
     Undo,
+    /// Redo.
     Redo,
+    /// Cut.
     Cut,
+    /// Copy.
     Copy,
+    /// Paste.
     Paste,
 
     // Rendering
+    /// Render image.
     RenderImage,
+    /// Render animation.
     RenderAnimation,
 
     // Misc
+    /// Search.
     Search,
+    /// Preferences.
     Preferences,
+    /// Toggle fullscreen.
     ToggleFullscreen,
+    /// Quit.
     Quit,
 }
 

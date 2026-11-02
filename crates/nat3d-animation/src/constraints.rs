@@ -332,11 +332,17 @@ pub struct TrackToConstraint {
 /// Axis enumeration.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Axis {
+    /// Positive X axis, direction (1, 0, 0).
     PosX,
+    /// Negative X axis, direction (-1, 0, 0).
     NegX,
+    /// Positive Y axis, direction (0, 1, 0).
     PosY,
+    /// Negative Y axis, direction (0, -1, 0).
     NegY,
+    /// Positive Z axis, direction (0, 0, 1).
     PosZ,
+    /// Negative Z axis, direction (0, 0, -1).
     NegZ,
 }
 

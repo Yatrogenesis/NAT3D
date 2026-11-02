@@ -62,12 +62,16 @@ pub enum BrushFalloff {
 /// Symmetry axes for mirrored sculpting.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SymmetryAxes {
+    /// Whether symmetry is enabled on the X axis.
     pub x: bool,
+    /// Whether symmetry is enabled on the Y axis.
     pub y: bool,
+    /// Whether symmetry is enabled on the Z axis.
     pub z: bool,
 }
 
 impl SymmetryAxes {
+    /// Symmetry disabled on all three axes.
     pub fn none() -> Self {
         Self {
             x: false,
@@ -76,6 +80,7 @@ impl SymmetryAxes {
         }
     }
 
+    /// Symmetry enabled on the X axis only.
     pub fn x_only() -> Self {
         Self {
             x: true,
@@ -272,10 +277,12 @@ impl SculptTool {
         self.symmetry.x = !self.symmetry.x;
     }
 
+    /// Toggle symmetry on the Y axis.
     pub fn toggle_symmetry_y(&mut self) {
         self.symmetry.y = !self.symmetry.y;
     }
 
+    /// Toggle symmetry on the Z axis.
     pub fn toggle_symmetry_z(&mut self) {
         self.symmetry.z = !self.symmetry.z;
     }

@@ -585,18 +585,39 @@ fn cubic_bezier_derivative(p0: f64, p1: f64, p2: f64, p3: f64, t: f64) -> f64 {
 pub enum CurveModifier {
     /// Add noise.
     Noise {
+        /// Noise scale parameter (`f64`).
         scale: f64,
+        /// Noise strength parameter (`f64`).
         strength: f64,
+        /// Noise phase parameter (`f64`).
         phase: f64,
     },
     /// Envelope.
-    Envelope { min: f64, max: f64 },
+    Envelope {
+        /// Minimum value (`f64`).
+        min: f64,
+        /// Maximum value (`f64`).
+        max: f64,
+    },
     /// Cycles.
-    Cycles { before: i32, after: i32 },
+    Cycles {
+        /// Cycle count before the curve (`i32`).
+        before: i32,
+        /// Cycle count after the curve (`i32`).
+        after: i32,
+    },
     /// Stepped.
-    Stepped { step_size: f64 },
+    Stepped {
+        /// Step size (`f64`).
+        step_size: f64,
+    },
     /// Limits.
-    Limits { min: f64, max: f64 },
+    Limits {
+        /// Lower limit (`f64`).
+        min: f64,
+        /// Upper limit (`f64`).
+        max: f64,
+    },
 }
 
 #[cfg(test)]

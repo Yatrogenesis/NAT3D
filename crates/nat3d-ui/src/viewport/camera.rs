@@ -315,12 +315,19 @@ impl Default for ViewportCamera {
 /// Standard orthographic views.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StandardView {
+    /// Front view.
     Front,
+    /// Back view.
     Back,
+    /// Left view.
     Left,
+    /// Right view.
     Right,
+    /// Top view.
     Top,
+    /// Bottom view.
     Bottom,
+    /// Isometric view.
     Isometric,
 }
 

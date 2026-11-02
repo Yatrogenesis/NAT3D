@@ -28,25 +28,30 @@ pub struct TreeState {
 }
 
 impl TreeState {
+    /// Create a tree state with no entries (every node reports as collapsed).
     pub fn new() -> Self {
         Self {
             expanded: HashMap::new(),
         }
     }
 
+    /// Return whether node `id` is expanded; nodes with no recorded state count as collapsed.
     pub fn is_expanded(&self, id: u64) -> bool {
         *self.expanded.get(&id).unwrap_or(&false)
     }
 
+    /// Flip the expanded state of node `id`.
     pub fn toggle(&mut self, id: u64) {
         let current = self.is_expanded(id);
         self.expanded.insert(id, !current);
     }
 
+    /// Mark node `id` as expanded.
     pub fn expand(&mut self, id: u64) {
         self.expanded.insert(id, true);
     }
 
+    /// Mark node `id` as collapsed.
     pub fn collapse(&mut self, id: u64) {
         self.expanded.insert(id, false);
     }
@@ -61,12 +66,19 @@ impl Default for TreeState {
 /// Scene object data for hierarchy display.
 #[derive(Debug, Clone)]
 pub struct SceneObject {
+    /// Object identifier; used for selection, expansion state and child lookup.
     pub id: u64,
+    /// Display name.
     pub name: String,
+    /// Object type name; the panel matches on this string to choose the icon.
     pub object_type: String,
+    /// Whether the object is visible (shown as "vis"/"hid" in the tree).
     pub visible: bool,
+    /// Whether the object is locked (shown as "lock"/"open" in the tree).
     pub locked: bool,
+    /// Identifier of the parent object, or `None` for a root object.
     pub parent_id: Option<u64>,
+    /// Identifiers of the child objects, drawn nested under this object when it is expanded.
     pub children: Vec<u64>,
 }
 

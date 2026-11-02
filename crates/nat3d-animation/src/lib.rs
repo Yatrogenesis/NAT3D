@@ -16,6 +16,7 @@
 
 //! # NAT3D Animation
 //! Animation system for NAT3D.
+#![warn(missing_docs)]
 #![allow(dead_code)]
 pub mod constraints;
 pub mod curve;

@@ -22,15 +22,25 @@
 /// Active tool type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ActiveTool {
+    /// Selection tool.
     Select,
+    /// Move tool.
     Move,
+    /// Rotate tool.
     Rotate,
+    /// Scale tool.
     Scale,
+    /// Extrude tool.
     Extrude,
+    /// Bevel tool.
     Bevel,
+    /// Loop cut tool.
     LoopCut,
+    /// Knife tool.
     Knife,
+    /// Sculpt tool.
     Sculpt,
+    /// No tool selected.
     None,
 }
 

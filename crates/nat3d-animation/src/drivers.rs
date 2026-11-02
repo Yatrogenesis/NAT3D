@@ -127,14 +127,23 @@ pub enum DriverSource {
 /// Driver channel.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum DriverChannel {
+    /// X location channel.
     LocX,
+    /// Y location channel.
     LocY,
+    /// Z location channel.
     LocZ,
+    /// X rotation channel.
     RotX,
+    /// Y rotation channel.
     RotY,
+    /// Z rotation channel.
     RotZ,
+    /// X scale channel.
     ScaleX,
+    /// Y scale channel.
     ScaleY,
+    /// Z scale channel.
     ScaleZ,
 }
 

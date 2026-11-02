@@ -22,14 +22,23 @@
 /// PBR material properties.
 #[derive(Debug, Clone)]
 pub struct Material {
+    /// Material identifier.
     pub id: u64,
+    /// Material name shown in the list.
     pub name: String,
+    /// Base color as RGBA components (the editor offers sliders in the range 0.0 to 1.0 for the alpha component).
     pub base_color: [f32; 4],
+    /// Metallic factor (edited with a 0.0 to 1.0 slider).
     pub metallic: f32,
+    /// Roughness factor (edited with a 0.0 to 1.0 slider).
     pub roughness: f32,
+    /// Emission color as RGB components.
     pub emission: [f32; 3],
+    /// Emission strength multiplier (edited with a 0.0 to 10.0 slider).
     pub emission_strength: f32,
+    /// Optional path or name of a normal map; `None` when no map is set.
     pub normal_map: Option<String>,
+    /// Optional path or name of an ambient-occlusion map; `None` when no map is set.
     pub ao_map: Option<String>,
 }
 
