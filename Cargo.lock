@@ -2961,6 +2961,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "nat3d"
+version = "0.2.2"
+dependencies = [
+ "nat3d-animation",
+ "nat3d-app",
+ "nat3d-cloud",
+ "nat3d-core",
+ "nat3d-io",
+ "nat3d-math",
+ "nat3d-mobile",
+ "nat3d-modeling",
+ "nat3d-physics",
+ "nat3d-render",
+ "nat3d-scripting",
+ "nat3d-sync",
+ "nat3d-ui",
+]
+
+[[package]]
 name = "nat3d-animation"
 version = "0.2.2"
 dependencies = [
