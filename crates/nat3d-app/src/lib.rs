@@ -13741,15 +13741,12 @@ impl Nat3DApp {
             .show(ctx, |ui| {
                 ui.horizontal(|ui| {
                     ui.heading("Image/UV Editor");
-                    if ui.button("New Image").clicked() {
-                        self.status_message = "New 1024x1024 image created".to_string();
-                    }
-                    if ui.button("Open Image").clicked() {
-                        self.status_message = "Image open dialog (placeholder)".to_string();
-                    }
-                    if ui.button("Save Image").clicked() {
-                        self.status_message = "Image save dialog (placeholder)".to_string();
-                    }
+                    ui.add_enabled(false, egui::Button::new("New Image"))
+                        .on_disabled_hover_text("Image canvas allocation is not implemented yet");
+                    ui.add_enabled(false, egui::Button::new("Open Image"))
+                        .on_disabled_hover_text("Image import is not connected to this editor");
+                    ui.add_enabled(false, egui::Button::new("Save Image"))
+                        .on_disabled_hover_text("Image export is not connected to this editor");
                 });
                 ui.separator();
 
@@ -14067,9 +14064,14 @@ impl Nat3DApp {
                                 if let Some(edit_mesh) = &mut self.state.objects[sel_idx].edit_mesh
                                 {
                                     let count = selection.faces.len();
-                                    // Extrude by 0.5 units in normal direction (placeholder)
-                                    edit_mesh.extrude_faces(&selection.faces, [0.0, 0.0, 0.5]);
-                                    self.status_message = format!("Extruded {} faces", count);
+                                    // Offset is applied to mesh vertices in object-local space.
+                                    // Do not claim face-normal extrusion without computing it.
+                                    const SHORTCUT_LOCAL_OFFSET: [f32; 3] = [0.0, 0.0, 0.5];
+                                    edit_mesh.extrude_faces(&selection.faces, SHORTCUT_LOCAL_OFFSET);
+                                    self.status_message = format!(
+                                        "Extruded {} faces by 0.5 local units along local +Z (shortcut preset)",
+                                        count
+                                    );
                                 }
                             }
                         }
