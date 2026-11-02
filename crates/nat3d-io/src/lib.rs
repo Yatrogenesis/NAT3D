@@ -20,15 +20,16 @@
 //!
 //! This crate provides file format handlers and AES-256-GCM encryption for production security.
 
+#![warn(missing_docs)]
 #![allow(
     clippy::all,
     clippy::pedantic,
     clippy::nursery,
-    missing_docs,
     unused_imports,
     dead_code
 )]
 
+/// Stream-style helpers that encrypt or decrypt a byte buffer in place via `secure_save` and `secure_load`.
 pub mod crypto;
 pub mod formats;
 pub mod image;

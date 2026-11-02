@@ -206,8 +206,11 @@ pub fn inflate_variable(
 
 /// Inflate mesh generator.
 pub struct InflateMesh {
+    /// Height of the inflated surface at the path center (front at `+amount`, back at `-amount` in `inflate_path`).
     pub amount: f32,
+    /// Resolution passed to `inflate_path` for path tessellation.
     pub resolution: u32,
+    /// Stored flag; not read by `generate`.
     pub symmetric: bool,
 }
 

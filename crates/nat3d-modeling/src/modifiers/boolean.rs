@@ -23,8 +23,11 @@ use std::any::Any;
 /// Boolean modifier.
 #[derive(Debug, Clone)]
 pub struct BooleanModifier {
+    /// Modifier name returned by `Modifier::name`.
     pub name: String,
+    /// When `false`, `apply` returns a clone of the input mesh unchanged.
     pub enabled: bool,
+    /// Boolean operation to perform with the operand mesh.
     pub op: BooleanOp,
     /// The operand mesh to perform the operation with.
     pub operand: Option<ModifierMesh>,

@@ -14,6 +14,10 @@
  * DOI: [PENDING]
  */
 
+//! Command-line tool for NAT3D (binary crate; declared as an "Industrial Particle Plotter" in its clap `about` text).
+
+#![warn(missing_docs)]
+
 use clap::Parser;
 use image::{Rgb, RgbImage};
 use std::fs::File;

@@ -27,7 +27,6 @@
 #![allow(clippy::all)]
 #![allow(clippy::pedantic)]
 #![allow(clippy::nursery)]
-#![allow(missing_docs)]
 
 pub mod cloth;
 pub mod engine;
@@ -39,6 +38,8 @@ pub mod soft_body;
 
 pub use engine::PhysicsEngine;
 
+/// Quantum gate application and single-qubit probability helpers.
 pub mod quantum;
 
+/// XPBD-style distance-constraint particle solver.
 pub mod xpbd;

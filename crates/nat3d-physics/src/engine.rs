@@ -56,6 +56,7 @@ impl PhysicsEngine {
         }
     }
 
+    /// Advance every non-static rigid body by one time step `dt` using a four-stage RK4 update of position and linear velocity. The evaluated force is gravity times mass minus 0.1 times the velocity; angular state is not updated.
     pub fn step(&mut self) {
         let dt = self.dt;
 

@@ -7,20 +7,32 @@ use nalgebra::{Matrix3, Quaternion, UnitQuaternion, Vector3};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Physical properties of a rigid body: mass, inertia, damping, flags and contact coefficients.
 pub struct RigidBodyProperties {
+    /// Mass; `0.0` for the kinematic and static presets.
     pub mass: f64,
+    /// Inverse mass; set to `0.0` when mass is not positive.
     pub inv_mass: f64,
+    /// Inertia tensor in body space.
     pub inertia: Matrix3<f64>,
+    /// Inverse of the body-space inertia tensor (zero matrix if the inertia is not invertible).
     pub inv_inertia: Matrix3<f64>,
+    /// Linear damping coefficient; `integrate` multiplies linear velocity by `(1 - linear_damping)^dt`.
     pub linear_damping: f64,
+    /// Angular damping coefficient; `integrate` multiplies angular velocity by `(1 - angular_damping)^dt`.
     pub angular_damping: f64,
+    /// Static flag; `integrate` only clears forces for static bodies.
     pub is_static: bool,
+    /// Kinematic flag; `integrate` only clears forces for kinematic bodies.
     pub is_kinematic: bool,
+    /// Friction coefficient value stored with the body (not read by `integrate`).
     pub friction: f64,
+    /// Restitution coefficient value stored with the body (not read by `integrate`).
     pub restitution: f64,
 }
 
 impl RigidBodyProperties {
+    /// Properties for a dynamic body: inverse mass and inverse inertia are derived from the arguments, damping is 0.01 for both, friction and restitution are 0.5.
     pub fn dynamic(mass: f64, inertia: Matrix3<f64>) -> Self {
         Self {
             mass,
@@ -36,6 +48,7 @@ impl RigidBodyProperties {
         }
     }
 
+    /// Properties for a kinematic body: zero mass and inertia, no damping, `is_kinematic` set, friction and restitution 0.5.
     pub fn kinematic() -> Self {
         Self {
             mass: 0.0,
@@ -51,6 +64,7 @@ impl RigidBodyProperties {
         }
     }
 
+    /// Properties for a static body: zero mass and inertia, no damping, `is_static` set, friction and restitution 0.5.
     pub fn static_body() -> Self {
         Self {
             mass: 0.0,
@@ -68,12 +82,19 @@ impl RigidBodyProperties {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Kinematic state of a rigid body: pose, velocities and accumulated force and torque.
 pub struct RigidBodyState {
+    /// Position vector.
     pub position: Vector3<f64>,
+    /// Orientation as a unit quaternion.
     pub orientation: UnitQuaternion<f64>,
+    /// Linear velocity.
     pub linear_velocity: Vector3<f64>,
+    /// Angular velocity vector.
     pub angular_velocity: Vector3<f64>,
+    /// Force accumulated since the last `clear_forces`.
     pub force: Vector3<f64>,
+    /// Torque accumulated since the last `clear_forces`.
     pub torque: Vector3<f64>,
 }
 
@@ -91,16 +112,24 @@ impl Default for RigidBodyState {
 }
 
 #[derive(Debug, Clone)]
+/// A rigid body: identifier, properties, current and previous state.
 pub struct RigidBody {
+    /// Body identifier supplied by the caller.
     pub id: u64,
+    /// Mass, inertia and other properties.
     pub properties: RigidBodyProperties,
+    /// Current state.
     pub state: RigidBodyState,
+    /// Copy of `state` taken at the start of the last non-static, non-kinematic `integrate` call.
     pub prev_state: RigidBodyState,
+    /// Sleep timer value; initialised to `0.0` and not read by `integrate`.
     pub sleep_timer: f64,
+    /// Sleeping flag; initialised to `false` and not read by `integrate`.
     pub sleeping: bool,
 }
 
 impl RigidBody {
+    /// Create a body with the given id and properties, default states, zero sleep timer and not sleeping.
     pub fn new(id: u64, properties: RigidBodyProperties) -> Self {
         Self {
             id,
@@ -112,25 +141,30 @@ impl RigidBody {
         }
     }
 
+    /// Add `force` to the accumulated force.
     pub fn apply_force(&mut self, force: Vector3<f64>) {
         self.state.force += force;
     }
 
+    /// Add `torque` to the accumulated torque.
     pub fn apply_torque(&mut self, torque: Vector3<f64>) {
         self.state.torque += torque;
     }
 
+    /// Reset accumulated force and torque to zero.
     pub fn clear_forces(&mut self) {
         self.state.force = Vector3::zeros();
         self.state.torque = Vector3::zeros();
     }
 
+    /// Inverse inertia tensor rotated into world space for the given orientation: `R * inv_inertia * R^T`.
     pub fn world_inv_inertia(&self, orientation: &UnitQuaternion<f64>) -> Matrix3<f64> {
         let r = orientation.to_rotation_matrix();
         let r_mat = r.matrix();
         r_mat * self.properties.inv_inertia * r_mat.transpose()
     }
 
+    /// Advance the body by `dt` with RK4 for linear and angular motion under accumulated force, torque and `gravity` (gravity force is `gravity * mass`), then apply damping and clear forces. Static and kinematic bodies only have their forces cleared.
     pub fn integrate(&mut self, dt: f64, gravity: Vector3<f64>) {
         if self.properties.is_static || self.properties.is_kinematic {
             self.clear_forces();

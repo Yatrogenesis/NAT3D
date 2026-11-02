@@ -93,17 +93,24 @@ pub struct Plane {
 /// Classification of a point relative to a plane.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PointClassification {
+    /// Point lies on the positive side of the plane (signed distance greater than the plane epsilon).
     Front,
+    /// Point lies on the negative side of the plane (signed distance less than minus the plane epsilon).
     Back,
+    /// Point lies within the plane epsilon of the plane.
     Coplanar,
 }
 
 /// Classification of a polygon relative to a plane.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PolygonClassification {
+    /// No vertex is in front of or behind the plane.
     Coplanar,
+    /// At least one vertex is in front of the plane and none are behind it.
     Front,
+    /// At least one vertex is behind the plane and none are in front of it.
     Back,
+    /// Vertices lie on both sides of the plane.
     Spanning,
 }
 
@@ -262,6 +269,7 @@ pub struct SplitResult {
 }
 
 impl SplitResult {
+    /// Build a result whose `front` list holds only the given polygon.
     pub fn front(poly: BspPolygon) -> Self {
         Self {
             front: vec![poly],
@@ -269,6 +277,7 @@ impl SplitResult {
         }
     }
 
+    /// Build a result whose `back` list holds only the given polygon.
     pub fn back(poly: BspPolygon) -> Self {
         Self {
             back: vec![poly],
@@ -276,6 +285,7 @@ impl SplitResult {
         }
     }
 
+    /// Build a result whose `coplanar_front` list holds only the given polygon.
     pub fn coplanar_front(poly: BspPolygon) -> Self {
         Self {
             coplanar_front: vec![poly],
@@ -283,6 +293,7 @@ impl SplitResult {
         }
     }
 
+    /// Build a result whose `coplanar_back` list holds only the given polygon.
     pub fn coplanar_back(poly: BspPolygon) -> Self {
         Self {
             coplanar_back: vec![poly],

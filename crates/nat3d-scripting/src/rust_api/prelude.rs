@@ -21,10 +21,6 @@
 //!
 //! This module provides a convenient prelude for Rust-based scripting in NAT3D.
 
-// ScriptError variants use #[error(...)] attributes from thiserror which provide
-// documentation via the error message. Adding doc comments would be redundant.
-#![allow(missing_docs)]
-
 use std::any::Any;
 use std::collections::HashMap;
 
@@ -39,18 +35,23 @@ pub type ScriptResult<T> = Result<T, ScriptError>;
 #[derive(Debug, thiserror::Error)]
 pub enum ScriptError {
     #[error("Command not found: {0}")]
+    /// Carries the name of the command that was not found.
     CommandNotFound(String),
 
     #[error("Invalid arguments: {0}")]
+    /// Carries a message describing the invalid arguments.
     InvalidArguments(String),
 
     #[error("Execution failed: {0}")]
+    /// Carries a message describing the failure.
     ExecutionFailed(String),
 
     #[error("Undo not available")]
+    /// Undo was requested but is not available.
     UndoNotAvailable,
 
     #[error("Core error: {0}")]
+    /// Wraps a `nat3d_core::CoreError`.
     Core(#[from] nat3d_core::CoreError),
 }
 
