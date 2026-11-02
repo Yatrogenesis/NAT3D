@@ -56,6 +56,9 @@ pub enum SyncMessage {
         tilt: Option<f32>,
         azimuth: Option<f32>,
         timestamp: u64,
+        /// Independent contact ID; omitted by legacy single-touch senders.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        touch_id: Option<u32>,
     },
     PencilUpdate {
         x: f32,
@@ -83,5 +86,72 @@ impl SyncProtocol {
     }
     pub fn encode(msg: &SyncMessage) -> Result<Vec<u8>, serde_json::Error> {
         serde_json::to_vec(msg)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn legacy_input_event_decodes_without_contact_id() {
+        let payload = br#"{"InputEvent":{"event_type":"move","x":1.0,"y":2.0,"pressure":null,"tilt":null,"azimuth":null,"timestamp":0}}"#;
+        let event = SyncProtocol::decode(payload).unwrap();
+        assert!(matches!(
+            event,
+            SyncMessage::InputEvent { touch_id: None, .. }
+        ));
+        let encoded = SyncProtocol::encode(&event).unwrap();
+        assert!(!String::from_utf8(encoded).unwrap().contains("touch_id"));
+    }
+
+    #[test]
+    fn separate_contact_ids_survive_wire_roundtrip() {
+        for id in [10, 20] {
+            let event = SyncMessage::InputEvent {
+                event_type: "move".into(),
+                x: 1.0,
+                y: 2.0,
+                pressure: None,
+                tilt: None,
+                azimuth: None,
+                timestamp: 0,
+                touch_id: Some(id),
+            };
+            let encoded = SyncProtocol::encode(&event).unwrap();
+            let decoded = SyncProtocol::decode(&encoded).unwrap();
+            assert!(
+                matches!(decoded, SyncMessage::InputEvent { touch_id: Some(value), .. } if value == id)
+            );
+        }
+    }
+
+    #[test]
+    fn decoded_contacts_drive_two_finger_zoom() {
+        use crate::input::ipad::{IPadInput, ViewportTransform};
+        let mut input = IPadInput::new(1600, 900);
+        for (id, x) in [(10, 0.0), (20, 10.0), (20, 20.0)] {
+            let event = SyncMessage::InputEvent {
+                event_type: "move".into(),
+                x,
+                y: 0.0,
+                pressure: None,
+                tilt: None,
+                azimuth: None,
+                timestamp: 0,
+                touch_id: Some(id),
+            };
+            let wire = SyncProtocol::encode(&event).unwrap();
+            let SyncMessage::InputEvent { touch_id, x, y, .. } =
+                SyncProtocol::decode(&wire).unwrap()
+            else {
+                panic!("expected input event");
+            };
+            input.handle_touch_event(touch_id.unwrap_or(0), x, y, false);
+        }
+        let ViewportTransform::Zoom { factor } = input.get_viewport_transform() else {
+            panic!("expected two-finger zoom");
+        };
+        assert!((factor - 2.0).abs() < 1e-6);
     }
 }

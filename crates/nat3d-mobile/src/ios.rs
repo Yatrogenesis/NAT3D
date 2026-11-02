@@ -287,6 +287,7 @@ pub fn ios_main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::MutexGuard;
 
     /// Serialises the tests that touch the process-wide event queue.
     ///

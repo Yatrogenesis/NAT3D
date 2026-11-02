@@ -51,6 +51,7 @@ pub struct IPadInput {
     viewport_size: (u32, u32),
     tap_threshold: f32,
     long_press_duration_ms: u64,
+    pan_delta: (f32, f32),
 }
 
 #[derive(Debug, Clone)]
@@ -71,6 +72,7 @@ impl IPadInput {
             viewport_size: (viewport_width, viewport_height),
             tap_threshold: 10.0,
             long_press_duration_ms: 500,
+            pan_delta: (0.0, 0.0),
         }
     }
 
@@ -82,6 +84,8 @@ impl IPadInput {
         y: f32,
         ended: bool,
     ) -> Option<IPadGesture> {
+        self.pan_delta = (0.0, 0.0);
+        let previous_count = self.touch_state.len();
         if ended {
             self.touch_state.remove(&touch_id);
 
@@ -91,17 +95,38 @@ impl IPadInput {
                 return gesture;
             }
         } else {
+            let previous = self.touch_state.get(&touch_id);
+            let started_at = previous.map_or_else(Instant::now, |touch| touch.started_at);
+            if previous_count == 1 {
+                if let Some(previous) = previous {
+                    self.pan_delta = (x - previous.x, y - previous.y);
+                }
+            }
             let touch = TouchPoint {
                 id: touch_id,
                 x,
                 y,
-                started_at: Instant::now(),
+                started_at,
             };
 
             self.touch_state.insert(touch_id, touch);
         }
 
-        self.detect_gesture()
+        // A contact joining/leaving starts a new baseline, not another delta
+        // from the old gesture. In particular, releasing a finger must not pan.
+        if previous_count != self.touch_state.len() {
+            self.gesture_state = None;
+            self.pan_delta = (0.0, 0.0);
+        }
+        let gesture = self.detect_gesture();
+        if let Some(gesture) = gesture {
+            if let Some(state) = &mut self.gesture_state {
+                state.gesture = gesture;
+            } else {
+                self.handle_gesture(gesture);
+            }
+        }
+        gesture
     }
 
     /// Handle a gesture event.
@@ -116,17 +141,13 @@ impl IPadInput {
     }
 
     /// Whether a gesture is currently being tracked (i.e. `initial_*` fields
-    /// have already been seeded). Callers driving this from raw touch events
-    /// should call [`Self::handle_gesture`] only while this is `false`, then
-    /// let subsequent [`Self::handle_touch_event`] calls update the running
-    /// deltas — calling `handle_gesture` again mid-gesture resets
-    /// `initial_distance`/`initial_angle` and makes pinch/rotate deltas
-    /// always read as zero.
+    /// have already been seeded). Raw [`Self::handle_touch_event`] calls manage
+    /// tracking automatically; callers must not reseed an active gesture.
     pub fn is_tracking_gesture(&self) -> bool {
         self.gesture_state.is_some()
     }
 
-    /// Get viewport transform from gestures.
+    /// Get the transform since the previous touch event, not since gesture start.
     pub fn get_viewport_transform(&self) -> ViewportTransform {
         if let Some(ref state) = self.gesture_state {
             match state.gesture {
@@ -177,7 +198,7 @@ impl IPadInput {
         if let Some(touch) = self.touch_state.values().next() {
             let elapsed = touch.started_at.elapsed().as_millis() as u64;
 
-            if elapsed > self.long_press_duration_ms {
+            if elapsed > self.long_press_duration_ms && self.pan_delta == (0.0, 0.0) {
                 return Some(IPadGesture::LongPress);
             }
         }
@@ -186,7 +207,8 @@ impl IPadInput {
     }
 
     fn detect_two_touch_gesture(&mut self) -> Option<IPadGesture> {
-        let touches: Vec<&TouchPoint> = self.touch_state.values().collect();
+        let mut touches: Vec<&TouchPoint> = self.touch_state.values().collect();
+        touches.sort_by_key(|touch| touch.id);
 
         if touches.len() == 2 {
             let distance = self.distance_between(touches[0], touches[1]);
@@ -211,16 +233,22 @@ impl IPadInput {
             }
 
             if let Some(ref mut state) = self.gesture_state {
-                if state.initial_distance.is_none() {
-                    state.initial_distance = Some(distance);
-                    state.initial_angle = Some(angle);
-                }
+                // Consume the preceding sample as this event's baseline. Using
+                // the first sample repeatedly compounds zoom and rotation.
+                state.initial_distance = state.current_distance.or(Some(distance));
+                state.initial_angle = state.current_angle.or(Some(angle));
 
                 state.current_distance = Some(distance);
                 state.current_angle = Some(angle);
 
-                let distance_change = (distance - state.initial_distance.unwrap()).abs();
-                let angle_change = (angle - state.initial_angle.unwrap()).abs();
+                let previous_distance = state.initial_distance.unwrap();
+                let distance_change = if previous_distance > f32::EPSILON && distance > f32::EPSILON
+                {
+                    (distance / previous_distance).ln().abs()
+                } else {
+                    0.0
+                };
+                let angle_change = wrapped_angle(angle - state.initial_angle.unwrap()).abs();
 
                 let gesture = if distance_change > angle_change {
                     IPadGesture::Pinch
@@ -236,19 +264,16 @@ impl IPadInput {
     }
 
     fn calculate_pan_delta(&self) -> (f32, f32) {
-        // Simplified: return average movement
-        if let Some(touch) = self.touch_state.values().next() {
-            (touch.x, touch.y)
-        } else {
-            (0.0, 0.0)
-        }
+        self.pan_delta
     }
 
     fn calculate_pinch_scale(&self) -> f32 {
         if let Some(ref state) = self.gesture_state {
             if let (Some(initial), Some(current)) = (state.initial_distance, state.current_distance)
             {
-                return current / initial;
+                if initial > f32::EPSILON && current > f32::EPSILON {
+                    return current / initial;
+                }
             }
         }
         1.0
@@ -257,7 +282,7 @@ impl IPadInput {
     fn calculate_rotation_angle(&self) -> f32 {
         if let Some(ref state) = self.gesture_state {
             if let (Some(initial), Some(current)) = (state.initial_angle, state.current_angle) {
-                return current - initial;
+                return wrapped_angle(current - initial);
             }
         }
         0.0
@@ -274,6 +299,10 @@ impl IPadInput {
         let dy = b.y - a.y;
         dy.atan2(dx)
     }
+}
+
+fn wrapped_angle(angle: f32) -> f32 {
+    (angle + std::f32::consts::PI).rem_euclid(std::f32::consts::TAU) - std::f32::consts::PI
 }
 
 /// Viewport transformation from gestures.
@@ -325,5 +354,82 @@ mod tests {
         let mut input = IPadInput::new(1920, 1080);
         input.set_tap_threshold(20.0);
         assert_eq!(input.tap_threshold, 20.0);
+    }
+
+    #[test]
+    fn pan_is_incremental_and_release_does_not_repeat_it() {
+        let mut input = IPadInput::new(1600, 900);
+        input.handle_touch_event(7, 100.0, 100.0, false);
+        assert!(matches!(
+            input.get_viewport_transform(),
+            ViewportTransform::Pan { dx: 0.0, dy: 0.0 }
+        ));
+        input.handle_touch_event(7, 101.0, 100.0, false);
+        assert!(matches!(
+            input.get_viewport_transform(),
+            ViewportTransform::Pan { dx: 1.0, dy: 0.0 }
+        ));
+        input.handle_touch_event(7, 103.0, 99.0, false);
+        assert!(matches!(
+            input.get_viewport_transform(),
+            ViewportTransform::Pan { dx: 2.0, dy: -1.0 }
+        ));
+        input.handle_touch_event(7, 103.0, 99.0, true);
+        assert!(matches!(
+            input.get_viewport_transform(),
+            ViewportTransform::None
+        ));
+    }
+
+    #[test]
+    fn pinch_uses_distinct_contacts_and_previous_sample() {
+        let mut input = IPadInput::new(1600, 900);
+        input.handle_touch_event(10, 0.0, 0.0, false);
+        input.handle_touch_event(20, 10.0, 0.0, false);
+        input.handle_touch_event(20, 20.0, 0.0, false);
+        let ViewportTransform::Zoom { factor } = input.get_viewport_transform() else {
+            panic!("expected zoom")
+        };
+        assert!((factor - 2.0).abs() < 1e-6);
+        input.handle_touch_event(20, 30.0, 0.0, false);
+        let ViewportTransform::Zoom { factor } = input.get_viewport_transform() else {
+            panic!("expected zoom")
+        };
+        assert!((factor - 1.5).abs() < 1e-6);
+        input.handle_touch_event(20, 30.0, 0.0, true);
+        assert!(matches!(
+            input.get_viewport_transform(),
+            ViewportTransform::Pan { dx: 0.0, dy: 0.0 }
+        ));
+    }
+
+    #[test]
+    fn rotation_is_incremental_with_stable_contact_order() {
+        let mut input = IPadInput::new(1600, 900);
+        input.handle_touch_event(20, 10.0, 0.0, false);
+        input.handle_touch_event(10, 0.0, 0.0, false);
+        input.handle_touch_event(20, 0.0, 10.0, false);
+        let ViewportTransform::Rotate { angle } = input.get_viewport_transform() else {
+            panic!("expected rotation")
+        };
+        assert!((angle - std::f32::consts::FRAC_PI_2).abs() < 1e-6);
+        input.handle_touch_event(20, -10.0, 0.0, false);
+        let ViewportTransform::Rotate { angle } = input.get_viewport_transform() else {
+            panic!("expected rotation")
+        };
+        assert!((angle - std::f32::consts::FRAC_PI_2).abs() < 1e-6);
+    }
+
+    #[test]
+    fn coincident_contacts_do_not_produce_nonfinite_zoom() {
+        let mut input = IPadInput::new(1600, 900);
+        input.handle_touch_event(1, 0.0, 0.0, false);
+        input.handle_touch_event(2, 0.0, 0.0, false);
+        input.handle_touch_event(2, 10.0, 0.0, false);
+        match input.get_viewport_transform() {
+            ViewportTransform::Zoom { factor } => assert!(factor.is_finite()),
+            ViewportTransform::Rotate { angle } => assert!(angle.is_finite()),
+            _ => {}
+        }
     }
 }

@@ -1477,24 +1477,29 @@ impl Nat3DApp {
         for msg in messages {
             match msg {
                 nat3d_sync::protocol::SyncMessage::InputEvent {
-                    event_type, x, y, ..
+                    event_type,
+                    x,
+                    y,
+                    touch_id,
+                    ..
                 } => {
                     let ended = matches!(event_type.as_str(), "up" | "end" | "cancel");
-                    if let Some(gesture) = self.ipad_input.handle_touch_event(0, x, y, ended) {
-                        // Seed tracking once per gesture; re-calling
-                        // `handle_gesture` mid-gesture would reset the
-                        // initial distance/angle and zero out every delta
-                        // (see `IPadInput::is_tracking_gesture` docs).
-                        if !self.ipad_input.is_tracking_gesture() {
-                            self.ipad_input.handle_gesture(gesture);
-                        }
+                    if !x.is_finite() || !y.is_finite() {
+                        continue;
                     }
+                    self.ipad_input
+                        .handle_touch_event(touch_id.unwrap_or(0), x, y, ended);
                     match self.ipad_input.get_viewport_transform() {
                         nat3d_sync::input::ipad::ViewportTransform::Pan { dx, dy } => {
-                            self.state.camera.pan(dx, dy);
+                            // Match the mouse-drag sensitivity for pixel deltas.
+                            self.state.camera.pan(dx * 0.01, dy * 0.01);
                         }
                         nat3d_sync::input::ipad::ViewportTransform::Zoom { factor } => {
-                            self.state.camera.zoom(factor - 1.0);
+                            if factor.is_finite() && factor > 0.0 {
+                                // Camera::zoom multiplies distance by (1-delta).
+                                // A twofold pinch should halve distance.
+                                self.state.camera.zoom(1.0 - factor.recip());
+                            }
                         }
                         nat3d_sync::input::ipad::ViewportTransform::Rotate { angle } => {
                             self.state.camera.orbit(angle.to_degrees(), 0.0);

@@ -237,7 +237,8 @@ impl ConstraintSolver {
 
     /// Solve constraints.
     pub fn solve(&mut self) -> SolverResult {
-        let mut total_error = 0.0;
+        let mut residual = 0.0;
+        let mut unsupported = 0;
         let mut iterations = 0;
 
         // Identify fixed points - these should not be moved by other constraints
@@ -256,7 +257,8 @@ impl ConstraintSolver {
 
         for _ in 0..self.max_iterations {
             iterations += 1;
-            total_error = 0.0;
+            residual = 0.0;
+            unsupported = 0;
 
             // First, apply fixed constraints directly
             for (&idx, &target) in &fixed_points {
@@ -284,7 +286,14 @@ impl ConstraintSolver {
             for (i, error, gradient) in constraint_results {
                 self.constraints[i].error = error;
                 self.constraints[i].is_satisfied = error < self.tolerance;
-                total_error += error * error;
+                // Unsupported pairings report an infinite error that no update
+                // can reduce; keep them out of the residual so the supported
+                // constraints can still converge.
+                if error.is_finite() {
+                    residual += error * error;
+                } else {
+                    unsupported += 1;
+                }
 
                 // Accumulate point updates (skip fixed points)
                 for (point_idx, delta) in gradient {
@@ -297,10 +306,10 @@ impl ConstraintSolver {
                 }
             }
 
-            total_error = total_error.sqrt();
+            residual = f64::sqrt(residual);
 
             // Check convergence
-            if total_error < self.tolerance {
+            if residual < self.tolerance {
                 break;
             }
 
@@ -322,7 +331,13 @@ impl ConstraintSolver {
         SolverResult {
             success: satisfied,
             iterations,
-            error: total_error,
+            error: if unsupported > 0 {
+                f64::INFINITY
+            } else {
+                residual
+            },
+            residual,
+            unsupported,
             dof: self.degrees_of_freedom(),
         }
     }
@@ -643,8 +658,12 @@ pub struct SolverResult {
     pub success: bool,
     /// Number of iterations used.
     pub iterations: usize,
-    /// Final error.
+    /// Final error; infinite when any driving constraint is unsupported.
     pub error: f64,
+    /// RMS error over the supported driving constraints only.
+    pub residual: f64,
+    /// Number of driving constraints whose entity pairing is unsupported.
+    pub unsupported: usize,
     /// Degrees of freedom remaining.
     pub dof: i32,
 }
@@ -795,6 +814,41 @@ mod fail_closed_constraint_tests {
             assert!(!solver.constraints[0].is_satisfied);
             assert_eq!(solver.points, before);
         }
+    }
+
+    #[test]
+    fn unsupported_constraint_does_not_block_convergence_of_supported_ones() {
+        let mut solver = ConstraintSolver::new();
+        let p0 = solver.add_point(Point2::new(0.0, 0.0));
+        let p1 = solver.add_point(Point2::new(3.0, 1.0));
+        solver.add_geometric(GeometricConstraint::Fixed(
+            EntityRef::Point(p0),
+            Point2::origin(),
+        ));
+        solver.add_geometric(GeometricConstraint::Horizontal(EntityRef::Point(p1)));
+        let result = solver.solve();
+        assert!(!result.success);
+        assert!(result.error.is_infinite());
+        assert_eq!(result.unsupported, 1);
+        assert!(result.residual < solver.tolerance);
+        assert_eq!(result.iterations, 1);
+        assert!(solver.constraints[0].is_satisfied);
+        assert!(!solver.constraints[1].is_satisfied);
+        assert_eq!(solver.points[p1], Point2::new(3.0, 1.0));
+    }
+
+    #[test]
+    fn supported_only_system_reports_no_unsupported_constraints() {
+        let mut solver = ConstraintSolver::new();
+        let p0 = solver.add_point(Point2::new(2.0, 2.0));
+        solver.add_geometric(GeometricConstraint::Fixed(
+            EntityRef::Point(p0),
+            Point2::new(2.0, 2.0),
+        ));
+        let result = solver.solve();
+        assert!(result.success);
+        assert_eq!(result.unsupported, 0);
+        assert_eq!(result.error, result.residual);
     }
 
     #[test]
