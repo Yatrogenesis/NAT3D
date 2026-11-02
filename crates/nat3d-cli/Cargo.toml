@@ -7,6 +7,7 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Command-line interface for NAT3D - batch rendering, format conversion, benchmarks"
+readme = "README.md"
 keywords = ["cli", "batch", "render", "convert"]
 categories = ["command-line-utilities"]
 
@@ -48,6 +49,7 @@ rand = { workspace = true }
 [[bin]]
 name = "nat3d"
 path = "src/main.rs"
+doc = false
 
 [lints]
 workspace = true

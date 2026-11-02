@@ -31,14 +31,20 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 /// Transfer progress information.
 #[derive(Debug, Clone)]
 pub struct TransferProgress {
+    /// Number of bytes transferred so far, as last passed to `update`.
     pub bytes_sent: u64,
+    /// Total number of bytes to transfer.
     pub total_bytes: u64,
+    /// Transfer speed in bytes per second, computed in `update` as bytes sent divided by elapsed seconds since `started_at`.
     pub speed: f64,
+    /// Estimated remaining time, computed in `update` from the remaining bytes and `speed`.
     pub eta: Duration,
+    /// Instant at which the progress record was created.
     pub started_at: Instant,
 }
 
 impl TransferProgress {
+    /// Creates a progress record for `total_bytes` with zero bytes sent, zero speed, zero ETA and the current instant as start.
     pub fn new(total_bytes: u64) -> Self {
         Self {
             bytes_sent: 0,
@@ -49,6 +55,7 @@ impl TransferProgress {
         }
     }
 
+    /// Sets the bytes sent and recomputes `speed` and `eta` from the time elapsed since `started_at`.
     pub fn update(&mut self, bytes_sent: u64) {
         self.bytes_sent = bytes_sent;
         let elapsed = self.started_at.elapsed().as_secs_f64();
@@ -64,6 +71,7 @@ impl TransferProgress {
         }
     }
 
+    /// Returns `bytes_sent / total_bytes * 100`, or 0.0 when `total_bytes` is zero.
     pub fn percentage(&self) -> f32 {
         if self.total_bytes == 0 {
             0.0

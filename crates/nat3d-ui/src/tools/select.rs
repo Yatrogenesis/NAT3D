@@ -61,6 +61,7 @@ pub struct SelectionState {
 }
 
 impl SelectionState {
+    /// Create a selection state with no selected objects, no hovered object and `active` set to `false`.
     pub fn new() -> Self {
         Self {
             selected: HashSet::new(),

@@ -32,23 +32,33 @@ use super::MAX_TILE_SIZE;
 /// Job priority levels.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum JobPriority {
+    /// Lowest priority (discriminant 0).
     Low = 0,
+    /// Normal priority (discriminant 1).
     Normal = 1,
+    /// High priority (discriminant 2).
     High = 2,
+    /// Highest priority (discriminant 3).
     Urgent = 3,
 }
 
 /// Render job.
 #[derive(Debug, Clone)]
 pub struct Job {
+    /// Unique job identifier (a random v4 UUID generated in `Job::new`).
     pub id: Uuid,
+    /// Frame number the job renders.
     pub frame: u32,
+    /// Tile of the frame the job renders.
     pub tile: TileSpec,
+    /// Priority of the job; higher priority jobs are dequeued first.
     pub priority: JobPriority,
+    /// Instant at which the job was created; among equal priorities, older jobs are dequeued first.
     pub created_at: Instant,
 }
 
 impl Job {
+    /// Creates a job for the given frame, tile and priority with a new random id and the current instant as creation time.
     pub fn new(frame: u32, tile: TileSpec, priority: JobPriority) -> Self {
         Self {
             id: Uuid::new_v4(),
@@ -91,15 +101,22 @@ impl Ord for PriorityJob {
 /// Worker state.
 #[derive(Debug, Clone)]
 pub struct WorkerState {
+    /// Worker identifier.
     pub id: Uuid,
+    /// Capabilities the worker reported at registration.
     pub capabilities: WorkerCapabilities,
+    /// Identifier of the job currently assigned to the worker, if any.
     pub current_job: Option<Uuid>,
+    /// Number of jobs the worker has completed.
     pub jobs_completed: usize,
+    /// Sum of the render times of the worker's completed jobs, in milliseconds.
     pub total_render_time_ms: u64,
+    /// Instant of the worker's last recorded heartbeat (set to the creation time by `WorkerState::new`).
     pub last_heartbeat: Instant,
 }
 
 impl WorkerState {
+    /// Creates a worker state with no current job, zero completed jobs and zero total render time, with the heartbeat set to now.
     pub fn new(id: Uuid, capabilities: WorkerCapabilities) -> Self {
         Self {
             id,
@@ -143,6 +160,7 @@ pub struct JobScheduler {
 }
 
 impl JobScheduler {
+    /// Creates a scheduler with empty pending queue, in-progress map, worker map and completed-tile map.
     pub fn new() -> Self {
         Self {
             pending_jobs: BinaryHeap::new(),

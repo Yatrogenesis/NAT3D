@@ -153,10 +153,15 @@ impl AzureProvider {
 /// Azure VM status.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum VmStatus {
+    /// VM is starting.
     Starting,
+    /// VM is running.
     Running,
+    /// VM is stopping.
     Stopping,
+    /// VM is stopped.
     Stopped,
+    /// VM is deallocated.
     Deallocated,
 }
 

@@ -7,6 +7,7 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Import/Export for NAT3D - native format, OBJ, glTF, FBX, STEP, STL, images"
+readme = "README.md"
 keywords = ["import", "export", "gltf", "obj", "cad"]
 categories = ["parser-implementations", "encoding"]
 

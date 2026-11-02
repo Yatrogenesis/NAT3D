@@ -288,7 +288,9 @@ pub struct ShapeKeyDriver {
 pub enum DriverVariable {
     /// Bone transform channel.
     BoneTransform {
+        /// Bone whose transform channel is read.
         bone_id: BoneId,
+        /// Transform channel of the bone that is read.
         channel: TransformChannel,
     },
     /// Another shape key value.
@@ -300,14 +302,23 @@ pub enum DriverVariable {
 /// Transform channel for drivers.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TransformChannel {
+    /// X location channel.
     LocX,
+    /// Y location channel.
     LocY,
+    /// Z location channel.
     LocZ,
+    /// X rotation channel.
     RotX,
+    /// Y rotation channel.
     RotY,
+    /// Z rotation channel.
     RotZ,
+    /// X scale channel.
     ScaleX,
+    /// Y scale channel.
     ScaleY,
+    /// Z scale channel.
     ScaleZ,
 }
 

@@ -1,0 +1,41 @@
+[package]
+name = "nat3d"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "README.md"
+description = "NAT3D umbrella crate: one dependency that brings in the whole NAT3D 3D modeling, simulation and rendering stack"
+
+[dependencies]
+nat3d-core = { workspace = true }
+nat3d-math = { workspace = true }
+nat3d-physics = { workspace = true }
+nat3d-render = { workspace = true }
+nat3d-ui = { workspace = true }
+nat3d-modeling = { workspace = true }
+nat3d-animation = { workspace = true }
+nat3d-io = { workspace = true }
+nat3d-scripting = { workspace = true }
+nat3d-cloud = { workspace = true }
+nat3d-sync = { workspace = true }
+nat3d-app = { path = "../nat3d-app", version = "0.2.3", default-features = false }
+nat3d-mobile = { path = "../nat3d-mobile", version = "0.2.3", optional = true }
+
+[features]
+# Pure Rust by default: no Python interpreter is needed to build.
+default = []
+python = ["nat3d-app/python"]
+ipad = ["nat3d-app/ipad"]
+file-dialog = ["nat3d-app/file-dialog"]
+mobile = ["dep:nat3d-mobile"]
+# Everything, including the Android/iOS wrapper. `python` needs Python at build time.
+full = ["python", "ipad", "file-dialog", "mobile"]
+
+[lints]
+workspace = true

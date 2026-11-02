@@ -128,8 +128,11 @@ pub struct Gizmo {
 /// Captured transform state for undo/redo.
 #[derive(Debug, Clone)]
 pub struct TransformState {
+    /// Captured position.
     pub position: Vector3<f64>,
+    /// Captured rotation as a unit quaternion.
     pub rotation: UnitQuaternion<f64>,
+    /// Captured scale.
     pub scale: Vector3<f64>,
 }
 

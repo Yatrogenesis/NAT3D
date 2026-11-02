@@ -27,20 +27,30 @@ use std::time::Instant;
 /// iPad gesture types.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum IPadGesture {
+    /// Short touch classified as a tap. Not returned by the detection code in this module; available for callers of `handle_gesture`.
     Tap,
+    /// Double tap. Not returned by the detection code in this module; available for callers of `handle_gesture`.
     DoubleTap,
+    /// One contact held longer than the long-press duration (default 500 ms) without movement since the previous touch event.
     LongPress,
+    /// Single contact that is not a long press; this is the default result for one contact.
     Pan,
+    /// Two contacts; returned for the first two-contact sample and afterwards when the distance ratio changed (in log terms) more than the angle between consecutive events.
     Pinch,
+    /// Two contacts whose angle change between consecutive events is at least the absolute log of their distance ratio.
     Rotate,
 }
 
 /// Touch point state.
 #[derive(Debug, Clone)]
 pub struct TouchPoint {
+    /// Identifier of the contact, as passed by the caller.
     pub id: u32,
+    /// X position of the contact as last reported.
     pub x: f32,
+    /// Y position of the contact as last reported.
     pub y: f32,
+    /// Time at which this contact id was first seen (kept across position updates of the same id).
     pub started_at: Instant,
 }
 
@@ -308,10 +318,25 @@ fn wrapped_angle(angle: f32) -> f32 {
 /// Viewport transformation from gestures.
 #[derive(Debug, Clone, Copy)]
 pub enum ViewportTransform {
+    /// No transform.
     None,
-    Pan { dx: f32, dy: f32 },
-    Zoom { factor: f32 },
-    Rotate { angle: f32 },
+    /// Pan by a delta.
+    Pan {
+        /// Horizontal delta since the previous touch event.
+        dx: f32,
+        /// Vertical delta since the previous touch event.
+        dy: f32,
+    },
+    /// Zoom by a scale factor.
+    Zoom {
+        /// Ratio of the current to the previous two-contact distance (1.0 when it cannot be computed).
+        factor: f32,
+    },
+    /// Rotate by an angle.
+    Rotate {
+        /// Change of the angle between the two contacts since the previous event, wrapped to [-PI, PI).
+        angle: f32,
+    },
 }
 
 #[cfg(test)]

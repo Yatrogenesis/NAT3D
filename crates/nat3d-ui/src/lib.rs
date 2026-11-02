@@ -16,6 +16,7 @@
 
 //! # NAT3D UI
 //! User interface for NAT3D using egui.
+#![warn(missing_docs)]
 #![allow(dead_code)]
 
 pub mod app;

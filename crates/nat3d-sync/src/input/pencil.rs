@@ -26,14 +26,20 @@ use std::time::Instant;
 /// Apple Pencil event.
 #[derive(Debug, Clone)]
 pub struct PencilEvent {
+    /// Position of the pencil as an `(x, y)` pair.
     pub position: (f32, f32),
+    /// Pressure value; `with_pressure` clamps it to 0.0..=1.0, and `new` sets 1.0.
     pub pressure: f32,
+    /// Altitude angle; `new` sets PI/2 (the pencil perpendicular to the surface per `calculate_tilt`).
     pub altitude_angle: f32,
+    /// Azimuth angle; `new` sets 0.0.
     pub azimuth_angle: f32,
+    /// Single contact that is not a long press; this is the default result for one contact.
     pub timestamp: u64,
 }
 
 impl PencilEvent {
+    /// Creates an event at `(x, y)` with pressure 1.0, altitude angle PI/2, azimuth angle 0.0 and a freshly computed timestamp.
     pub fn new(x: f32, y: f32) -> Self {
         Self {
             position: (x, y),
@@ -44,16 +50,19 @@ impl PencilEvent {
         }
     }
 
+    /// Sets the pressure, clamped to 0.0..=1.0, and returns the event.
     pub fn with_pressure(mut self, pressure: f32) -> Self {
         self.pressure = pressure.clamp(0.0, 1.0);
         self
     }
 
+    /// Sets the altitude angle (stored unchanged) and returns the event.
     pub fn with_altitude(mut self, altitude: f32) -> Self {
         self.altitude_angle = altitude;
         self
     }
 
+    /// Sets the azimuth angle (stored unchanged) and returns the event.
     pub fn with_azimuth(mut self, azimuth: f32) -> Self {
         self.azimuth_angle = azimuth;
         self
@@ -155,19 +164,28 @@ impl Default for PencilInput {
 /// Pressure curve types.
 #[derive(Debug, Clone, Copy)]
 pub enum PressureCurve {
+    /// Pressure is used unchanged.
     Linear,
+    /// Pressure is raised to the power 0.5.
     Soft,
+    /// Pressure is raised to the power 2.0.
     Hard,
+    /// Pressure is raised to the power given by the contained exponent.
     Custom(f32),
 }
 
 /// Brush parameters derived from pencil input.
 #[derive(Debug, Clone, Copy)]
 pub struct BrushParams {
+    /// Position copied from the pencil event.
     pub position: (f32, f32),
+    /// Brush size computed as `1.0 + pressure * 49.0` from the curved pressure.
     pub size: f32,
+    /// Opacity computed as `0.1 + pressure * 0.9` from the curved pressure.
     pub opacity: f32,
+    /// Tilt computed as `(PI/2 - altitude_angle) / (PI/2)` multiplied by the tilt sensitivity.
     pub tilt: f32,
+    /// Rotation copied from the event's azimuth angle.
     pub rotation: f32,
 }
 

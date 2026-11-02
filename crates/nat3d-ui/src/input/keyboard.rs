@@ -24,9 +24,13 @@ use std::collections::HashSet;
 /// Keyboard modifiers.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Modifier {
+    /// The Shift modifier.
     Shift,
+    /// The Ctrl modifier.
     Ctrl,
+    /// The Alt modifier.
     Alt,
+    /// The Super modifier.
     Super,
 }
 
@@ -34,76 +38,141 @@ pub enum Modifier {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Key {
     // Letters
+    /// The `A` key.
     A,
+    /// The `B` key.
     B,
+    /// The `C` key.
     C,
+    /// The `D` key.
     D,
+    /// The `E` key.
     E,
+    /// The `F` key.
     F,
+    /// The `G` key.
     G,
+    /// The `H` key.
     H,
+    /// The `I` key.
     I,
+    /// The `J` key.
     J,
+    /// The `K` key.
     K,
+    /// The `L` key.
     L,
+    /// The `M` key.
     M,
+    /// The `N` key.
     N,
+    /// The `O` key.
     O,
+    /// The `P` key.
     P,
+    /// The `Q` key.
     Q,
+    /// The `R` key.
     R,
+    /// The `S` key.
     S,
+    /// The `T` key.
     T,
+    /// The `U` key.
     U,
+    /// The `V` key.
     V,
+    /// The `W` key.
     W,
+    /// The `X` key.
     X,
+    /// The `Y` key.
     Y,
+    /// The `Z` key.
     Z,
     // Numbers
+    /// The `0` key on the number row.
     Num0,
+    /// The `1` key on the number row.
     Num1,
+    /// The `2` key on the number row.
     Num2,
+    /// The `3` key on the number row.
     Num3,
+    /// The `4` key on the number row.
     Num4,
+    /// The `5` key on the number row.
     Num5,
+    /// The `6` key on the number row.
     Num6,
+    /// The `7` key on the number row.
     Num7,
+    /// The `8` key on the number row.
     Num8,
+    /// The `9` key on the number row.
     Num9,
     // Function keys
+    /// The `F1` function key.
     F1,
+    /// The `F2` function key.
     F2,
+    /// The `F3` function key.
     F3,
+    /// The `F4` function key.
     F4,
+    /// The `F5` function key.
     F5,
+    /// The `F6` function key.
     F6,
+    /// The `F7` function key.
     F7,
+    /// The `F8` function key.
     F8,
+    /// The `F9` function key.
     F9,
+    /// The `F10` function key.
     F10,
+    /// The `F11` function key.
     F11,
+    /// The `F12` function key.
     F12,
     // Special keys
+    /// The space bar.
     Space,
+    /// The Enter key.
     Enter,
+    /// The Escape key.
     Escape,
+    /// The Tab key.
     Tab,
+    /// The Backspace key.
     Backspace,
+    /// The Delete key.
     Delete,
     // Arrow keys
+    /// The left arrow key.
     Left,
+    /// The right arrow key.
     Right,
+    /// The up arrow key.
     Up,
+    /// The down arrow key.
     Down,
     // Modifiers (when used as keys)
+    /// The left Shift key.
     LeftShift,
+    /// The right Shift key.
     RightShift,
+    /// The left Ctrl key.
     LeftCtrl,
+    /// The right Ctrl key.
     RightCtrl,
+    /// The left Alt key.
     LeftAlt,
+    /// The right Alt key.
     RightAlt,
     // Other
+    /// A key that is not represented by any other variant.
     Unknown,
 }
 
@@ -224,15 +293,25 @@ impl KeyboardState {
 /// Shortcut action.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ShortcutAction {
+    /// Undo action (produced by Ctrl+Z).
     Undo,
+    /// Redo action (produced by Ctrl+Y).
     Redo,
+    /// Save action (produced by Ctrl+S).
     Save,
+    /// Open action (produced by Ctrl+O).
     Open,
+    /// New action (produced by Ctrl+N).
     New,
+    /// Delete action (produced by the Delete or X key).
     Delete,
+    /// Move tool action (produced by the G key).
     MoveTool,
+    /// Rotate tool action (produced by the R key).
     RotateTool,
+    /// Scale tool action (produced by S without Ctrl).
     ScaleTool,
+    /// Extrude tool action (produced by the E key).
     ExtrudeTool,
 }
 

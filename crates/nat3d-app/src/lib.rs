@@ -2,7 +2,6 @@
     clippy::all,
     clippy::pedantic,
     clippy::nursery,
-    missing_docs,
     unused_imports,
     dead_code,
     clippy::field_reassign_with_default,
@@ -14,6 +13,7 @@
     clippy::collapsible_if,
     clippy::needless_range_loop
 )]
+#![warn(missing_docs)]
 //! NAT3D main application.
 //!
 //! A professional 3D modeling, CAD, simulation, and rendering suite.
@@ -37,13 +37,21 @@ pub mod tools;
 pub mod weight_paint;
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
+/// Material parameters uploaded to the GPU material uniform buffer (`repr(C)`, `bytemuck::Pod`).
 pub struct AppMaterialUniforms {
+    /// RGBA base color, taken from the object's material.
     pub base_color: [f32; 4],
+    /// Metallic value, taken from the object's material.
     pub metallic: f32,
+    /// Roughness value, taken from the object's material.
     pub roughness: f32,
+    /// Ambient-occlusion value; set to `1.0` wherever this struct is built in this file.
     pub ao: f32,
+    /// Emissive value, taken from the object's material.
     pub emissive: f32,
+    /// Simulation mode as a `u32`: the app's `simulation_mode` cast to `u32` when drawing, `0` when the buffer is first created.
     pub simulation_mode: u32,
+    /// Zero-filled padding (`[0.0; 3]`) after the fields above.
     pub _padding: [f32; 3],
 }
 
@@ -286,6 +294,7 @@ enum EduOAuthStep {
     Failed(String),
 }
 
+/// The NAT3D application: implements `eframe::App`, holds the `AppState` plus the UI and renderer state, and is created in `main` through `eframe::run_native`.
 pub struct Nat3DApp {
     /// Application state.
     state: AppState,
@@ -1293,6 +1302,7 @@ struct RenderSettings {
 }
 
 impl Nat3DApp {
+    /// Create the application from the eframe creation context. With the `ipad` feature it also starts a thread with a Tokio runtime that listens on TCP port 9001 for iPad sync messages.
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         #[cfg(feature = "ipad")]
         // BATCH 24: iPad Remote Input Listener (P3.4)
@@ -8554,6 +8564,9 @@ impl Nat3DApp {
             _ => ("All Files", vec!["*"]),
         };
 
+        #[cfg(not(feature = "file-dialog"))]
+        let _ = &filter;
+
         #[cfg(feature = "file-dialog")]
         if let Some(path) = rfd::FileDialog::new()
             .add_filter(filter.0, &filter.1)
@@ -8832,6 +8845,9 @@ impl Nat3DApp {
             "dxf" => ("AutoCAD DXF", vec!["dxf"], "dxf"),
             _ => ("All Files", vec!["*"], ""),
         };
+
+        #[cfg(not(feature = "file-dialog"))]
+        let _ = (&filter_name, &extensions, &default_ext);
 
         #[cfg(feature = "file-dialog")]
         if let Some(path) = rfd::FileDialog::new()

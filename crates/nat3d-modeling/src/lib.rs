@@ -17,6 +17,7 @@
 //! # NAT3D Modeling
 //! Modeling tools for NAT3D.
 
+#![warn(missing_docs)]
 // Clippy allows justified for 3D modeling context:
 //
 // cast_precision_loss: Mesh indices and segment counts are cast to f32/f64 for
@@ -44,5 +45,6 @@ pub mod nurbs;
 pub mod polygon;
 pub mod sculpt;
 pub mod sketch2mesh;
+/// Spectral mesh processing (uniform Laplacian construction).
 pub mod spectral;
 pub mod uv;

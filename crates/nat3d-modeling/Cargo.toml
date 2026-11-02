@@ -7,6 +7,7 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Modeling tools for NAT3D - polygon modeling, NURBS, sculpting, CAD, modifiers"
+readme = "README.md"
 keywords = ["modeling", "mesh", "nurbs", "cad", "sculpting"]
 categories = ["graphics", "game-development"]
 

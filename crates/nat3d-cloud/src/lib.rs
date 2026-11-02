@@ -17,6 +17,7 @@
 //! # NAT3D Cloud
 //! Cloud rendering integration.
 #![allow(dead_code)]
+#![warn(missing_docs)]
 pub mod client;
 pub mod job;
 pub mod providers;

@@ -7,6 +7,7 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Physics simulation for NAT3D - rigid bodies, soft bodies, cloth, fluids (Navier-Stokes), particles"
+readme = "README.md"
 keywords = ["physics", "simulation", "navier-stokes", "fluids", "particles"]
 categories = ["simulation", "science", "game-development"]
 

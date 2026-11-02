@@ -278,10 +278,12 @@ impl RenderFarmMaster {
         }
     }
 
+    /// Returns a shared reference to the job scheduler.
     pub fn get_scheduler(&self) -> &JobScheduler {
         &self.scheduler
     }
 
+    /// Returns a mutable reference to the job scheduler.
     pub fn get_scheduler_mut(&mut self) -> &mut JobScheduler {
         &mut self.scheduler
     }

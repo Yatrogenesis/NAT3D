@@ -184,8 +184,11 @@ fn triangulate_fan(mesh: &mut MeshResult, ring: &[u32], reverse: bool) {
 
 /// Loft mesh generator with options.
 pub struct LoftMesh {
+    /// Resolution passed to the loft functions for tessellating each profile.
     pub resolution: u32,
+    /// Passed as the `closed` argument of `loft_paths`.
     pub closed: bool,
+    /// Stored flag; not read by `generate`.
     pub smooth: bool,
 }
 

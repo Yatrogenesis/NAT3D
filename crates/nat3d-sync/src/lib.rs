@@ -2,10 +2,10 @@
     clippy::all,
     clippy::pedantic,
     clippy::nursery,
-    missing_docs,
     unused_imports,
     dead_code
 )]
+#![warn(missing_docs)]
 //! # NAT3D Sync
 //!
 //! Device synchronization and distributed rendering.

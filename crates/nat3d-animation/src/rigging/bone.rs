@@ -167,71 +167,116 @@ impl Default for BoneTransform {
 pub enum BoneConstraint {
     /// Copy location from target.
     CopyLocation {
+        /// Target bone.
         target: BoneId,
+        /// Influence weight (`f64`).
         influence: f64,
+        /// Whether the X axis is used.
         use_x: bool,
+        /// Whether the Y axis is used.
         use_y: bool,
+        /// Whether the Z axis is used.
         use_z: bool,
+        /// Whether the X axis is inverted.
         invert_x: bool,
+        /// Whether the Y axis is inverted.
         invert_y: bool,
+        /// Whether the Z axis is inverted.
         invert_z: bool,
     },
     /// Copy rotation from target.
     CopyRotation {
+        /// Target bone.
         target: BoneId,
+        /// Influence weight (`f64`).
         influence: f64,
+        /// Whether the X axis is used.
         use_x: bool,
+        /// Whether the Y axis is used.
         use_y: bool,
+        /// Whether the Z axis is used.
         use_z: bool,
     },
     /// Copy scale from target.
     CopyScale {
+        /// Target bone.
         target: BoneId,
+        /// Influence weight (`f64`).
         influence: f64,
+        /// Whether the X axis is used.
         use_x: bool,
+        /// Whether the Y axis is used.
         use_y: bool,
+        /// Whether the Z axis is used.
         use_z: bool,
     },
     /// Limit location.
     LimitLocation {
+        /// Minimum limit vector (`Vector3<f64>`).
         min: Vector3<f64>,
+        /// Maximum limit vector (`Vector3<f64>`).
         max: Vector3<f64>,
+        /// Whether the X axis is used for the minimum limit.
         use_min_x: bool,
+        /// Whether the Y axis is used for the minimum limit.
         use_min_y: bool,
+        /// Whether the Z axis is used for the minimum limit.
         use_min_z: bool,
+        /// Whether the X axis is used for the maximum limit.
         use_max_x: bool,
+        /// Whether the Y axis is used for the maximum limit.
         use_max_y: bool,
+        /// Whether the Z axis is used for the maximum limit.
         use_max_z: bool,
+        /// Influence weight (`f64`).
         influence: f64,
     },
     /// Limit rotation.
     LimitRotation {
+        /// Minimum limit vector (`Vector3<f64>`).
         min: Vector3<f64>,
+        /// Maximum limit vector (`Vector3<f64>`).
         max: Vector3<f64>,
+        /// Whether the X axis is used.
         use_x: bool,
+        /// Whether the Y axis is used.
         use_y: bool,
+        /// Whether the Z axis is used.
         use_z: bool,
+        /// Influence weight (`f64`).
         influence: f64,
     },
     /// Track to target.
     TrackTo {
+        /// Target bone.
         target: BoneId,
+        /// Track axis.
         track_axis: Axis,
+        /// Up axis.
         up_axis: Axis,
+        /// Influence weight (`f64`).
         influence: f64,
     },
     /// Damped track.
     DampedTrack {
+        /// Target bone.
         target: BoneId,
+        /// Track axis.
         track_axis: Axis,
+        /// Influence weight (`f64`).
         influence: f64,
     },
     /// Inverse kinematics.
     Ik {
+        /// Target bone.
         target: BoneId,
+        /// Optional pole target bone.
         pole_target: Option<BoneId>,
+        /// Chain length (`usize`).
         chain_length: usize,
+        /// Iteration count (`usize`).
         iterations: usize,
+        /// Influence weight (`f64`).
         influence: f64,
     },
 }
@@ -239,11 +284,17 @@ pub enum BoneConstraint {
 /// Axis enumeration.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Axis {
+    /// Positive X axis.
     PosX,
+    /// Negative X axis.
     NegX,
+    /// Positive Y axis.
     PosY,
+    /// Negative Y axis.
     NegY,
+    /// Positive Z axis.
     PosZ,
+    /// Negative Z axis.
     NegZ,
 }
 

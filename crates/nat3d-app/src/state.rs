@@ -46,48 +46,70 @@ impl std::fmt::Display for AxisConstraint {
 
 // Tool selection
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+/// Active tool; `Select` is the default.
 pub enum Tool {
     #[default]
+    /// Select tool (the default).
     Select,
+    /// Move tool.
     Move,
+    /// Rotate tool.
     Rotate,
+    /// Scale tool.
     Scale,
 }
 
 // Edit mode
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+/// Editing mode of the scene; `Object` is the default.
 pub enum EditMode {
     #[default]
+    /// Object mode (the default).
     Object,
+    /// Edit mode.
     Edit,
+    /// Sculpt mode.
     Sculpt,
+    /// Texture paint mode.
     TexturePaint,
+    /// Weight paint mode.
     WeightPaint,
 }
 
 // Shading mode
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+/// Viewport shading mode; `Solid` is the default.
 pub enum ShadingMode {
+    /// Wireframe shading.
     Wireframe,
     #[default]
+    /// Solid shading (the default).
     Solid,
+    /// Material shading.
     Material,
+    /// Rendered shading.
     Rendered,
 }
 
-/// Application state containing all scene data.
-
+/// Simulation visualization mode (see `AppState::set_simulation_mode`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SimulationMode {
     #[default]
+    /// No simulation visualization (the default).
     Off,
+    /// Neural voltage visualization.
     NeuralVoltage,
+    /// Oxygen saturation (O2) visualization.
     O2Saturation,
+    /// Temperature visualization.
     Temperature,
+    /// Metabolic visualization.
     Metabolic,
+    /// Pressure visualization.
     Pressure,
 }
 
+/// Application state containing all scene data.
 pub struct AppState {
     /// Scene objects.
     pub objects: Vec<SceneObject>,
@@ -103,6 +125,7 @@ pub struct AppState {
     pub edit_mode: EditMode,
     /// Current shading mode.
     pub shading: ShadingMode,
+    /// Current simulation visualization mode; `SimulationMode::Off` by default.
     pub simulation_mode: SimulationMode,
     /// Snap enabled.
     pub snap_enabled: bool,
@@ -308,10 +331,15 @@ pub struct AppState {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum PivotPoint {
     #[default]
+    /// `MedianPoint`, displayed as "Median"; this is the `Default` variant.
     MedianPoint,
+    /// `IndividualOrigins`, displayed as "Individual".
     IndividualOrigins,
+    /// `Cursor3D`, displayed as "3D Cursor".
     Cursor3D,
+    /// `ActiveElement`, displayed as "Active".
     ActiveElement,
+    /// `BoundingBoxCenter`, displayed as "BBox".
     BoundingBoxCenter,
 }
 
@@ -331,10 +359,15 @@ impl std::fmt::Display for PivotPoint {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TransformOrientation {
     #[default]
+    /// `Global`, displayed as "Global"; this is the `Default` variant.
     Global,
+    /// `Local`, displayed as "Local".
     Local,
+    /// `Normal`, displayed as "Normal".
     Normal,
+    /// `Gimbal`, displayed as "Gimbal".
     Gimbal,
+    /// `View`, displayed as "View".
     View,
 }
 
@@ -354,9 +387,13 @@ impl std::fmt::Display for TransformOrientation {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SnapTarget {
     #[default]
+    /// `Closest`, displayed as "Closest"; this is the `Default` variant.
     Closest,
+    /// `Center`, displayed as "Center".
     Center,
+    /// `Median`, displayed as "Median".
     Median,
+    /// `Active`, displayed as "Active".
     Active,
 }
 
@@ -374,9 +411,12 @@ impl std::fmt::Display for SnapTarget {
 /// Timeline marker (named frame position).
 #[derive(Debug, Clone)]
 pub struct TimelineMarker {
+    /// Frame number the marker is placed at.
     pub frame: i32,
+    /// Marker name.
     pub name: String,
     #[allow(dead_code)]
+    /// Marker color as RGB; markers added by `AppState` use `[0.2, 0.8, 0.3]`.
     pub color: [f32; 3],
 }
 
@@ -384,10 +424,15 @@ pub struct TimelineMarker {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum OutlinerFilter {
     #[default]
+    /// `All`, displayed as "All"; this is the `Default` variant.
     All,
+    /// `MeshOnly`, displayed as "Mesh".
     MeshOnly,
+    /// `LightsOnly`, displayed as "Lights".
     LightsOnly,
+    /// `CamerasOnly`, displayed as "Cameras".
     CamerasOnly,
+    /// `CurvesOnly`, displayed as "Curves".
     CurvesOnly,
 }
 
@@ -440,6 +485,7 @@ impl Default for CameraSettings {
 /// Particle system attached to an object.
 #[derive(Debug, Clone)]
 pub struct ParticleSystem {
+    /// Name of the particle system; `"ParticleSystem"` by default.
     pub name: String,
     /// Number of particles.
     pub count: u32,
@@ -476,7 +522,9 @@ impl Default for ParticleSystem {
 /// Particle type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ParticleType {
+    /// `Emitter`, displayed as "Emitter".
     Emitter,
+    /// `Hair`, displayed as "Hair".
     Hair,
 }
 
@@ -532,13 +580,21 @@ impl Default for WorldSettings {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum EditTool {
     #[default]
+    /// `Select`, displayed as "Select"; this is the `Default` variant.
     Select,
+    /// `Extrude`, displayed as "Extrude".
     Extrude,
+    /// `LoopCut`, displayed as "Loop Cut".
     LoopCut,
+    /// `Knife`, displayed as "Knife".
     Knife,
+    /// `BevelEdge`, displayed as "Bevel".
     BevelEdge,
+    /// `InsetFace`, displayed as "Inset".
     InsetFace,
+    /// `PolyBuild`, displayed as "PolyBuild".
     PolyBuild,
+    /// `SpinTool`, displayed as "Spin".
     SpinTool,
 }
 
@@ -1176,7 +1232,9 @@ impl EditableMesh {
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub struct QuickFavorite {
+    /// Display name of the favorite.
     pub name: String,
+    /// Action identifier string of the favorite.
     pub action: String,
 }
 
@@ -1217,15 +1275,25 @@ impl Default for SceneProperties {
 /// Align operation type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AlignAxis {
+    /// `AlignX`, displayed as "Align X".
     AlignX,
+    /// `AlignY`, displayed as "Align Y".
     AlignY,
+    /// `AlignZ`, displayed as "Align Z".
     AlignZ,
+    /// `DistributeX`, displayed as "Distribute X".
     DistributeX,
+    /// `DistributeY`, displayed as "Distribute Y".
     DistributeY,
+    /// `DistributeZ`, displayed as "Distribute Z".
     DistributeZ,
+    /// `CenterToWorld`, displayed as "Center to World".
     CenterToWorld,
+    /// `CenterToActive`, displayed as "Center to Active".
     CenterToActive,
+    /// `SnapToGrid`, displayed as "Snap to Grid".
     SnapToGrid,
+    /// `SnapToGround`, displayed as "Snap to Ground".
     SnapToGround,
 }
 
@@ -1251,11 +1319,16 @@ impl std::fmt::Display for AlignAxis {
 #[allow(dead_code)]
 #[derive(Default)]
 pub enum GizmoMode {
+    /// `None`, displayed as "None".
     None,
+    /// `Translate`, displayed as "Move".
     Translate,
+    /// `Rotate`, displayed as "Rotate".
     Rotate,
+    /// `Scale`, displayed as "Scale".
     Scale,
     #[default]
+    /// `Combined`, displayed as "Combined"; this is the `Default` variant.
     Combined,
 }
 
@@ -1330,6 +1403,7 @@ pub struct NLAStrip {
     #[allow(dead_code)]
     pub blend_in: f32,
     #[allow(dead_code)]
+    /// Blend-out length; default `0.0`.
     pub blend_out: f32,
     /// Repeat count (1.0 = once).
     pub repeat: f32,
@@ -1359,9 +1433,13 @@ impl Default for NLAStrip {
 /// NLA track (holds strips).
 #[derive(Debug, Clone)]
 pub struct NLATrack {
+    /// Track name; `"NLA Track"` by default.
     pub name: String,
+    /// Strips on this track.
     pub strips: Vec<NLAStrip>,
+    /// Whether the whole track is muted.
     pub muted: bool,
+    /// Solo flag of the track; `false` by default.
     pub solo: bool,
 }
 
@@ -1425,13 +1503,21 @@ impl std::fmt::Display for DriverType {
 /// Force field type for physics simulation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ForceFieldType {
+    /// `Wind`, displayed as "Wind".
     Wind,
+    /// `Vortex`, displayed as "Vortex".
     Vortex,
+    /// `Turbulence`, displayed as "Turbulence".
     Turbulence,
+    /// `Drag`, displayed as "Drag".
     Drag,
+    /// `Magnetic`, displayed as "Magnetic".
     Magnetic,
+    /// `Harmonic`, displayed as "Harmonic".
     Harmonic,
+    /// `Charge`, displayed as "Charge".
     Charge,
+    /// `Lennard`, displayed as "Lennard-Jones".
     Lennard,
 }
 
@@ -1453,11 +1539,17 @@ impl std::fmt::Display for ForceFieldType {
 /// Force field settings for an object.
 #[derive(Debug, Clone)]
 pub struct ForceFieldSettings {
+    /// Kind of force field; `ForceFieldType::Wind` by default.
     pub field_type: ForceFieldType,
+    /// Field strength; default `1.0`. Edited with a slider in the properties panel.
     pub strength: f32,
+    /// Falloff value; default `2.0`. Edited with a slider in the properties panel.
     pub falloff: f32,
+    /// Noise amount; default `0.0`. Edited with a slider in the properties panel.
     pub noise: f32,
+    /// Flow amount; default `0.0`. Edited with a slider in the properties panel.
     pub flow: f32,
+    /// Whether the force field is enabled; `true` by default.
     pub enabled: bool,
 }
 
@@ -1477,15 +1569,24 @@ impl Default for ForceFieldSettings {
 /// Cloth simulation settings.
 #[derive(Debug, Clone)]
 pub struct ClothSettings {
+    /// Cloth quality value (integer); default `5`. Edited with a slider in the properties panel.
     pub quality: u32,
+    /// Cloth mass; default `0.3`.
     pub mass: f32,
+    /// Cloth stiffness; default `15.0`.
     pub stiffness: f32,
+    /// Cloth damping; default `5.0`.
     pub damping: f32,
+    /// Air resistance; default `1.0`.
     pub air_resistance: f32,
+    /// Self-collision flag; `false` by default.
     pub self_collision: bool,
+    /// Internal pressure value; default `0.0`.
     pub pressure: f32,
     #[allow(dead_code)]
+    /// Name of the pinned vertex group; empty by default and not read elsewhere in this crate.
     pub pinned_group: String,
+    /// Whether the cloth simulation is enabled; `true` by default.
     pub enabled: bool,
 }
 
@@ -1508,15 +1609,25 @@ impl Default for ClothSettings {
 /// Soft body simulation settings.
 #[derive(Debug, Clone)]
 pub struct SoftBodySettings {
+    /// Soft body mass; default `1.0`.
     pub mass: f32,
+    /// Friction; default `0.5`.
     pub friction: f32,
+    /// Simulation speed; default `1.0`.
     pub speed: f32,
+    /// Goal strength; default `0.7`.
     pub goal_strength: f32,
+    /// Edge stiffness; default `0.8`.
     pub edge_stiffness: f32,
+    /// Push value; default `0.5`.
     pub push: f32,
+    /// Pull value; default `0.5`.
     pub pull: f32,
+    /// Damping; default `0.5`.
     pub damping: f32,
+    /// Self-collision flag; `false` by default.
     pub self_collision: bool,
+    /// Whether the soft body simulation is enabled; `true` by default.
     pub enabled: bool,
 }
 
@@ -1540,13 +1651,21 @@ impl Default for SoftBodySettings {
 /// Workspace layout presets (like Blender).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WorkspaceLayout {
+    /// `Modeling`, displayed as "Modeling".
     Modeling,
+    /// `Sculpting`, displayed as "Sculpting".
     Sculpting,
+    /// `UVEditing`, displayed as "UV Editing".
     UVEditing,
+    /// `TexturePaint`, displayed as "Texture Paint".
     TexturePaint,
+    /// `Animation`, displayed as "Animation".
     Animation,
+    /// `Compositing`, displayed as "Compositing".
     Compositing,
+    /// `Rendering`, displayed as "Rendering".
     Rendering,
+    /// `Scripting`, displayed as "Scripting".
     Scripting,
 }
 
@@ -1614,13 +1733,21 @@ pub struct GreasePencilStroke {
 /// Texture type for material slots.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TextureType {
+    /// `Diffuse`, displayed as "Diffuse".
     Diffuse,
+    /// `Normal`, displayed as "Normal".
     Normal,
+    /// `Roughness`, displayed as "Roughness".
     Roughness,
+    /// `Metallic`, displayed as "Metallic".
     Metallic,
+    /// `AmbientOcclusion`, displayed as "AO".
     AmbientOcclusion,
+    /// `Emissive`, displayed as "Emissive".
     Emissive,
+    /// `Height`, displayed as "Height".
     Height,
+    /// `Opacity`, displayed as "Opacity".
     Opacity,
 }
 
@@ -1669,17 +1796,29 @@ impl Default for TextureSlot {
 /// Render pass type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RenderPass {
+    /// `Combined`, displayed as "Combined".
     Combined,
+    /// `Diffuse`, displayed as "Diffuse".
     Diffuse,
+    /// `Glossy`, displayed as "Glossy".
     Glossy,
+    /// `Transmission`, displayed as "Transmission".
     Transmission,
+    /// `Emission`, displayed as "Emission".
     Emission,
+    /// `AO`, displayed as "Ambient Occlusion".
     AO,
+    /// `Shadow`, displayed as "Shadow".
     Shadow,
+    /// `Normal`, displayed as "Normal".
     Normal,
+    /// `Depth`, displayed as "Depth".
     Depth,
+    /// `Mist`, displayed as "Mist".
     Mist,
+    /// `ObjectIndex`, displayed as "Object Index".
     ObjectIndex,
+    /// `MaterialIndex`, displayed as "Material Index".
     MaterialIndex,
 }
 
@@ -1780,13 +1919,21 @@ pub struct MotionPath {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ProportionalFalloff {
     #[default]
+    /// `Smooth`, displayed as "Smooth"; this is the `Default` variant.
     Smooth,
+    /// `Sphere`, displayed as "Sphere".
     Sphere,
+    /// `Root`, displayed as "Root".
     Root,
+    /// `InverseSquare`, displayed as "Inverse Square".
     InverseSquare,
+    /// `Sharp`, displayed as "Sharp".
     Sharp,
+    /// `Linear`, displayed as "Linear".
     Linear,
+    /// `Constant`, displayed as "Constant".
     Constant,
+    /// `Random`, displayed as "Random".
     Random,
 }
 
@@ -1819,9 +1966,13 @@ pub struct CustomProperty {
 /// Custom property type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CustomPropType {
+    /// `String`, displayed as "String".
     String,
+    /// `Integer`, displayed as "Integer".
     Integer,
+    /// `Float`, displayed as "Float".
     Float,
+    /// `Boolean`, displayed as "Boolean".
     Boolean,
 }
 
@@ -1839,10 +1990,15 @@ impl std::fmt::Display for CustomPropType {
 /// Asset browser category.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AssetCategory {
+    /// `Materials`, displayed as "Materials".
     Materials,
+    /// `Objects`, displayed as "Objects".
     Objects,
+    /// `Worlds`, displayed as "Worlds".
     Worlds,
+    /// `Actions`, displayed as "Actions".
     Actions,
+    /// `NodeGroups`, displayed as "Node Groups".
     NodeGroups,
 }
 
@@ -1862,12 +2018,19 @@ impl std::fmt::Display for AssetCategory {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SnapElement {
     #[default]
+    /// `Increment`, displayed as "Increment"; this is the `Default` variant.
     Increment,
+    /// `Vertex`, displayed as "Vertex".
     Vertex,
+    /// `Edge`, displayed as "Edge".
     Edge,
+    /// `Face`, displayed as "Face".
     Face,
+    /// `Volume`, displayed as "Volume".
     Volume,
+    /// `EdgeCenter`, displayed as "Edge Center".
     EdgeCenter,
+    /// `EdgePerpendicular`, displayed as "Edge Perp.".
     EdgePerpendicular,
 }
 
@@ -1889,8 +2052,11 @@ impl std::fmt::Display for SnapElement {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum RenderEngine {
     #[default]
+    /// `Eevee`, displayed as "Eevee"; this is the `Default` variant.
     Eevee,
+    /// `Cycles`, displayed as "Cycles".
     Cycles,
+    /// `Workbench`, displayed as "Workbench".
     Workbench,
 }
 
@@ -1946,9 +2112,13 @@ impl Default for HairSettings {
 /// Fluid simulation type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FluidType {
+    /// `Domain`, displayed as "Domain".
     Domain,
+    /// `Inflow`, displayed as "Inflow".
     Inflow,
+    /// `Outflow`, displayed as "Outflow".
     Outflow,
+    /// `Obstacle`, displayed as "Obstacle".
     Obstacle,
 }
 
@@ -2005,12 +2175,19 @@ impl Default for FluidSettings {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[allow(dead_code)]
 pub enum SequencerStripType {
+    /// `Image`, displayed as "Image".
     Image,
+    /// `Movie`, displayed as "Movie".
     Movie,
+    /// `Sound`, displayed as "Sound".
     Sound,
+    /// `Scene`, displayed as "Scene".
     Scene,
+    /// `Color`, displayed as "Color".
     Color,
+    /// `Text`, displayed as "Text".
     Text,
+    /// `Adjustment`, displayed as "Adjustment".
     Adjustment,
 }
 
@@ -2090,25 +2267,34 @@ pub struct ViewportOverlays {
 /// Object collection (named group of objects).
 #[derive(Debug, Clone)]
 pub struct ObjectCollection {
+    /// Collection name.
     pub name: String,
+    /// Indices into the scene's object list of the objects in this collection.
     pub object_indices: Vec<usize>,
+    /// Whether the collection is visible.
     pub visible: bool,
     #[allow(dead_code)]
+    /// Collection color as RGB.
     pub color: [f32; 3],
 }
 
 /// Vertex group for weight painting and deformation.
 #[derive(Debug, Clone)]
 pub struct VertexGroup {
+    /// Vertex group name.
     pub name: String,
+    /// Weights as `(vertex_index, weight)` pairs.
     pub weights: Vec<(usize, f32)>, // (vertex_index, weight)
 }
 
 /// Saved camera view bookmark.
 #[derive(Debug, Clone)]
 pub struct CameraBookmark {
+    /// Saved orbit angles of the camera, copied from `CameraState::orbit_angles`.
     pub orbit_angles: [f32; 2],
+    /// Saved camera distance, copied from `CameraState::distance`.
     pub distance: f32,
+    /// Saved camera target, copied from `CameraState::target`.
     pub target: [f32; 3],
 }
 
@@ -4212,6 +4398,7 @@ impl Default for AppState {
 /// Scene object.
 #[derive(Debug, Clone)]
 pub struct SceneObject {
+    /// Scalar written to the object's GPU signal buffer when drawing; set to `0.0` wherever objects are created in this crate.
     pub physiological_signal: f32,
     /// Object name.
     pub name: String,
@@ -4310,8 +4497,11 @@ pub struct Keyframe {
 /// Boolean operation type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BooleanOp {
+    /// `Union`, displayed as "Union".
     Union,
+    /// `Difference`, displayed as "Difference".
     Difference,
+    /// `Intersection`, displayed as "Intersection".
     Intersection,
 }
 
@@ -4329,8 +4519,11 @@ impl std::fmt::Display for BooleanOp {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum EditSelection {
     #[default]
+    /// `Vertex`, displayed as "Vertex"; this is the `Default` variant.
     Vertex,
+    /// `Edge`, displayed as "Edge".
     Edge,
+    /// `Face`, displayed as "Face".
     Face,
 }
 
@@ -4347,33 +4540,50 @@ impl std::fmt::Display for EditSelection {
 /// Shape key (morph target) for an object.
 #[derive(Debug, Clone)]
 pub struct ShapeKey {
+    /// Shape key name.
     pub name: String,
+    /// Blend weight of the key (comment in code: 0.0 to 1.0); `0.0` when created by `AppState::add_shape_key`.
     pub value: f32, // 0.0 to 1.0 blend weight
     #[allow(dead_code)]
+    /// Per-vertex position offsets of the key; empty when created by `AppState::add_shape_key`.
     pub positions: Vec<[f32; 3]>, // vertex position offsets
 }
 
 /// Object constraint.
 #[derive(Debug, Clone)]
 pub enum ObjectConstraint {
+    /// Point the object toward the object at `target_idx` (sets pitch and yaw).
     TrackTo {
+        /// Index into the scene's object list of the target object.
         target_idx: usize,
     },
+    /// Blend the object's position toward the target object's position.
     CopyLocation {
+        /// Index into the scene's object list of the target object.
         target_idx: usize,
+        /// Blend factor between the object's own position (0.0) and the target's (1.0); `1.0` when created from the UI.
         influence: f32,
     },
+    /// Blend the object's rotation toward the target object's rotation.
     CopyRotation {
+        /// Index into the scene's object list of the target object.
         target_idx: usize,
+        /// Blend factor between the object's own rotation (0.0) and the target's (1.0); `1.0` when created from the UI.
         influence: f32,
     },
+    /// Clamp the object's position per axis between `min` and `max`.
     LimitLocation {
+        /// Lower bound per axis.
         min: [f32; 3],
+        /// Upper bound per axis.
         max: [f32; 3],
     },
     #[allow(dead_code)]
+    /// Place the object at the position of the object at `path_idx`, with `offset` added to X.
     FollowPath {
+        /// Index into the scene's object list of the path object.
         path_idx: usize,
+        /// Value added to the X coordinate of the path object's position.
         offset: f32,
     },
 }
@@ -4393,8 +4603,11 @@ impl std::fmt::Display for ObjectConstraint {
 /// Measurement between two points.
 #[derive(Debug, Clone)]
 pub struct Measurement {
+    /// Start point of the measurement.
     pub start: [f32; 3],
+    /// End point of the measurement.
     pub end: [f32; 3],
+    /// Euclidean distance between `start` and `end`, computed in `AppState::add_measurement`.
     pub distance: f32,
 }
 
@@ -4402,11 +4615,17 @@ pub struct Measurement {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SculptBrush {
     #[default]
+    /// `Draw`, displayed as "Draw"; this is the `Default` variant.
     Draw,
+    /// `Smooth`, displayed as "Smooth".
     Smooth,
+    /// `Flatten`, displayed as "Flatten".
     Flatten,
+    /// `Pinch`, displayed as "Pinch".
     Pinch,
+    /// `Inflate`, displayed as "Inflate".
     Inflate,
+    /// `Grab`, displayed as "Grab".
     Grab,
 }
 
@@ -4426,17 +4645,29 @@ impl std::fmt::Display for SculptBrush {
 /// Object type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ObjectType {
+    /// Cube object.
     Cube,
+    /// Sphere object.
     Sphere,
+    /// Cylinder object.
     Cylinder,
+    /// Plane object.
     Plane,
+    /// Torus object.
     Torus,
+    /// Cone object.
     Cone,
+    /// Icosphere object.
     IcoSphere,
+    /// Grid object.
     Grid,
+    /// Circle object.
     Circle,
+    /// Empty object (no geometry).
     Empty,
+    /// Light object.
     Light,
+    /// Camera object.
     Camera,
     /// Imported mesh (custom geometry).
     Mesh,

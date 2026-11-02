@@ -31,4 +31,5 @@ pub mod sph;
 pub mod surface;
 pub mod viscosity;
 
+/// Poly6 smoothing kernel evaluation and a fluid-solid coupling force function.
 pub mod sph_fem;

@@ -168,10 +168,15 @@ fn cap_revolution(mesh: &mut MeshResult, ring: &[u32], _axis: u32, reverse: bool
 
 /// Revolve mesh generator with advanced options.
 pub struct RevolveMesh {
+    /// Revolution axis: 0 = X, 1 = Y, 2 = Z.
     pub axis: u32,
+    /// Revolution angle in degrees.
     pub angle: f32,
+    /// Number of segments around the revolution.
     pub segments: u32,
+    /// Curve tessellation resolution passed to `revolve_path`.
     pub resolution: u32,
+    /// Offset applied to the path x coordinate before revolving (ignored when its magnitude is 0.001 or less).
     pub offset: f32,
 }
 

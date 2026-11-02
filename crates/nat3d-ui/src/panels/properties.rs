@@ -24,8 +24,11 @@ use nalgebra::Vector3;
 /// Transform properties.
 #[derive(Debug, Clone)]
 pub struct Transform {
+    /// Position vector.
     pub position: Vector3<f64>,
+    /// Rotation vector as Euler angles in degrees.
     pub rotation: Vector3<f64>, // Euler angles in degrees
+    /// Scale vector (defaults to 1.0 on each axis).
     pub scale: Vector3<f64>,
 }
 
@@ -42,13 +45,21 @@ impl Default for Transform {
 /// Object properties.
 #[derive(Debug, Clone)]
 pub struct ObjectProperties {
+    /// Object identifier.
     pub id: u64,
+    /// Object name.
     pub name: String,
+    /// Object transform.
     pub transform: Transform,
+    /// Whether the object is visible in the viewport.
     pub visible: bool,
+    /// Whether the object is visible in renders.
     pub render_visible: bool,
+    /// Whether the object can be selected.
     pub selectable: bool,
+    /// Object type name.
     pub object_type: String,
+    /// Number of modifiers shown in the panel's Modifiers section.
     pub modifier_count: usize,
 }
 

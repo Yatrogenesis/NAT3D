@@ -30,48 +30,67 @@ pub struct LightTheme;
 impl LightTheme {
     /// Background colors.
     pub const BACKGROUND: Color32 = Color32::from_rgb(245, 245, 248); // Main background
+    /// Panel background color.
     pub const PANEL: Color32 = Color32::from_rgb(235, 235, 240); // Panel background
+    /// Window background color.
     pub const WINDOW: Color32 = Color32::from_rgb(240, 240, 245); // Window background
+    /// Viewport background color.
     pub const VIEWPORT: Color32 = Color32::from_rgb(250, 250, 252); // Viewport background
 
     /// UI element colors.
     pub const BUTTON: Color32 = Color32::from_rgb(220, 220, 225); // Button idle
+    /// Button hovered color.
     pub const BUTTON_HOVER: Color32 = Color32::from_rgb(210, 210, 220); // Button hovered
+    /// Button active/pressed color.
     pub const BUTTON_ACTIVE: Color32 = Color32::from_rgb(40, 110, 190); // Button active/pressed
 
     /// Text colors.
     pub const TEXT: Color32 = Color32::from_rgb(30, 30, 30); // Primary text
+    /// Secondary text color.
     pub const TEXT_DIM: Color32 = Color32::from_rgb(100, 100, 100); // Secondary text
+    /// Disabled text color.
     pub const TEXT_DISABLED: Color32 = Color32::from_rgb(150, 150, 150); // Disabled text
 
     /// Accent colors.
     pub const ACCENT: Color32 = Color32::from_rgb(40, 110, 190); // Primary accent (blue)
+    /// Accent hover color.
     pub const ACCENT_HOVER: Color32 = Color32::from_rgb(30, 90, 170); // Accent hover
+    /// Success (green) color.
     pub const SUCCESS: Color32 = Color32::from_rgb(60, 160, 60); // Success (green)
+    /// Warning (orange) color.
     pub const WARNING: Color32 = Color32::from_rgb(200, 140, 30); // Warning (orange)
+    /// Error (red) color.
     pub const ERROR: Color32 = Color32::from_rgb(190, 50, 50); // Error (red)
 
     /// Selection colors.
     pub const SELECTION: Color32 = Color32::from_rgba_premultiplied(40, 110, 190, 60); // Selection overlay
+    /// Strong selection color.
     pub const SELECTION_STRONG: Color32 = Color32::from_rgb(40, 110, 190); // Strong selection
 
     /// Border/separator colors.
     pub const BORDER: Color32 = Color32::from_rgb(200, 200, 205); // Border
+    /// Separator line color.
     pub const SEPARATOR: Color32 = Color32::from_rgb(210, 210, 215); // Separator line
 
     /// Widget-specific colors.
     pub const SLIDER_BG: Color32 = Color32::from_rgb(210, 210, 215); // Slider background
+    /// Slider handle color.
     pub const SLIDER_HANDLE: Color32 = Color32::from_rgb(140, 140, 145); // Slider handle
+    /// Checkbox background color.
     pub const CHECKBOX_BG: Color32 = Color32::from_rgb(210, 210, 215); // Checkbox background
+    /// Checkmark color.
     pub const CHECKBOX_CHECK: Color32 = Color32::from_rgb(30, 30, 30); // Checkmark
 
     /// Grid colors.
     pub const GRID_MAJOR: Color32 = Color32::from_rgba_premultiplied(120, 120, 120, 160); // Major grid lines
+    /// Minor grid lines color.
     pub const GRID_MINOR: Color32 = Color32::from_rgba_premultiplied(150, 150, 150, 100); // Minor grid lines
 
     /// Axis colors (RGB = XYZ).
     pub const AXIS_X: Color32 = Color32::from_rgb(220, 40, 40); // X axis (red)
+    /// Y axis (green) color.
     pub const AXIS_Y: Color32 = Color32::from_rgb(60, 200, 40); // Y axis (green)
+    /// Z axis (blue) color.
     pub const AXIS_Z: Color32 = Color32::from_rgb(40, 100, 220); // Z axis (blue)
 
     /// Create egui Visuals for light theme.

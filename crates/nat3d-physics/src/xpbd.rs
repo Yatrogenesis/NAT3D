@@ -6,21 +6,32 @@
 
 use nalgebra::{Point3, Vector3};
 
+/// Distance constraint between two particles.
 pub struct XpbdConstraint {
+    /// Index of the first particle.
     pub particle_a: usize,
+    /// Index of the second particle.
     pub particle_b: usize,
+    /// Target distance between the two particles.
     pub rest_length: f64,
+    /// Compliance (alpha in the XPBD paper); divided by the squared substep size in `step`.
     pub compliance: f64, // alpha en el paper
 }
 
+/// Particle state and distance constraints advanced by `step`.
 pub struct XpbdSolver {
+    /// Particle positions.
     pub positions: Vec<Point3<f64>>,
+    /// Particle velocities.
     pub velocities: Vec<Vector3<f64>>,
+    /// Inverse mass of each particle; particles with a value of `0.0` are not moved.
     pub inv_masses: Vec<f64>,
+    /// Distance constraints solved in `step`.
     pub constraints: Vec<XpbdConstraint>,
 }
 
 impl XpbdSolver {
+    /// Create a solver with empty particle and constraint lists.
     pub fn new() -> Self {
         Self {
             positions: Vec::new(),
@@ -30,6 +41,7 @@ impl XpbdSolver {
         }
     }
 
+    /// Advance by `dt` split into `substeps` substeps (does nothing if `substeps` is 0). Each substep applies a hard-coded gravity of (0, -9.81, 0) to particles with positive inverse mass, predicts positions, solves each distance constraint once, and sets velocities from the position change.
     pub fn step(&mut self, dt: f64, substeps: usize) {
         if substeps == 0 {
             return;
